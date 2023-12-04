@@ -11,17 +11,25 @@ user_router = Router()
 
 @user_router.message(CommandStart())
 async def user_start(message: Message, state: FSMContext):
-    await message.answer("Assalomu alaykum.\n✅ Yozuvni tanlang:", reply_markup=inline.language_keyboard())
-    test = await api.update_or_create_user(user_id=message.chat.id, full_name=message.from_user.full_name)
+    data = await state.get_data()
+    if data.get('registered', False):
+        await message.answer(_("Bosh menyu", locale=data['locale']), reply_markup=reply.main_menu_user(data['locale']))
+        user = await api.update_or_create_user(user_id=message.chat.id, full_name=message.from_user.full_name)[0]
+        await state.update_data(user=user)
+
+    else:
+        await message.answer("Assalomu alaykum.\n✅ Yozuvni tanlang:", reply_markup=inline.language_keyboard())
+        createorupdate = await api.update_or_create_user(user_id=message.chat.id, full_name=message.from_user.full_name)
 
 @user_router.callback_query(factory.LanguageData.filter())
 async def set_language(callback_query: CallbackQuery, callback_data: factory.LanguageData, state: FSMContext):
-    if callback_data.language == "uz":
-        await state.update_data(locale="uz")
-    elif callback_data.language == "de":
-        await state.update_data(locale="de")
-    elif callback_data.language == "ru":
-        await state.update_data(locale="ru")
+    language_to_locale = {
+        "uz": "uz",
+        "de": "de",
+        "ru": "ru"
+    }
+    locale = language_to_locale.get(callback_data.language, "uz")
+    await state.update_data(locale=locale)
     data = await state.get_data()
     await callback_query.message.answer(_("Bosh menyu", locale=data['locale']), reply_markup=reply.main_menu_user(data['locale']))
     await state.set_state(UserStates.menu)
@@ -30,4 +38,4 @@ async def set_language(callback_query: CallbackQuery, callback_data: factory.Lan
 async def jamoat(message: Message, state: FSMContext):
     data = await state.get_data()
     regions = await api.get_regions(data['locale'])
-    await message.answer(_("Masjidingizni tanlang:", locale=data['locale']), reply_markup=inline.regions_keyboard(regions))
+    await message.answer(_("Hududni  tanlang:", locale=data['locale']), reply_markup=inline.regions_keyboard(regions))
