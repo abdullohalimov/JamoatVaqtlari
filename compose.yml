@@ -6,6 +6,7 @@ services:
 
     volumes:
       - static:/app/static
+      - ./dbfile/:/app/dbfile/
     
   bot:
     build: ./bot

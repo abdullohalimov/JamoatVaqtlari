@@ -1,3 +1,3 @@
 django
 django-jazzmin
-django-ninja --pre
+django-ninja
