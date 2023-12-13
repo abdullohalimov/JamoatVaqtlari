@@ -14,3 +14,14 @@ class LanguageData(CallbackData, prefix="language"):
 
 class RegionData(CallbackData, prefix="region"):
     region: Any
+
+class DistrictData(CallbackData, prefix="district"):
+    ditrict: Any
+    region: Any
+
+class MasjidData(CallbackData, prefix="masjid"):
+    masjid: Any
+
+class PagesData(CallbackData, prefix="page"):
+    page: Any
+    action: Any

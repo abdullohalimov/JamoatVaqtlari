@@ -1,8 +1,6 @@
 services:
   web:
     build: ./namozvaqtlari
-    # ports:
-    #   - "8000:8000"
 
     volumes:
       - static:/app/static
@@ -11,8 +9,15 @@ services:
   bot:
     build: ./bot
 
+    depends_on:
+      - web
+      - redis
+
   redis:
     image: redis:alpine
+
+    depends_on:
+      - web
 
   nginx:
     image: nginx:alpine

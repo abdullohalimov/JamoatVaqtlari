@@ -1,3 +1,4 @@
+import logging
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import CommandStart
@@ -6,36 +7,133 @@ from tgbot.services import api
 from tgbot.keyboards import factory, inline, reply
 from tgbot.keyboards.factory import _
 from tgbot.misc.states import UserStates
+
 user_router = Router()
 
 
 @user_router.message(CommandStart())
 async def user_start(message: Message, state: FSMContext):
     data = await state.get_data()
-    if data.get('registered', False):
-        await message.answer(_("Bosh menyu", locale=data['locale']), reply_markup=reply.main_menu_user(data['locale']))
-        user = await api.update_or_create_user(user_id=message.chat.id, full_name=message.from_user.full_name)[0]
-        await state.update_data(user=user)
+    if data.get("registered", False):
+        await message.answer(
+            _("Bosh menyu", locale=data["locale"]),
+            reply_markup=reply.main_menu_user(data["locale"]),
+        )
+        user = await api.update_or_create_user(
+            user_id=message.chat.id, full_name=message.from_user.full_name
+        )
 
     else:
-        await message.answer("Assalomu alaykum.\n✅ Yozuvni tanlang:", reply_markup=inline.language_keyboard())
-        createorupdate = await api.update_or_create_user(user_id=message.chat.id, full_name=message.from_user.full_name)
+        await message.answer(
+            "Assalomu alaykum.\n✅ Yozuvni tanlang:",
+            reply_markup=inline.language_keyboard(),
+        )
+        user = await api.update_or_create_user(
+            user_id=message.chat.id, full_name=message.from_user.full_name
+        )
+
 
 @user_router.callback_query(factory.LanguageData.filter())
-async def set_language(callback_query: CallbackQuery, callback_data: factory.LanguageData, state: FSMContext):
-    language_to_locale = {
-        "uz": "uz",
-        "de": "de",
-        "ru": "ru"
-    }
+async def set_language(
+    callback_query: CallbackQuery,
+    callback_data: factory.LanguageData,
+    state: FSMContext,
+):
+    language_to_locale = {"uz": "uz", "de": "de", "ru": "ru"}
     locale = language_to_locale.get(callback_data.language, "uz")
-    await state.update_data(locale=locale)
+    await state.update_data(locale=locale, registered=True)
     data = await state.get_data()
-    await callback_query.message.answer(_("Bosh menyu", locale=data['locale']), reply_markup=reply.main_menu_user(data['locale']))
+    await callback_query.message.answer(
+        _("Bosh menyu", locale=data["locale"]),
+        reply_markup=reply.main_menu_user(data["locale"]),
+    )
     await state.set_state(UserStates.menu)
 
-@user_router.message(F.text.in_(["Jamoat vaqtlari", "Jamoat vaqtlari"]), UserStates.menu)
+
+@user_router.message(
+    F.text.in_(["Jamoat vaqtlari", "Jamoat vaqtlari"]), UserStates.menu
+)
 async def jamoat(message: Message, state: FSMContext):
     data = await state.get_data()
-    regions = await api.get_regions(data['locale'])
-    await message.answer(_("Hududni  tanlang:", locale=data['locale']), reply_markup=inline.regions_keyboard(regions))
+    regions = await api.get_regions(data["locale"])
+    await message.answer(
+        _("Hududni  tanlang:", locale=data["locale"]),
+        reply_markup=inline.regions_keyboard(regions),
+    )
+
+
+@user_router.callback_query(factory.RegionData.filter())
+async def get_districts(
+    callback_query: CallbackQuery, callback_data: factory.RegionData, state: FSMContext
+):
+    data = await state.get_data()
+    districts = await api.get_districts(callback_data.region)
+    logging.warning(districts)
+    await callback_query.message.edit_text(
+        _("Tumanni  tanlang:", locale=data["locale"]),
+        reply_markup=inline.districts_keyboard(districts, data["locale"]),
+    )
+
+
+@user_router.callback_query(factory.DistrictData.filter())
+async def get_mosques(
+    callback_query: CallbackQuery,
+    callback_data: factory.DistrictData,
+    state: FSMContext,
+):
+    await state.update_data(current_page=1, current_district=callback_data.ditrict)
+    data = await state.get_data()
+    mosques = await api.get_mosques(callback_data.ditrict)
+    has_next = True if (1 * 5) < mosques["count"] else False
+
+    logging.warning(mosques)
+    await callback_query.message.edit_text(
+        "Masjidni tanlang:",
+        reply_markup=inline.masjidlar_keyboard(
+            mosques["items"], lang=data["locale"], current_page=1, has_next=has_next
+        ),
+    )
+
+
+@user_router.callback_query(factory.PagesData.filter())
+async def get_mosques(
+    callback_query: CallbackQuery, callback_data: factory.PagesData, state: FSMContext
+):
+    data = await state.get_data()
+
+    if callback_data.action == "next":
+        page = int(data["current_page"]) + 1
+        mosques = await api.get_mosques(data["current_district"], page=page)
+        has_next = True if ((page + 1) * 5) < mosques["count"] else False
+        await callback_query.message.edit_text(
+            "Masjidni tanlang:",
+            reply_markup=inline.masjidlar_keyboard(
+                mosques["items"], lang=data["locale"], current_page=page, has_next=has_next
+            ),
+        )
+
+        await state.update_data(current_page=page)
+
+    elif callback_data.action == "prev" and int(data["current_page"]) > 1:
+        page = int(data["current_page"]) - 1
+        mosques = await api.get_mosques(data["current_district"], page=page)
+
+        has_next = True if ((page - 1) * 5) < mosques["count"] else False
+
+
+        await callback_query.message.edit_text(
+            "Masjidni tanlang:",
+            reply_markup=inline.masjidlar_keyboard(
+                mosques["items"], lang=data["locale"], current_page=page
+            ),
+        )
+
+        await state.update_data(current_page=page)
+
+    await callback_query.answer()
+
+@user_router.callback_query(factory.MasjidData.filter())
+async def get_mosque(
+    callback_query: CallbackQuery, callback_data: factory.MasjidData, state: FSMContext
+):
+    pass

@@ -13,21 +13,21 @@ class RegionAdmin(admin.ModelAdmin):
     list_display = ['name_uz', 'name_cyrl', 'name_ru']
 
 class SubscriptionAdmin(admin.ModelAdmin):  
-    list_display = ['name_uz', 'name_cyrl', 'name_ru']
+    list_display = ['user', 'mosque']
 
-class AdminAdmin(admin.ModelAdmin):
-    list_display = ['name_uz', 'name_cyrl', 'name_ru']
+class AdminModelAdmin(admin.ModelAdmin):
+    list_display = ['full_name', 'user_id']
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['name_uz', 'name_cyrl', 'name_ru']
+    list_display = ['full_name', 'user_id', ]
 
 
 
 
 
-admin.site.register(User)
-admin.site.register(Region)
-admin.site.register(Admin)
-admin.site.register(District)
-admin.site.register(Mosque)
-admin.site.register(Subscription)
+admin.site.register(User, UserAdmin)
+admin.site.register(Region, RegionAdmin)
+admin.site.register(Admin, AdminModelAdmin)
+admin.site.register(District, DistrictAdmin)
+admin.site.register(Mosque, MosqueAdmin)
+admin.site.register(Subscription, SubscriptionAdmin)

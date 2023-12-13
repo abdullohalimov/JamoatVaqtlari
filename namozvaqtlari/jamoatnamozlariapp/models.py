@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from django.db import models
 
 # Create your models here.
@@ -26,8 +27,15 @@ class Admin(models.Model):
     
 class Region(models.Model):
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Viloyat/Shaxarning lotincha nomi")
-    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Viloyat/Shaxarning krillcha nomi")
-    name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Viloyat/Shaxarning ruscha nomi")
+    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Viloyat/Shaxarning krillcha nomi", null=True, blank=True)
+    name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Viloyat/Shaxarning ruscha nomi", null=True, blank=True)
+
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        if self.name_cyrl == None:
+            self.name_cyrl = self.name_uz
+        if self.name_ru == None:
+            self.name_ru = self.name_uz
+        return super().save()
 
     def __str__(self):
         return self.name_uz
@@ -39,9 +47,16 @@ class Region(models.Model):
 
 class District(models.Model):
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Tumanning lotincha nomi")
-    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Tumanning krillcha nomi")
-    name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Tumanning ruscha nomi")
+    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Tumanning krillcha nomi", null=True, blank=True)
+    name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Tumanning ruscha nomi", null=True, blank=True)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, verbose_name="Viloyat/Shaxar", help_text="Tuman joylashgan viloyat/shaxar")
+
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        if self.name_cyrl == None:
+            self.name_cyrl = self.name_uz
+        if self.name_ru == None:
+            self.name_ru = self.name_uz
+        return super().save()
 
     def __str__(self):
         return self.name_uz
@@ -53,8 +68,8 @@ class District(models.Model):
 
 class Mosque(models.Model):
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Masjidning lotincha nomi")
-    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Masjidning krillcha nomi")
-    name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Masjidning ruscha nomi")
+    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Masjidning krillcha nomi", null=True, blank=True)
+    name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Masjidning ruscha nomi", null=True, blank=True)
     photo = models.CharField(max_length=255, verbose_name="Rasmi", help_text="Masjidning rasmi")
     district = models.ForeignKey(District, on_delete=models.CASCADE, verbose_name="Tuman", help_text="Masjid joylashgan tuman")
     bomdod = models.CharField(max_length=255, verbose_name="Bomdod", help_text="Masjidda bomdod namozi o'qilish vaqti")
@@ -63,6 +78,13 @@ class Mosque(models.Model):
     shom = models.CharField(max_length=255, verbose_name="Shom", help_text="Masjidda shom namozi o'qilish vaqti")
     hufton = models.CharField(max_length=255, verbose_name="Hufton", help_text="Masjidda hufton namozi o'qilish vaqti")
 
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        if self.name_cyrl == None:
+            self.name_cyrl = self.name_uz
+        if self.name_ru == None:
+            self.name_ru = self.name_uz
+        
+        return super().save()
 
     def __str__(self):
         return self.name_uz
