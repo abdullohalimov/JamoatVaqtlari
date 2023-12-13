@@ -1,7 +1,7 @@
 from typing import Any, List
 from ninja import NinjaAPI, Schema, Form
 from ninja.pagination import PageNumberPagination, paginate
-from jamoatnamozlariapp.models import District, Mosque, User, Region
+from jamoatnamozlariapp.models import District, Masjid, User, Region
 
 api = NinjaAPI()
 
@@ -21,14 +21,14 @@ class DistrictSchema(Schema):
     region: RegionSchema
 
 
-class MosquesListSchema(Schema):
+class MasjidlarListSchema(Schema):
     pk: int
     name_uz: str
     name_ru: str
     name_cyrl: str
 
 
-class MosqueList(Schema):
+class MasjidInfo(Schema):
     pk: int
     name_uz: str
     name_ru: str
@@ -61,7 +61,12 @@ def get_districts(request, pk):
     return District.objects.filter(region=Region.objects.get(pk=pk))
 
 
-@api.get("/get-mosques", response=List[MosquesListSchema])
+@api.get("/get-masjidlar", response=List[MasjidlarListSchema])
 @paginate(PageNumberPagination, page_size=5)
-def get_mosques(request, district_id):
-    return Mosque.objects.filter(district=District.objects.get(pk=district_id))
+def get_masjidlar(request, district_id):
+    return Masjid.objects.filter(district=District.objects.get(pk=district_id))
+
+
+@api.get("/masjid-info", response=MasjidInfo)
+async def masjid_info(request, masjid_pk):
+    return Masjid.objects.get(pk=pk)

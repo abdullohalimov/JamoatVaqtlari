@@ -5,6 +5,7 @@ services:
     volumes:
       - static:/app/static
       - ./dbfile/:/app/dbfile/
+      - ./namozvaqtlari/jamoatnamozlariapp/migrations/:/app/jamoatnamozlariapp/migrations/
     
   bot:
     build: ./bot

@@ -66,11 +66,12 @@ class District(models.Model):
         verbose_name_plural = "Tumanlar"
 
 
-class Mosque(models.Model):
+class Masjid(models.Model):
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Masjidning lotincha nomi")
     name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Masjidning krillcha nomi", null=True, blank=True)
     name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Masjidning ruscha nomi", null=True, blank=True)
-    photo = models.CharField(max_length=255, verbose_name="Rasmi", help_text="Masjidning rasmi")
+    photo = models.CharField(max_length=255, verbose_name="Rasm IDsi", help_text="Masjidning rasmi IDsi", null=True, blank=True)
+    photo_file = models.FileField(max_length=255, verbose_name="Rasm fayli", help_text="Masjidning rasm faylini yuklang", null=True, blank=True)
     district = models.ForeignKey(District, on_delete=models.CASCADE, verbose_name="Tuman", help_text="Masjid joylashgan tuman")
     bomdod = models.CharField(max_length=255, verbose_name="Bomdod", help_text="Masjidda bomdod namozi o'qilish vaqti")
     peshin = models.CharField(max_length=255, verbose_name="Peshin", help_text="Masjidda peshin namozi o'qilish vaqti")
@@ -96,7 +97,7 @@ class Mosque(models.Model):
 
 class Subscription(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Foydalanuvchi", help_text="Foydalanuvchi")
-    mosque = models.ForeignKey(Mosque, on_delete=models.CASCADE, verbose_name="Masjid", help_text="Masjid")
+    masjid = models.ForeignKey(Masjid, on_delete=models.CASCADE, verbose_name="Masjid", help_text="Masjid", null=True, blank=True)
 
     def __str__(self):
         return self.user.full_name

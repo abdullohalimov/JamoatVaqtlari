@@ -76,39 +76,39 @@ async def get_districts(
 
 
 @user_router.callback_query(factory.DistrictData.filter())
-async def get_mosques(
+async def get_masjids(
     callback_query: CallbackQuery,
     callback_data: factory.DistrictData,
     state: FSMContext,
 ):
     await state.update_data(current_page=1, current_district=callback_data.ditrict)
     data = await state.get_data()
-    mosques = await api.get_mosques(callback_data.ditrict)
-    has_next = True if (1 * 5) < mosques["count"] else False
+    masjidlar = await api.get_masjidlar(callback_data.ditrict)
+    has_next = True if (1 * 5) < masjidlar["count"] else False
 
-    logging.warning(mosques)
+    logging.warning(masjidlar)
     await callback_query.message.edit_text(
         "Masjidni tanlang:",
         reply_markup=inline.masjidlar_keyboard(
-            mosques["items"], lang=data["locale"], current_page=1, has_next=has_next
+            masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next
         ),
     )
 
 
 @user_router.callback_query(factory.PagesData.filter())
-async def get_mosques(
+async def get_masjids(
     callback_query: CallbackQuery, callback_data: factory.PagesData, state: FSMContext
 ):
     data = await state.get_data()
 
     if callback_data.action == "next":
         page = int(data["current_page"]) + 1
-        mosques = await api.get_mosques(data["current_district"], page=page)
-        has_next = True if ((page + 1) * 5) < mosques["count"] else False
+        masjidlar = await api.get_masjidlar(data["current_district"], page=page)
+        has_next = True if ((page ) * 5) < masjidlar["count"] else False
         await callback_query.message.edit_text(
             "Masjidni tanlang:",
             reply_markup=inline.masjidlar_keyboard(
-                mosques["items"], lang=data["locale"], current_page=page, has_next=has_next
+                masjidlar["items"], lang=data["locale"], current_page=page, has_next=has_next
             ),
         )
 
@@ -116,15 +116,15 @@ async def get_mosques(
 
     elif callback_data.action == "prev" and int(data["current_page"]) > 1:
         page = int(data["current_page"]) - 1
-        mosques = await api.get_mosques(data["current_district"], page=page)
+        masjidlar = await api.get_masjidlar(data["current_district"], page=page)
 
-        has_next = True if ((page - 1) * 5) < mosques["count"] else False
+        has_next = True if ((page) * 5) < masjidlar["count"] else False
 
 
         await callback_query.message.edit_text(
             "Masjidni tanlang:",
             reply_markup=inline.masjidlar_keyboard(
-                mosques["items"], lang=data["locale"], current_page=page
+                masjidlar["items"], lang=data["locale"], current_page=page
             ),
         )
 
@@ -133,7 +133,7 @@ async def get_mosques(
     await callback_query.answer()
 
 @user_router.callback_query(factory.MasjidData.filter())
-async def get_mosque(
+async def get_masjid(
     callback_query: CallbackQuery, callback_data: factory.MasjidData, state: FSMContext
 ):
-    pass
+    data = await state.get_data()
