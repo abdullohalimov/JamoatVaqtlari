@@ -1,7 +1,7 @@
 from typing import Any, List
 from ninja import NinjaAPI, Schema, Form
 from ninja.pagination import PageNumberPagination, paginate
-from jamoatnamozlariapp.models import District, Masjid, User, Region
+from jamoatnamozlariapp.models import District, Masjid, User, Region, Subscription
 
 api = NinjaAPI()
 
@@ -34,12 +34,26 @@ class MasjidInfo(Schema):
     name_ru: str
     name_cyrl: str
     district: DistrictSchema
-    photo: str
+    photo: str | None
+    photo_file: str | None
     bomdod: str
     peshin: str
     asr: str
     shom: str
     hufton: str
+    location: str | None
+
+
+class UserSchema(Schema):
+    pk: int
+    full_name: str
+    user_id: int
+
+
+
+class SubscriptionsSchema(Schema):
+    pk: int
+    masjid: MasjidInfo
 
 
 @api.post("/create-new-user")
@@ -68,5 +82,26 @@ def get_masjidlar(request, district_id):
 
 
 @api.get("/masjid-info", response=MasjidInfo)
-async def masjid_info(request, masjid_pk):
-    return Masjid.objects.get(pk=pk)
+def masjid_info(request, masjid_pk):
+    return Masjid.objects.get(pk=masjid_pk)
+
+@api.post("/masjid-subscription")
+def masjid_subscription(request, user_id, masjid_id, action):
+    if action =='subscribe':
+        try:
+            Subscription.objects.get_or_create(user=User.objects.get(user_id=user_id), masjid=Masjid.objects.get(pk=masjid_id))
+            return {"success": "True"}
+        except:
+            return {"success": "False"}
+    elif action == 'unsubscribe':
+        try:
+            Subscription.objects.filter(user=User.objects.get(user_id=user_id), masjid=Masjid.objects.get(pk=masjid_id)).delete()
+            return {"success": "True"}
+        except:
+            return {"success": "False"}
+    return {"success": "False"}
+
+
+@api.get("/user-subscriptions", response=List[SubscriptionsSchema])
+def user_subscriptions(request, user_id):
+    return Subscription.objects.filter(user=User.objects.get(user_id=user_id))

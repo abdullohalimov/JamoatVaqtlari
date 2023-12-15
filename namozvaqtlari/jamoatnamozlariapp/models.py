@@ -1,6 +1,8 @@
 from collections.abc import Iterable
 from django.db import models
 
+from .tg_functions import get_photo_id
+
 # Create your models here.
 class User(models.Model):
     user_id = models.CharField(max_length=255, verbose_name="ID", help_text="Foydalanuvchining Telegramdagi ID'si")
@@ -27,7 +29,7 @@ class Admin(models.Model):
     
 class Region(models.Model):
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Viloyat/Shaxarning lotincha nomi")
-    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Viloyat/Shaxarning krillcha nomi", null=True, blank=True)
+    name_cyrl = models.CharField(max_length=255, verbose_name="Kirill", help_text="Viloyat/Shaxarning kirillcha nomi", null=True, blank=True)
     name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Viloyat/Shaxarning ruscha nomi", null=True, blank=True)
 
     def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
@@ -47,7 +49,7 @@ class Region(models.Model):
 
 class District(models.Model):
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Tumanning lotincha nomi")
-    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Tumanning krillcha nomi", null=True, blank=True)
+    name_cyrl = models.CharField(max_length=255, verbose_name="Kirill", help_text="Tumanning kirillcha nomi", null=True, blank=True)
     name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Tumanning ruscha nomi", null=True, blank=True)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, verbose_name="Viloyat/Shaxar", help_text="Tuman joylashgan viloyat/shaxar")
 
@@ -68,7 +70,7 @@ class District(models.Model):
 
 class Masjid(models.Model):
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Masjidning lotincha nomi")
-    name_cyrl = models.CharField(max_length=255, verbose_name="Krill", help_text="Masjidning krillcha nomi", null=True, blank=True)
+    name_cyrl = models.CharField(max_length=255, verbose_name="Kirill", help_text="Masjidning kirillcha nomi", null=True, blank=True)
     name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Masjidning ruscha nomi", null=True, blank=True)
     photo = models.CharField(max_length=255, verbose_name="Rasm IDsi", help_text="Masjidning rasmi IDsi", null=True, blank=True)
     photo_file = models.FileField(max_length=255, verbose_name="Rasm fayli", help_text="Masjidning rasm faylini yuklang", null=True, blank=True)
@@ -78,13 +80,21 @@ class Masjid(models.Model):
     asr = models.CharField(max_length=255, verbose_name="Asr", help_text="Masjidda asr namozi o'qilish vaqti")
     shom = models.CharField(max_length=255, verbose_name="Shom", help_text="Masjidda shom namozi o'qilish vaqti")
     hufton = models.CharField(max_length=255, verbose_name="Hufton", help_text="Masjidda hufton namozi o'qilish vaqti")
-
+    location = models.CharField(max_length=255, verbose_name="Manzil", help_text="Masjid manzili", null=True, blank=True)
+    qisqa_tavsif = models.TextField(verbose_name="Qisqa tavsif", help_text="Masjid haqida qisqa tavsif", null=True, blank=True)
     def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
         if self.name_cyrl == None:
             self.name_cyrl = self.name_uz
         if self.name_ru == None:
             self.name_ru = self.name_uz
-        
+
+        if self.photo_file:
+            if not self.photo:
+                self.photo = get_photo_id(self.photo_file.file)
+            else:
+                old = Masjid.objects.get(pk=self.pk) 
+                if self.photo != old.photo:
+                    self.photo = get_photo_id(self.photo_file.file) 
         return super().save()
 
     def __str__(self):
@@ -106,3 +116,20 @@ class Subscription(models.Model):
         verbose_name = "Obuna"
         verbose_name_plural = "Obunalar"
         
+class Mintaqa(models.Model):
+    name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Mintaqaning lotincha nomi")
+    name_cyrl = models.CharField(max_length=255, verbose_name="Kirill", help_text="Mintaqaning kirillcha nomi", null=True, blank=True)
+    name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Mintaqaning ruscha nomi", null=True, blank=True)
+    mintaqa_id = models.CharField(max_length=255, verbose_name="Mintaqa IDsi", help_text="Mintaqaning IDsi")
+
+    class Meta:
+        verbose_name = "Mintaqa"
+        verbose_name_plural = "Mintaqalar"
+
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        if self.name_cyrl == None:
+            self.name_cyrl = self.name_uz
+        if self.name_ru == None:
+            self.name_ru = self.name_uz
+
+        return super().save()

@@ -1,6 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 from tgbot.keyboards import factory
+from tgbot.keyboards.factory import _
 
 lang_decode = {"uz": "name_uz", "de": "name_cyrl", "ru": "name_ru"}
 
@@ -9,11 +10,11 @@ def language_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(
-            text="🇺🇿 Lotin", callback_data=factory.LanguageData(language="uz").pack
-        ()),
+            text="🇺🇿 Lotin", callback_data=factory.LanguageData(language="uz").pack()
+        ),
         InlineKeyboardButton(
-            text="🇺🇿 Крилл", callback_data=factory.LanguageData(language="de").pack
-        ()),
+            text="🇺🇿 Кирилл", callback_data=factory.LanguageData(language="de").pack()
+        ),
         # InlineKeyboardButton(text="🇷🇺 Русский", callback_data="ru"),
     )
 
@@ -51,7 +52,10 @@ def districts_keyboard(districts_list, lang="uz") -> InlineKeyboardBuilder:
 
     return keyboard.as_markup()
 
-def masjidlar_keyboard(masjid_list, lang="uz", current_page=1, has_next=True) -> InlineKeyboardBuilder:
+
+def masjidlar_keyboard(
+    masjid_list, lang="uz", current_page=1, has_next=True
+) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     for masjid in masjid_list:
         keyboard.row(
@@ -67,22 +71,60 @@ def masjidlar_keyboard(masjid_list, lang="uz", current_page=1, has_next=True) ->
 
     keyboard.row(
         InlineKeyboardButton(
-            text=f"{'⬅️' if current_page > 1 else '⏸'} Orqaga", callback_data=factory.PagesData(
-                page=current_page, action="prev"
-            ).pack()
+            text=_("{icon} Orqaga".format(
+                icon='⬅️' if current_page > 1 else '⏸'
+            ), locale=lang),
+            callback_data=factory.PagesData(page=current_page, action="prev").pack(),
         )
     )
     keyboard.add(
         InlineKeyboardButton(
-            text=f"{current_page}", callback_data=factory.PagesData(
-                page=current_page, action="page"
-            ).pack()
+            text=f"{current_page}",
+            callback_data=factory.PagesData(page=current_page, action="page").pack(),
         ),
         InlineKeyboardButton(
-            text=f"{'➡️' if has_next else '⏸'} Keyingi", callback_data=factory.PagesData(
+            text=_("{icon} Keyingi", locale=lang).format(
+                icon='➡️' if has_next else '⏸'
+            ),
+            callback_data=factory.PagesData(
                 page=current_page, action="next" if has_next else "stop"
-            ).pack()
+            ).pack(),
+        ),
+    )
+
+    return keyboard.as_markup()
+
+
+def masjid_kb(masjid_info, lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("✅ Obuna bo'lish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="subscribe").pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("❌ Obunani bekor qilish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="unsubscribe").pack()
+        )
+    )
+    if str(masjid_info['location']) != "None":
+        try:
+            lt, ln = masjid_info['location'].split(",")[:2]
+            lt, ln = float(lt), float(ln)
+            keyboard.row(
+            InlineKeyboardButton(
+                text=_("🗺 Xaritada ko'rish", locale=lang),  callback_data=factory.MasjidLocationData(ln=ln, lt=lt).pack()
+            )
+        )
+        except:
+            pass
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="main").pack()
         )
     )
 
     return keyboard.as_markup()
+
+

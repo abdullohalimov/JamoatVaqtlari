@@ -25,3 +25,11 @@ class MasjidData(CallbackData, prefix="masjid"):
 class PagesData(CallbackData, prefix="page"):
     page: Any
     action: Any
+
+class MasjidInfoData(CallbackData, prefix="masjidinfo"):
+    masjid: Any
+    action: Any
+
+class MasjidLocationData(CallbackData, prefix="masjidloc"):
+    ln: Any
+    lt: Any

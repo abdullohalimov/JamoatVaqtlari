@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-12-04 14:39+0500\n"
+"POT-Creation-Date: 2023-12-15 16:12+0500\n"
 "PO-Revision-Date: 2023-12-04 14:40+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ru\n"
@@ -19,19 +19,76 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.13.1\n"
 
-#: tgbot/handlers/user.py:26 tgbot/keyboards/reply.py:12
-msgid "Bosh menyu"
+#: tgbot/handlers/user.py:20 tgbot/handlers/user.py:49
+#: tgbot/keyboards/inline.py:124
+msgid "🏡 Bosh menyu"
 msgstr ""
 
-#: tgbot/handlers/user.py:33
-msgid "Masjidingizni tanlang:"
+#: tgbot/handlers/user.py:63
+msgid "🏙 Hududni  tanlang:"
+msgstr ""
+
+#: tgbot/handlers/user.py:76
+msgid "🏘 Tumanni  tanlang:"
+msgstr ""
+
+#: tgbot/handlers/user.py:205
+msgid "✅ Obunalar:"
+msgstr ""
+
+#: tgbot/handlers/user.py:216
+msgid "✅ Yozuvni tanlang:"
+msgstr ""
+
+#: tgbot/keyboards/inline.py:74
+msgid "{icon} Orqaga"
+msgstr ""
+
+#: tgbot/keyboards/inline.py:86
+msgid "{icon} Keyingi"
+msgstr ""
+
+#: tgbot/keyboards/inline.py:103
+msgid "✅ Obuna bo'lish"
+msgstr ""
+
+#: tgbot/keyboards/inline.py:108
+msgid "❌ Obunani bekor qilish"
+msgstr ""
+
+#: tgbot/keyboards/inline.py:117
+msgid "🗺 Xaritada ko'rish"
 msgstr ""
 
 #: tgbot/keyboards/reply.py:8
-msgid "Jamoat vaqtlari"
+msgid "🕌 Jamoat vaqtlari"
 msgstr ""
 
 #: tgbot/keyboards/reply.py:9
-msgid "Namoz vaqtlari"
+msgid "🕰 Namoz vaqtlari"
 msgstr ""
+
+#: tgbot/keyboards/reply.py:10
+msgid "✅ Obunalar"
+msgstr ""
+
+#: tgbot/keyboards/reply.py:11
+msgid "🇺🇿 Yozuvni o'zgartirish"
+msgstr ""
+
+#: tgbot/keyboards/reply.py:14
+msgid "Bosh menyu"
+msgstr ""
+
+#~ msgid "Masjidingizni tanlang:"
+#~ msgstr ""
+
+#~ msgid "Jamoat vaqtlari"
+#~ msgstr ""
+
+#~ msgid "Namoz vaqtlari"
+#~ msgstr ""
+
+#~ msgid "🇺🇿 Tilni o'zgartirish"
+#~ msgstr ""
 

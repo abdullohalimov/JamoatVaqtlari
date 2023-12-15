@@ -4,7 +4,7 @@ from .models import User, Region, Admin, District, Masjid, Subscription
 # Register your models here.
 
 class MasjidAdmin(admin.ModelAdmin):
-    list_display = ['name_uz', 'name_cyrl', 'name_ru', 'photo', 'district']
+    list_display = ['name_uz', 'name_cyrl', 'name_ru', 'photo_file', 'district']
 
 class DistrictAdmin(admin.ModelAdmin):
     list_display = ['name_uz', 'name_cyrl', 'name_ru', 'region']
