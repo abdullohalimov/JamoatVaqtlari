@@ -79,7 +79,7 @@ class Masjid(models.Model):
     peshin = models.CharField(max_length=255, verbose_name="Peshin", help_text="Masjidda peshin namozi o'qilish vaqti")
     asr = models.CharField(max_length=255, verbose_name="Asr", help_text="Masjidda asr namozi o'qilish vaqti")
     shom = models.CharField(max_length=255, verbose_name="Shom", help_text="Masjidda shom namozi o'qilish vaqti")
-    hufton = models.CharField(max_length=255, verbose_name="Hufton", help_text="Masjidda hufton namozi o'qilish vaqti")
+    hufton = models.CharField(max_length=255, verbose_name="Xufton", help_text="Masjidda xufton namozi o'qilish vaqti")
     location = models.CharField(max_length=255, verbose_name="Manzil", help_text="Masjid manzili", null=True, blank=True)
     qisqa_tavsif = models.TextField(verbose_name="Qisqa tavsif", help_text="Masjid haqida qisqa tavsif", null=True, blank=True)
     def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
@@ -117,10 +117,16 @@ class Subscription(models.Model):
         verbose_name_plural = "Obunalar"
         
 class Mintaqa(models.Model):
+    viloyatlar = [
+        ("1", "Toshkent"),
+        ("2", "Andijon"),
+        ("99", "Boshqa"),
+    ]
     name_uz = models.CharField(max_length=255, verbose_name="Lotin", help_text="Mintaqaning lotincha nomi")
     name_cyrl = models.CharField(max_length=255, verbose_name="Kirill", help_text="Mintaqaning kirillcha nomi", null=True, blank=True)
     name_ru = models.CharField(max_length=255, verbose_name="Rus", help_text="Mintaqaning ruscha nomi", null=True, blank=True)
     mintaqa_id = models.CharField(max_length=255, verbose_name="Mintaqa IDsi", help_text="Mintaqaning IDsi")
+    viloyat = models.CharField(max_length=255, choices=viloyatlar, verbose_name="Viloyat", help_text="Mintaqa joylashgan viloyat")
 
     class Meta:
         verbose_name = "Mintaqa"
@@ -133,3 +139,15 @@ class Mintaqa(models.Model):
             self.name_ru = self.name_uz
 
         return super().save()
+    
+
+class NamozVaqti(models.Model):
+    mintaqa = models.ForeignKey(Mintaqa, on_delete=models.CASCADE, verbose_name="Mintaqa", help_text="Mintaqa")
+    milodiy_oy = models.IntegerField(max_length=255, verbose_name="Milodiy oy", help_text="Milodiy oy")
+    xijriy_oy = models.IntegerField(max_length=255, verbose_name="Xijriy oy", help_text="Xijriy oy")
+    milodiy_kun = models.IntegerField(max_length=255, verbose_name="Milodiy kun", help_text="Milodiy kun")
+    xijriy_kun = models.IntegerField(max_length=255, verbose_name="Xijriy kun", help_text="Xijriy kun")
+    vaqtlari = models.CharField(max_length=255, verbose_name="Vaqtlari", help_text="Tong | Quyosh | Peshin | Asr | Shom | Xufton")
+
+    def __str__(self):
+        return self.vaqti
