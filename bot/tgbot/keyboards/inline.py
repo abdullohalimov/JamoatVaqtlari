@@ -127,4 +127,17 @@ def masjid_kb(masjid_info, lang="uz") -> InlineKeyboardBuilder:
 
     return keyboard.as_markup()
 
-
+def namoz_vaqtlari_inline(mintaqa, lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("📅 Oylik namoz vaqtlari", locale=lang),
+            callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="oylik").pack()
+        ),
+        InlineKeyboardButton(
+            text=_("🔄 Mintaqa: {mintaqa}".format(mintaqa=mintaqa[lang_decode[lang]], locale=lang),),
+            callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="changemintaqa").pack()
+        )
+    )
+    keyboard.adjust(1)
+    return keyboard.as_markup()

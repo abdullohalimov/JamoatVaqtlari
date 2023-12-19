@@ -1,7 +1,7 @@
 from typing import Any, List
 from ninja import NinjaAPI, Schema, Form
 from ninja.pagination import PageNumberPagination, paginate
-from jamoatnamozlariapp.models import District, Masjid, User, Region, Subscription
+from jamoatnamozlariapp.models import District, Masjid, Mintaqa, NamozVaqti, User, Region, Subscription
 
 api = NinjaAPI()
 
@@ -56,6 +56,24 @@ class SubscriptionsSchema(Schema):
     masjid: MasjidInfo
 
 
+class MintaqaSchema(Schema):
+    pk: int
+    name_uz: str
+    name_ru: str
+    name_cyrl: str
+    mintaqa_id: str
+    viloyat: str
+
+class NamozVaqtiSchema(Schema):
+    pk: int
+    mintaqa: MintaqaSchema
+    milodiy_oy: int
+    milodiy_kun: int
+    xijriy_oy: int
+    xijriy_kun: int
+    vaqtlari: str
+
+
 @api.post("/create-new-user")
 def hello(request, name: str, chat_id):
     try:
@@ -105,3 +123,14 @@ def masjid_subscription(request, user_id, masjid_id, action):
 @api.get("/user-subscriptions", response=List[SubscriptionsSchema])
 def user_subscriptions(request, user_id):
     return Subscription.objects.filter(user=User.objects.get(user_id=user_id))
+
+
+@api.get("/bugungi-namoz-vaqti", response=NamozVaqtiSchema)
+def bugungi_namoz_vaqti(request, mintaqa, milodiy_oy, milodiy_kun):
+    return NamozVaqti.objects.get(mintaqa=Mintaqa.objects.get(mintaqa_id=mintaqa), milodiy_oy=milodiy_oy, milodiy_kun=milodiy_kun)
+
+@api.get("/namoz-vaqtlari", response=List[NamozVaqtiSchema])
+@paginate(PageNumberPagination, page_size=11)
+def namoz_vaqtlari(request, mintaqa, oy):
+    return NamozVaqti.objects.filter(mintaqa=Mintaqa.objects.get(mintaqa_id=mintaqa), milodiy_oy=oy)
+

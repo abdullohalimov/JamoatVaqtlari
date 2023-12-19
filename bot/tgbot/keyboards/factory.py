@@ -33,3 +33,7 @@ class MasjidInfoData(CallbackData, prefix="masjidinfo"):
 class MasjidLocationData(CallbackData, prefix="masjidloc"):
     ln: Any
     lt: Any
+
+class NamozVaqtlariData(CallbackData, prefix="namozvaqtlari"):
+    action: Any
+    mintaqa: Any

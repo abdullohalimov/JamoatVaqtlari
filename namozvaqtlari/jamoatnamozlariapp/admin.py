@@ -46,7 +46,7 @@ class MintaqaAdmin(admin.ModelAdmin):
 
 
 class NamozVaqtiAdmin(admin.ModelAdmin):
-    list_display = ["mintaqa", "milodiy_oy", "milodiy_kun", "vaqtlari"]
+    list_display = ["mintaqa", "milodiy_oy", "milodiy_kun", "xijriy_oy", "xijriy_kun",  "vaqtlari"]
     autocomplete_fields = ["mintaqa"]
 
 
