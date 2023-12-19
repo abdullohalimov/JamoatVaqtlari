@@ -75,6 +75,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'namozvaqtlari.wsgi.application'
 
+AUTH_USER_MODEL = 'jamoatnamozlariapp.CustomUser'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

@@ -1,7 +1,13 @@
 from collections.abc import Iterable
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 from .tg_functions import get_photo_id
+
+
+from django.db import models
+
+
 
 
 # Create your models here.
@@ -80,6 +86,12 @@ class Region(models.Model):
         verbose_name = "Viloyat/Shaxar"
         verbose_name_plural = "Viloyat/Shaxarlar"
 
+
+class CustomUser(AbstractUser):
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.username
 
 class District(models.Model):
     name_uz = models.CharField(
@@ -204,6 +216,10 @@ class Masjid(models.Model):
         blank=True,
     )
 
+
+
+
+
     def save(
         self,
         force_insert: bool = ...,
@@ -317,16 +333,16 @@ class NamozVaqti(models.Model):
         Mintaqa, on_delete=models.CASCADE, verbose_name="Mintaqa", help_text="Mintaqa"
     )
     milodiy_oy = models.IntegerField(
-        max_length=255, verbose_name="Milodiy oy", help_text="Milodiy oy"
+         verbose_name="Milodiy oy", help_text="Milodiy oy"
     )
     xijriy_oy = models.IntegerField(
-        max_length=255, verbose_name="Xijriy oy", help_text="Xijriy oy"
+         verbose_name="Xijriy oy", help_text="Xijriy oy"
     )
     milodiy_kun = models.IntegerField(
-        max_length=255, verbose_name="Milodiy kun", help_text="Milodiy kun"
+         verbose_name="Milodiy kun", help_text="Milodiy kun"
     )
     xijriy_kun = models.IntegerField(
-        max_length=255, verbose_name="Xijriy kun", help_text="Xijriy kun"
+         verbose_name="Xijriy kun", help_text="Xijriy kun"
     )
     vaqtlari = models.CharField(
         max_length=255,

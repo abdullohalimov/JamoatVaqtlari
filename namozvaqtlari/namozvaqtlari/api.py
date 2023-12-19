@@ -1,7 +1,15 @@
 from typing import Any, List
 from ninja import NinjaAPI, Schema, Form
 from ninja.pagination import PageNumberPagination, paginate
-from jamoatnamozlariapp.models import District, Masjid, Mintaqa, NamozVaqti, User, Region, Subscription
+from jamoatnamozlariapp.models import (
+    District,
+    Masjid,
+    Mintaqa,
+    NamozVaqti,
+    User,
+    Region,
+    Subscription,
+)
 
 api = NinjaAPI()
 
@@ -50,7 +58,6 @@ class UserSchema(Schema):
     user_id: int
 
 
-
 class SubscriptionsSchema(Schema):
     pk: int
     masjid: MasjidInfo
@@ -63,6 +70,7 @@ class MintaqaSchema(Schema):
     name_cyrl: str
     mintaqa_id: str
     viloyat: str
+
 
 class NamozVaqtiSchema(Schema):
     pk: int
@@ -103,17 +111,24 @@ def get_masjidlar(request, district_id):
 def masjid_info(request, masjid_pk):
     return Masjid.objects.get(pk=masjid_pk)
 
+
 @api.post("/masjid-subscription")
 def masjid_subscription(request, user_id, masjid_id, action):
-    if action =='subscribe':
+    if action == "subscribe":
         try:
-            Subscription.objects.get_or_create(user=User.objects.get(user_id=user_id), masjid=Masjid.objects.get(pk=masjid_id))
+            Subscription.objects.get_or_create(
+                user=User.objects.get(user_id=user_id),
+                masjid=Masjid.objects.get(pk=masjid_id),
+            )
             return {"success": "True"}
         except:
             return {"success": "False"}
-    elif action == 'unsubscribe':
+    elif action == "unsubscribe":
         try:
-            Subscription.objects.filter(user=User.objects.get(user_id=user_id), masjid=Masjid.objects.get(pk=masjid_id)).delete()
+            Subscription.objects.filter(
+                user=User.objects.get(user_id=user_id),
+                masjid=Masjid.objects.get(pk=masjid_id),
+            ).delete()
             return {"success": "True"}
         except:
             return {"success": "False"}
@@ -127,10 +142,21 @@ def user_subscriptions(request, user_id):
 
 @api.get("/bugungi-namoz-vaqti", response=NamozVaqtiSchema)
 def bugungi_namoz_vaqti(request, mintaqa, milodiy_oy, milodiy_kun):
-    return NamozVaqti.objects.get(mintaqa=Mintaqa.objects.get(mintaqa_id=mintaqa), milodiy_oy=milodiy_oy, milodiy_kun=milodiy_kun)
+    return NamozVaqti.objects.get(
+        mintaqa=Mintaqa.objects.get(mintaqa_id=mintaqa),
+        milodiy_oy=milodiy_oy,
+        milodiy_kun=milodiy_kun,
+    )
+
 
 @api.get("/namoz-vaqtlari", response=List[NamozVaqtiSchema])
-@paginate(PageNumberPagination, page_size=11)
+@paginate(PageNumberPagination, page_size=5)
 def namoz_vaqtlari(request, mintaqa, oy):
-    return NamozVaqti.objects.filter(mintaqa=Mintaqa.objects.get(mintaqa_id=mintaqa), milodiy_oy=oy)
+    return NamozVaqti.objects.filter(
+        mintaqa=Mintaqa.objects.get(mintaqa_id=mintaqa), milodiy_oy=oy
+    )
 
+
+@api.get("/viloyat-mintaqalari", response=List[MintaqaSchema])
+def viloyat_mintaqalari(request, viloyat_id):
+    return Mintaqa.objects.filter(viloyat=viloyat_id)

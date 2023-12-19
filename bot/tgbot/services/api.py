@@ -83,3 +83,11 @@ async def get_namoz_vaqtlari(mintaqa, milodiy_oy, page=1):
             f"{main_url}/api/namoz-vaqtlari", params=payload
         ) as response:
             return await response.json()
+
+async def get_viloyat_mintaqalari(viloyat_id):
+    payload = {"viloyat_id": int(viloyat_id)}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{main_url}/api/viloyat-mintaqalari", params=payload
+        ) as response:
+            return await response.json()
