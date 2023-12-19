@@ -208,7 +208,6 @@ async def masjid_info(
     else:
         await callback_query.message.edit_text(text=text, reply_markup=markup)
 
-    await callback_query.message.delete()
 
 
 @user_router.callback_query(factory.MasjidLocationData.filter())

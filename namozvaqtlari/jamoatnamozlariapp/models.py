@@ -87,11 +87,7 @@ class Region(models.Model):
         verbose_name_plural = "Viloyat/Shaxarlar"
 
 
-class CustomUser(AbstractUser):
-    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True, blank=True)
 
-    def __str__(self):
-        return self.username
 
 class District(models.Model):
     name_uz = models.CharField(
@@ -247,6 +243,25 @@ class Masjid(models.Model):
     class Meta:
         verbose_name = "Masjid"
         verbose_name_plural = "Masjidlar"
+
+
+class CustomUser(AbstractUser):
+    admin_types = (
+        ("region", "Region Admin"),
+        ("district", "District Admin"),
+        ("masjid", "Masjid Admin"),
+    )
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True, blank=True)
+    district = models.ForeignKey(
+        District, on_delete=models.CASCADE, null=True, blank=True
+    )
+    masjid = models.ForeignKey(Masjid, on_delete=models.CASCADE, null=True, blank=True)
+    admin_type = models.CharField(
+        max_length=255, verbose_name="Admin type", help_text="Admin type", null=True
+    )
+
+    def __str__(self):
+        return self.username
 
 
 class Subscription(models.Model):

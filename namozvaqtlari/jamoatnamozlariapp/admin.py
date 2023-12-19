@@ -77,7 +77,13 @@ class MasjidAdmin(admin.ModelAdmin):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs
-        return qs.filter(district__region__pk=request.user.region.pk)
+        elif request.user.admin_type == "region":
+            return qs.filter(district__region__pk=request.user.region.pk)
+        elif request.user.admin_type == "district":
+            return qs.filter(district__pk=request.user.district.pk)
+        elif request.user.admin_type == "masjid":
+            return qs.filter(pk=request.user.masjid.pk)
+
 
 
 
