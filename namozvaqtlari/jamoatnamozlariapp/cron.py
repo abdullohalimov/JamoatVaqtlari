@@ -5,7 +5,7 @@ import kronos
 import random
 import requests
 from .models import Mintaqa, NamozVaqti
-
+from UzTransliterator import UzTransliterator
 hijri_months = {
     1: "Муҳаррам, Muharram",
     2: "Сафар, Safar",
@@ -21,7 +21,23 @@ hijri_months = {
     12: "Зул ҳижжа, Zul hijja",
 }
 
-regions = {1: [0, 1, 2, 3, 4, 27], 2: [6, 7, 8, 9, 10]}
+regions = {
+    1: [27],  # toshkent
+    2: [1, 28, 29, 30, 31, 49, 69, 73],  # andijon
+    3: [4, 45, 46, 47, 48],  # buxoro
+    4: [13, 26, 37, 38, 39, 40],  # fargona
+    5: [9, 50, 51, 52, 53, 55, 56],  # jizzax
+    6: [15, 32, 33, 34, 35, 36],  # namangan
+    7: [14, 17, 58, 59, 60, 61, 62, 63, 64],  # navoiy
+    8: [25, 84, 85, 86, 87, 88, 93],  # qashqadaryo
+    9: [16, 65, 66, 67, 68, 70, 71],  # qoraqalpogiston
+    10: [10, 11, 18, 72],  # Samarqand
+    11: [5],  # sirdaryo
+    12: [6, 74, 75, 76, 77],  # surxondaryo
+    13: [2, 43, 44],  # tashkent viloyat
+    14: [21, 78, 79, 80, 81, 82],  # xorazm
+    99: [3, 7, 8, 12, 19, 20, 22, 23, 41, 42, 57, 89, 90, 91, 92],  # boshqa
+}
 
 
 @kronos.register("0 0 1 * *")
@@ -41,9 +57,11 @@ def update():
 
         mintaqalist.append([mtext, mid, mregion])
 
+    obj = UzTransliterator.UzTransliterator()
     for mintaqa in mintaqalist:
+        latn = obj.transliterate(mintaqa[0], from_="cyr", to="lat")
         a, b = Mintaqa.objects.get_or_create(
-            viloyat=mintaqa[2], name_uz=mintaqa[0], mintaqa_id=mintaqa[1]
+            viloyat=mintaqa[2], name_uz=latn, name_cyrl=mintaqa[0], mintaqa_id=mintaqa[1]
         )
         a.save()
     mintaqalar = Mintaqa.objects.all()

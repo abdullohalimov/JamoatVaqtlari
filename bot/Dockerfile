@@ -8,6 +8,5 @@ COPY requirements.txt /usr/src/app/${BOT_NAME}
 RUN pip install -r /usr/src/app/${BOT_NAME}/requirements.txt
 COPY . /usr/src/app/${BOT_NAME}
 
-RUN pybabel compile -d locales -D messages
-
-CMD [ "python3", "bot.py" ]
+RUN chmod +x entrypoint.sh
+ENTRYPOINT [ "sh", "entrypoint.sh" ]

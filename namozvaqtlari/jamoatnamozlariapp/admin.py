@@ -11,40 +11,28 @@ from .models import (
     District,
     Masjid,
     Subscription,
-    CustomUser
+    CustomUser,
 )
 
 # Register your models here.
 
-class MasjidForm(forms.ModelForm):
-    class Meta:
-        model = Masjid
-        fields = "__all__"
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
-        logging.warning(user)
-        logging.warning(kwargs)
-        super(MasjidForm, self).__init__(*args, **kwargs)
-        # logging.warning(self)
-        # logging.warning(args)
-        # logging.warning(kwargs)
-        # try:
-        #     instance = kwargs.get("instance", None)
-        #     self.fields["tuman"].queryset = District.objects.filter(
-        #         self.
-        #     )
-        #     self.fields["schedule"].queryset = District.objects.filter(
-        #         guruh=instance.group
-        #     )
-        # except:
-        #     pass
 
 class CustomUserAdmin(usrmadmin):
     model = CustomUser
     fieldsets = (
-                    
-        (None, {"fields": ("username", "password", "region",)}),
+        (
+            None,
+            {
+                "fields": (
+                    "username",
+                    "password",
+                    "region",
+                    "district",
+                    "masjid",
+                    "admin_type",
+                )
+            },
+        ),
         ("Personal info", {"fields": ("first_name", "last_name", "email")}),
         (
             "Permissions",
@@ -66,13 +54,45 @@ class CustomUserAdmin(usrmadmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("username", "password1", "password2", "region"),
+                "fields": (
+                    "username",
+                    "password1",
+                    "password2",
+                    "region",
+                    "district",
+                    "masjid",
+                    "admin_type",
+                    "is_staff",
+                    "groups",
+                ),
             },
         ),
     )
+
+
 class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
-    form = MasjidForm
+    # form = MasjidForm
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "district":
+            # Filter choices based on the assigned region for custom admins
+            if not request.user.is_superuser and request.user.admin_type == "region":
+                kwargs["queryset"] = District.objects.filter(region=request.user.region)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(MasjidAdmin, self).get_form(request, obj=obj, **kwargs)
+        form.base_fields["district"].initial = request.user.district
+
+        if request.user.is_superuser or request.user.admin_type == "region":
+            # If superadmin, make the 'district' field editable
+            form.base_fields["district"].widget.attrs["disabled"] = False
+        else:
+            # If not superadmin, make the 'district' field readonly
+            form.base_fields["district"].widget.attrs["disabled"] = True
+        return form
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -85,10 +105,36 @@ class MasjidAdmin(admin.ModelAdmin):
             return qs.filter(pk=request.user.masjid.pk)
 
 
-
-
 class DistrictAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "region"]
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "district":
+            # Filter choices based on the assigned region for custom admins
+            if not request.user.is_superuser and request.user.admin_type == "region":
+                kwargs["queryset"] = Region.objects.filter(region=request.user.region)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(DistrictAdmin, self).get_form(request, obj=obj, **kwargs)
+        form.base_fields["region"].initial = request.user.region
+
+        if request.user.is_superuser:
+            # If superadmin, make the 'district' field editable
+            form.base_fields["region"].widget.attrs["disabled"] = False
+        else:
+            # If not superadmin, make the 'district' field readonly
+            form.base_fields["region"].widget.attrs["disabled"] = True
+        return form
+    
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        elif request.user.admin_type == "region":
+            return qs.filter(region__pk=request.user.region.pk)
+        elif request.user.admin_type == "district":
+            return qs.filter(region__pk=request.user.district.region.pk)
 
 
 class RegionAdmin(admin.ModelAdmin):
@@ -117,13 +163,20 @@ class MintaqaAdmin(admin.ModelAdmin):
 
 
 class NamozVaqtiAdmin(admin.ModelAdmin):
-    list_display = ["mintaqa", "milodiy_oy", "milodiy_kun", "xijriy_oy", "xijriy_kun",  "vaqtlari"]
+    list_display = [
+        "mintaqa",
+        "milodiy_oy",
+        "milodiy_kun",
+        "xijriy_oy",
+        "xijriy_kun",
+        "vaqtlari",
+    ]
     autocomplete_fields = ["mintaqa"]
 
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Region, RegionAdmin)
-admin.site.register(Admin, AdminModelAdmin)
+# admin.site.register(Admin, AdminModelAdmin)
 admin.site.register(District, DistrictAdmin)
 admin.site.register(Masjid, MasjidAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)

@@ -7,7 +7,23 @@ from .tg_functions import get_photo_id
 
 from django.db import models
 
-
+viloyatlar = [
+    ("1", "Toshkent shaxri"),
+    ("2", "Andijon"),
+    ("3", "Buxoro"),
+    ("4", "Fargʻona"),
+    ("5", "Jizzax"),
+    ("6", "Namangan"),
+    ("7", "Navoiy"),
+    ("8", "Qashqadaryo"),
+    ("9", "Qoraqalpogʻiston"),
+    ("10", "Samarqand"),
+    ("11", "Sirdaryo"),
+    ("12", "Surxondaryo"),
+    ("13", "Toshkent viloyati"),
+    ("14", "Xorazm"),
+    ("99", "Boshqa"),
+]
 
 
 # Create your models here.
@@ -85,8 +101,6 @@ class Region(models.Model):
     class Meta:
         verbose_name = "Viloyat/Shaxar"
         verbose_name_plural = "Viloyat/Shaxarlar"
-
-
 
 
 class District(models.Model):
@@ -212,10 +226,6 @@ class Masjid(models.Model):
         blank=True,
     )
 
-
-
-
-
     def save(
         self,
         force_insert: bool = ...,
@@ -247,21 +257,40 @@ class Masjid(models.Model):
 
 class CustomUser(AbstractUser):
     admin_types = (
-        ("region", "Region Admin"),
-        ("district", "District Admin"),
-        ("masjid", "Masjid Admin"),
+        ("region", "Viloyat/Shaxar adminstratori"),
+        ("district", "Tuman adminstratori"),
+        ("masjid", "Masjid adminstratori"),
     )
-    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True, blank=True)
+    region = models.ForeignKey(
+        Region,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Viloyat/Shaxar",
+        help_text="Adminstratorga biriktiriladigan viloyat/shaxar",
+    )
     district = models.ForeignKey(
-        District, on_delete=models.CASCADE, null=True, blank=True
+        District,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Tuman",
+        help_text="Adminstratorga biriktiriladigan tuman",
     )
-    masjid = models.ForeignKey(Masjid, on_delete=models.CASCADE, null=True, blank=True)
+    masjid = models.ForeignKey(Masjid, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Masjid", help_text="Adminstratorga biriktiriladigan masjid")
     admin_type = models.CharField(
-        max_length=255, verbose_name="Admin type", help_text="Admin type", null=True
+        max_length=255,
+        verbose_name="Adminstrator turi",
+        null=True,
+        choices=admin_types,
     )
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        verbose_name = "Adminstrator"
+        verbose_name_plural = "Adminstratorlar"
 
 
 class Subscription(models.Model):
@@ -289,11 +318,6 @@ class Subscription(models.Model):
 
 
 class Mintaqa(models.Model):
-    viloyatlar = [
-        ("1", "Toshkent"),
-        ("2", "Andijon"),
-        ("99", "Boshqa"),
-    ]
     name_uz = models.CharField(
         max_length=255, verbose_name="Lotin", help_text="Mintaqaning lotincha nomi"
     )
@@ -335,8 +359,6 @@ class Mintaqa(models.Model):
         using: str | None = ...,
         update_fields: Iterable[str] | None = ...,
     ) -> None:
-        if self.name_cyrl == None:
-            self.name_cyrl = self.name_uz
         if self.name_ru == None:
             self.name_ru = self.name_uz
 
@@ -347,18 +369,12 @@ class NamozVaqti(models.Model):
     mintaqa = models.ForeignKey(
         Mintaqa, on_delete=models.CASCADE, verbose_name="Mintaqa", help_text="Mintaqa"
     )
-    milodiy_oy = models.IntegerField(
-         verbose_name="Milodiy oy", help_text="Milodiy oy"
-    )
-    xijriy_oy = models.IntegerField(
-         verbose_name="Xijriy oy", help_text="Xijriy oy"
-    )
+    milodiy_oy = models.IntegerField(verbose_name="Milodiy oy", help_text="Milodiy oy")
+    xijriy_oy = models.IntegerField(verbose_name="Xijriy oy", help_text="Xijriy oy")
     milodiy_kun = models.IntegerField(
-         verbose_name="Milodiy kun", help_text="Milodiy kun"
+        verbose_name="Milodiy kun", help_text="Milodiy kun"
     )
-    xijriy_kun = models.IntegerField(
-         verbose_name="Xijriy kun", help_text="Xijriy kun"
-    )
+    xijriy_kun = models.IntegerField(verbose_name="Xijriy kun", help_text="Xijriy kun")
     vaqtlari = models.CharField(
         max_length=255,
         verbose_name="Vaqtlari",
@@ -367,3 +383,7 @@ class NamozVaqti(models.Model):
 
     def __str__(self):
         return self.mintaqa.name_uz
+
+    class Meta:
+        verbose_name = "Namoz vaqti"
+        verbose_name_plural = "Namoz vaqtlari"

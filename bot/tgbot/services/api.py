@@ -13,11 +13,11 @@ async def update_or_create_user(user_id, full_name):
             return await response.json()
 
 
-async def get_regions(lang):
-    payload = {"lang": lang}
+async def get_regions():
+
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f"{main_url}/api/get-regions", params=payload
+            f"{main_url}/api/get-regions"
         ) as response:
             return await response.json()
 

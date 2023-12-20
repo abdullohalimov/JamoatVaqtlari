@@ -92,7 +92,7 @@ def hello(request, name: str, chat_id):
 
 
 @api.get("/get-regions", response=List[RegionSchema])
-def get_regions(request, lang="uz"):
+def get_regions(request):
     return Region.objects.all()
 
 
@@ -116,20 +116,52 @@ def masjid_info(request, masjid_pk):
 def masjid_subscription(request, user_id, masjid_id, action):
     if action == "subscribe":
         try:
+            user = User.objects.get(user_id=user_id)
+            masjid = Masjid.objects.get(pk=masjid_id)
             Subscription.objects.get_or_create(
-                user=User.objects.get(user_id=user_id),
-                masjid=Masjid.objects.get(pk=masjid_id),
+                user=user,
+                masjid=masjid,
             )
-            return {"success": "True"}
+            return {
+                "success": "True",
+                "masjid": {
+                    "pk": masjid.pk,
+                    "name_uz": masjid.name_uz,
+                    "name_ru": masjid.name_ru,
+                    "name_cyrl": masjid.name_cyrl,
+                    "district": {
+                        "pk": masjid.district.pk,
+                        "name_uz": masjid.district.name_uz,
+                        "name_ru": masjid.district.name_ru,
+                        "name_cyrl": masjid.district.name_cyrl,
+                    },
+                },
+            }
         except:
             return {"success": "False"}
     elif action == "unsubscribe":
         try:
+            user = User.objects.get(user_id=user_id)
+            masjid = Masjid.objects.get(pk=masjid_id)
             Subscription.objects.filter(
-                user=User.objects.get(user_id=user_id),
-                masjid=Masjid.objects.get(pk=masjid_id),
+                user=user,
+                masjid=masjid,
             ).delete()
-            return {"success": "True"}
+            return {
+                "success": "True",
+                "masjid": {
+                    "pk": masjid.pk,
+                    "name_uz": masjid.name_uz,
+                    "name_ru": masjid.name_ru,
+                    "name_cyrl": masjid.name_cyrl,
+                    "district": {
+                        "pk": masjid.district.pk,
+                        "name_uz": masjid.district.name_uz,
+                        "name_ru": masjid.district.name_ru,
+                        "name_cyrl": masjid.district.name_cyrl,
+                    },
+                },
+            }
         except:
             return {"success": "False"}
     return {"success": "False"}
