@@ -4,11 +4,11 @@ main_url = "http://web:8000"
 global_url = "https://jamoat.rshare.io"
 
 
-async def update_or_create_user(user_id, full_name):
+async def update_or_create_user(user_id, full_name, lang="uz"):
     async with aiohttp.ClientSession() as session:
         async with session.post(
             f"{main_url}/api/create-new-user",
-            params={"name": full_name, "chat_id": user_id},
+            params={"name": full_name, "chat_id": user_id, "lang": lang},
         ) as response:
             return await response.json()
 

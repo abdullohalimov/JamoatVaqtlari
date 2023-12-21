@@ -1,8 +1,9 @@
 from collections.abc import Iterable
+import logging
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from .tg_functions import get_photo_id
+from .tg_functions import get_photo_id, send_new_masjid_times
 
 
 from django.db import models
@@ -36,7 +37,9 @@ class User(models.Model):
     full_name = models.TextField(
         null=True, blank=True, verbose_name="Ismi", help_text="Foydalanuvchi ismi"
     )
-
+    lang = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name="Til", help_text="Til"
+    )
     def __str__(self):
         return self.full_name
 
@@ -233,11 +236,8 @@ class Masjid(models.Model):
         using: str | None = ...,
         update_fields: Iterable[str] | None = ...,
     ) -> None:
-        if self.name_cyrl == None:
-            self.name_cyrl = self.name_uz
         if self.name_ru == None:
             self.name_ru = self.name_uz
-
         if self.photo_file:
             if not self.photo:
                 self.photo = get_photo_id(self.photo_file.file)
@@ -245,6 +245,27 @@ class Masjid(models.Model):
                 old = Masjid.objects.get(pk=self.pk)
                 if self.photo != old.photo:
                     self.photo = get_photo_id(self.photo_file.file)
+        
+        if self.pk:
+            old = Masjid.objects.get(pk=self.pk)
+            is_times_changed = False
+            if self.bomdod != old.bomdod:
+                is_times_changed = True
+            if self.peshin != old.peshin:
+                is_times_changed = True
+            if self.asr != old.asr:
+                is_times_changed = True
+            if self.shom != old.shom:
+                is_times_changed = True
+            if self.hufton != old.hufton:
+                is_times_changed = True
+            
+            logging.warning("there was masjid so this is update, is_time_changed? {time}".format(time=is_times_changed))
+            subscriptions = self.subscription_set.all()
+            logging.warning(subscriptions)
+            send_new_masjid_times([old, self], subscriptions)
+        else:
+            logging.warning(f"there was no masjid so this is create")
         return super().save()
 
     def __str__(self):

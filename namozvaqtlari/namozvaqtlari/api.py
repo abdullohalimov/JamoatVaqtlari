@@ -83,9 +83,9 @@ class NamozVaqtiSchema(Schema):
 
 
 @api.post("/create-new-user")
-def hello(request, name: str, chat_id):
+def hello(request, name: str, chat_id, lang: str):
     try:
-        User.objects.update_or_create(user_id=chat_id, defaults={"full_name": name})
+        User.objects.update_or_create(user_id=chat_id, defaults={"full_name": name, "lang": lang})
         return {"success": "True"}
     except:
         return {"success": "False"}

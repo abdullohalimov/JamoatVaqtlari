@@ -73,9 +73,7 @@ async def user_start(message: Message, state: FSMContext):
             _("🏡 Bosh menyu", locale=data["locale"]),
             reply_markup=reply.main_menu_user(data["locale"]),
         )
-        user = await api.update_or_create_user(
-            user_id=message.chat.id, full_name=message.from_user.full_name
-        )
+        
 
     else:
         await message.answer(
@@ -104,6 +102,10 @@ async def set_language(
     )
     await state.set_state(UserStates.menu)
     await callback_query.message.delete()
+
+    user = await api.update_or_create_user(
+            user_id=callback_query.message.chat.id, full_name=callback_query.from_user.full_name, lang=callback_data.language
+        )
 
 
 @user_router.message(
