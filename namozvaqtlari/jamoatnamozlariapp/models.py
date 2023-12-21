@@ -408,3 +408,82 @@ class NamozVaqti(models.Model):
     class Meta:
         verbose_name = "Namoz vaqti"
         verbose_name_plural = "Namoz vaqtlari"
+
+
+class ShaxarViloyatTimesChange(models.Model):
+    region = models.ForeignKey(
+        Region, on_delete=models.CASCADE, verbose_name="Shaxar/Viloyat"
+    )
+    bomdod = models.CharField(
+        max_length=255, verbose_name="Bomdod", help_text="Bomdod vaqti"
+    )
+    peshin = models.CharField(
+        max_length=255, verbose_name="Peshin", help_text="Peshin vaqti"
+    )
+    asr = models.CharField(
+        max_length=255, verbose_name="Asr", help_text="Asr vaqti"
+    )
+    shom = models.CharField(
+        max_length=255, verbose_name="Shom", help_text="Shom vaqti"
+    )
+    xufton = models.CharField(
+        max_length=255, verbose_name="Xufton", help_text="Xufton vaqti"
+    )
+
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        region_masjids = Masjid.objects.filter(region=self.region)
+        for masjid in region_masjids:
+            masjid.bomdod = self.bomdod
+            masjid.peshin = self.peshin
+            masjid.asr = self.asr
+            masjid.shom = self.shom
+            masjid.xufton = self.xufton
+            masjid.save()
+
+        return super().save()
+    
+    class Meta:
+        verbose_name = "Shaxar/Viloyat namoz vaqtlarini o'zgartirish"
+        verbose_name_plural = "Shaxar/Viloyat vaqtlarini o'zgartirish"
+
+class TumanTimesChange(models.Model):
+    district = models.ForeignKey(
+        District, on_delete=models.CASCADE, verbose_name="Tuman"
+    )
+    bomdod = models.CharField(
+        max_length=255, verbose_name="Bomdod", help_text="Bomdod vaqti"
+    )
+    peshin = models.CharField(
+        max_length=255, verbose_name="Peshin", help_text="Peshin vaqti"
+    )
+    asr = models.CharField(
+        max_length=255, verbose_name="Asr", help_text="Asr vaqti"
+    )
+    shom = models.CharField(
+        max_length=255, verbose_name="Shom", help_text="Shom vaqti"
+    )
+    xufton = models.CharField(
+        max_length=255, verbose_name="Xufton", help_text="Xufton vaqti"
+    )
+
+    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+        tuman_masjids = Masjid.objects.filter(district=self.district)
+        users = set()
+        for masjid in tuman_masjids:
+            masjid.bomdod = self.bomdod
+            masjid.peshin = self.peshin
+            masjid.asr = self.asr
+            masjid.shom = self.shom
+            masjid.xufton = self.xufton
+            masjid.save()
+            subs = masjid.subscription_set.all()
+            for sub in subs:
+                users.add(sub)
+
+        logging.warning(users)
+
+        return super().save()
+
+    class Meta:
+        verbose_name = "Tuman namoz vaqtlarini o'zgartirish"
+        verbose_name_plural = "Tuman namoz vaqtlarini o'zgartirish"
