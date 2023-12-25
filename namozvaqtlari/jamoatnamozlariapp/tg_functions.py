@@ -1,6 +1,8 @@
 import logging
 from telebot import TeleBot
 
+# from .models import Masjid
+
 bot = TeleBot("6392713399:AAEzbhQZo42QusOW7hlVUhI-jS06gJhYpdY", parse_mode="HTML")
 
 
@@ -19,5 +21,17 @@ def get_photo_id(photo_file):
 
 def send_new_masjid_times(masjid, subscriptions):
     old, new = masjid
-    # bot.send_message(chat_id=-1002099528963, text=message)
-    pass
+    text = f"""
+ {new.district.region.name_uz}, {new.district.name_uz}, {new.name_uz} jamoat vaqtlari oʻzgardi.
+
+🏞 Bomdod: {new.bomdod}
+🌇 Peshin: {new.peshin}
+🌆 Asr: {new.asr}
+🌃 Shom: {new.shom}
+🌌 Xufton: {new.hufton}
+"""
+
+    for sub in subscriptions:
+
+        bot.send_message(chat_id=sub.user.user_id, text=text)
+    

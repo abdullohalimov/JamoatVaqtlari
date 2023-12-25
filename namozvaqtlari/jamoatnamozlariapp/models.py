@@ -235,6 +235,7 @@ class Masjid(models.Model):
         force_update: bool = ...,
         using: str | None = ...,
         update_fields: Iterable[str] | None = ...,
+        is_global_change=False
     ) -> None:
         if self.name_ru == None:
             self.name_ru = self.name_uz
@@ -246,7 +247,7 @@ class Masjid(models.Model):
                 if self.photo != old.photo:
                     self.photo = get_photo_id(self.photo_file.file)
         
-        if self.pk:
+        if self.pk and not is_global_change:
             old = Masjid.objects.get(pk=self.pk)
             is_times_changed = False
             if self.bomdod != old.bomdod:
@@ -438,7 +439,7 @@ class ShaxarViloyatTimesChange(models.Model):
             masjid.asr = self.asr
             masjid.shom = self.shom
             masjid.xufton = self.xufton
-            masjid.save()
+            masjid.save(is_global_change=True)
 
         return super().save()
     

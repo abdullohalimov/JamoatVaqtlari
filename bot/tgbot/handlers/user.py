@@ -206,15 +206,15 @@ async def masjid_info(
     logging.warning(masjid)
     text = _(
         """
-<i>🕌 Masjid: <b>{masjid}</b>
+🕌 Masjid: <b>{masjid}</b>
 📍 Manzili: <b>{manzili1}, {manzili2}</b>
 
-🕒 Vaqtlari:
+🕒 Vaqtlari
 🏞 Bomdod: <b>{bomdod}</b>
 🌇 Peshin: <b>{peshin}</b>
 🌆 Asr: <b>{asr}</b>
 🌃 Shom: <b>{shom}</b>
-🌌 Xufton: <b>{hufton}</b></i>""",
+🌌 Xufton: <b>{hufton}</b>""",
         locale=data["locale"],
     ).format(
         masjid=masjid[lang_decode[data["locale"]]],
@@ -346,7 +346,7 @@ async def namoz_vaqti(message: Message, state: FSMContext):
     vaqtlar = bugungi_namoz_vaqti["vaqtlari"].split("|")
     text = _(
         """
-<b>Bugungi namoz vaqtlari:</b>
+<b>Bugungi namoz vaqtlari</b>
 
 <i>🏙 Tong: <b>{tong}</b> (saharlik tugashi) 
 🌅 Quyosh: <b>{quyosh}</b>
@@ -422,7 +422,7 @@ async def namoz_vaqti_callback(
             dates.append(text)
 
         await callback_query.message.edit_text(
-            _("Ushbu oy namoz vaqtlari:\n\n", locale=data["locale"]) + "".join(dates),
+            _("Ushbu oy namoz vaqtlari\n\n", locale=data["locale"]) + "".join(dates),
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=callback_data.mintaqa,
                 current_page=page,
@@ -489,7 +489,7 @@ async def pages_namoz_vaqtlari(
             dates.append(text)
 
         await callback_query.message.edit_text(
-            _("Ushbu oy namoz vaqtlari:\n\n", locale=data["locale"]) + "".join(dates),
+            _("Ushbu oy namoz vaqtlari\n\n", locale=data["locale"]) + "".join(dates),
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=data["current_mintaqa"],
                 current_page=page,
@@ -534,7 +534,7 @@ async def pages_namoz_vaqtlari(
             dates.append(text)
 
         await callback_query.message.edit_text(
-            _("Ushbu oy namoz vaqtlari:\n\n", locale=data["locale"]) + "".join(dates),
+            _("Ushbu oy namoz vaqtlari\n\n", locale=data["locale"]) + "".join(dates),
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=data["current_mintaqa"],
                 current_page=page,

@@ -40,4 +40,31 @@ def parse_vaqtlar():
         print("\n\n")
 
 
-parse_mintaqa()
+
+import asyncio
+async def wait_more():
+    print("Waited 60 seconds")
+    await asyncio.sleep(60)
+
+async def awaited_function():
+
+    await asyncio.sleep(5)
+    await wait_more()
+
+    print("Awaited function completed")
+
+async def main():
+    print("Creating task")
+    task = asyncio.create_task(awaited_function())
+    # Change the status of the task to "done" after 1 second
+    await asyncio.sleep(5)
+    print("Changing status of task")
+    print(task.cancel())
+
+    # Wait for the task to complete
+    await task
+
+    print("Task is done")
+
+# Run the main function
+asyncio.run(main())
