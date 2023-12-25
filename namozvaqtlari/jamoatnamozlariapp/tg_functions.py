@@ -35,3 +35,18 @@ def send_new_masjid_times(masjid, subscriptions):
 
         bot.send_message(chat_id=sub.user.user_id, text=text)
     
+def send_region_change_times(users, region, type):
+    region = f"{region.district.region.name_uz}, {region.district.name_uz}" if type == "district" else region.region.name_uz
+
+    text = f"""
+ {region} jamoat vaqtlari oʻzgardi.
+
+🏞 Bomdod: {region.bomdod}
+🌇 Peshin: {region.peshin}
+🌆 Asr: {region.asr}
+🌃 Shom: {region.shom}
+🌌 Xufton: {region.hufton}
+"""
+    
+    for sub in users:
+        bot.send_message(chat_id=sub.user.user_id, text=text)

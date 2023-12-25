@@ -3,7 +3,7 @@ import logging
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from .tg_functions import get_photo_id, send_new_masjid_times
+from .tg_functions import get_photo_id, send_new_masjid_times, send_region_change_times
 
 
 from django.db import models
@@ -432,14 +432,20 @@ class ShaxarViloyatTimesChange(models.Model):
     )
 
     def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
-        region_masjids = Masjid.objects.filter(region=self.region)
+        region_masjids = Masjid.objects.filter(district__region=self.region)
+        users = set()
         for masjid in region_masjids:
             masjid.bomdod = self.bomdod
             masjid.peshin = self.peshin
             masjid.asr = self.asr
             masjid.shom = self.shom
-            masjid.xufton = self.xufton
+            masjid.hufton = self.xufton
             masjid.save(is_global_change=True)
+            subs = masjid.subscription_set.all()
+            for sub in subs:
+                users.add(sub)
+
+        send_region_change_times(users, self, "region")
 
         return super().save()
     
@@ -475,11 +481,14 @@ class TumanTimesChange(models.Model):
             masjid.peshin = self.peshin
             masjid.asr = self.asr
             masjid.shom = self.shom
-            masjid.xufton = self.xufton
+            masjid.hufton = self.xufton
             masjid.save()
             subs = masjid.subscription_set.all()
             for sub in subs:
                 users.add(sub)
+
+        send_region_change_times(users, self, "district")
+        
 
         logging.warning(users)
 
