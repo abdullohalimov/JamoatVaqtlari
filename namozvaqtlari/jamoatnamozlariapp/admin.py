@@ -12,6 +12,8 @@ from .models import (
     Masjid,
     Subscription,
     CustomUser,
+    TumanTimesChange,
+    ShaxarViloyatTimesChange,
 )
 
 # Register your models here.
@@ -173,6 +175,31 @@ class NamozVaqtiAdmin(admin.ModelAdmin):
     ]
     autocomplete_fields = ["mintaqa"]
 
+class TimeChangeAdmin(admin.ModelAdmin):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "district":
+            # Filter choices based on the assigned region for custom admins
+            if not request.user.is_superuser and request.user.admin_type == "region":
+                kwargs["queryset"] = District.objects.filter(region=request.user.region)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(TimeChangeAdmin, self).get_form(request, obj=obj, **kwargs)
+
+        if not request.user.is_superuser:
+            if request.user.admin_type == "region":
+                try:
+                    form.base_fields["region"].initial = request.user.region
+                    form.base_fields["region"].widget.attrs["disabled"] = True
+                except:
+                    pass
+
+            elif request.user.admin_type == "district":
+                form.base_fields["district"].initial = request.user.district
+                form.base_fields["district"].widget.attrs["disabled"] = True
+
+        return form
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Region, RegionAdmin)
@@ -183,3 +210,5 @@ admin.site.register(Subscription, SubscriptionAdmin)
 admin.site.register(Mintaqa, MintaqaAdmin)
 admin.site.register(NamozVaqti, NamozVaqtiAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(TumanTimesChange, TimeChangeAdmin)
+admin.site.register(ShaxarViloyatTimesChange, TimeChangeAdmin)

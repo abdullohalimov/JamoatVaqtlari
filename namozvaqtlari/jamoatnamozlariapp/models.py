@@ -261,9 +261,7 @@ class Masjid(models.Model):
             if self.hufton != old.hufton:
                 is_times_changed = True
             
-            logging.warning("there was masjid so this is update, is_time_changed? {time}".format(time=is_times_changed))
             subscriptions = self.subscription_set.all()
-            logging.warning(subscriptions)
             send_new_masjid_times([old, self], subscriptions)
         else:
             logging.warning(f"there was no masjid so this is create")
@@ -447,7 +445,7 @@ class ShaxarViloyatTimesChange(models.Model):
 
         send_region_change_times(users, self, "region")
 
-        return super().save()
+        # return super().save()
     
     class Meta:
         verbose_name = "Shaxar/Viloyat namoz vaqtlarini o'zgartirish"
@@ -482,7 +480,7 @@ class TumanTimesChange(models.Model):
             masjid.asr = self.asr
             masjid.shom = self.shom
             masjid.hufton = self.xufton
-            masjid.save()
+            masjid.save(is_global_change=True)
             subs = masjid.subscription_set.all()
             for sub in subs:
                 users.add(sub)
@@ -492,7 +490,7 @@ class TumanTimesChange(models.Model):
 
         logging.warning(users)
 
-        return super().save()
+        # return super().save()
 
     class Meta:
         verbose_name = "Tuman namoz vaqtlarini o'zgartirish"
