@@ -1,0 +1,98 @@
+<!-- jamoatnamozlariapp/templates/jamoatnamozlariapp/custom_view.html -->
+{% extends 'jamoatnamozlariapp/custom_view_base.html' %}
+
+{% block custom_content %}
+<h1>Charts Page</h1>
+<div>
+    <!-- Set the canvas width and height to fill the viewport -->
+    <canvas id="myChart" style="width: 70vw; height: 70vh;"></canvas>
+    <canvas id="myChart2" style="width: 70vw; height: 70vh;"></canvas>
+    <canvas id="myChart3" style="width: 70vw; height: 70vh;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const ctx = document.getElementById('myChart');
+    const ctx2 = document.getElementById('myChart2');
+    const ctx3 = document.getElementById('myChart3');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ viloyat_labels | safe }},
+        datasets: [{
+            label: '# of Subscriptions',
+            data: {{ viloyat_values | safe }},
+        borderWidth: 1
+            }]
+          },
+        options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                padding: 10
+            }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Viloyatlar Statistikasi'
+            }
+        }
+    }
+        });
+
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: {{ district_labels | safe }},
+        datasets: [{
+            label: '# of Subscriptions',
+            data: {{ district_values | safe }},
+        borderWidth: 1
+            }]
+          },
+        options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                padding: 10
+            }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Tumanlar Statistikasi'
+            }
+        }
+    }
+        });
+
+    new Chart(ctx3, {
+        type: 'bar',
+        data: {
+            labels: {{ masjid_labels | safe }},
+        datasets: [{
+            label: '# of Subscriptions',
+            data: {{ masjid_values | safe }},
+        borderWidth: 1
+            }]
+          },
+        options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                padding: 10
+            }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Masjidlar Statistikasi'
+            }
+        }
+    }
+        });
+</script>
+{% endblock %}

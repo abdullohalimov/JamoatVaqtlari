@@ -22,4 +22,6 @@ urlpatterns = [
     re_path(r'^rosetta/', include('rosetta.urls')),
     path('admin/', admin.site.urls),
     path('api/', api.urls),
+    path('app/', include('jamoatnamozlariapp.urls')),
+
 ]
