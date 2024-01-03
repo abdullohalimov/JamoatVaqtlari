@@ -1,7 +1,8 @@
 services:
   web:
     build: ./namozvaqtlari
-
+    env_file:
+      - ./bot/.env
     volumes:
       - static:/app/static
       - media:/app/media

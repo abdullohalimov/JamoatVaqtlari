@@ -1,9 +1,10 @@
 import logging
+import os
 from telebot import TeleBot
 
 # from .models import Masjid
 
-bot = TeleBot("6392713399:AAEzbhQZo42QusOW7hlVUhI-jS06gJhYpdY", parse_mode="HTML")
+bot = TeleBot(os.environ.get("BOT_TOKEN"), parse_mode="HTML")
 
 
 text_uz = ""
@@ -32,8 +33,10 @@ def send_new_masjid_times(masjid, subscriptions):
 """
 
     for sub in subscriptions:
-
-        bot.send_message(chat_id=sub.user.user_id, text=text)
+        try:
+            bot.send_message(chat_id=sub.user.user_id, text=text)
+        except:
+            pass
     
 def send_region_change_times(users, region, type):
     region_text = f"{region.district.region.name_uz}, {region.district.name_uz}" if type == "district" else region.region.name_uz
@@ -49,4 +52,7 @@ def send_region_change_times(users, region, type):
 """
     
     for sub in users:
-        bot.send_message(chat_id=sub.user.user_id, text=text)
+        try:
+            bot.send_message(chat_id=sub.user.user_id, text=text)
+        except:
+            pass
