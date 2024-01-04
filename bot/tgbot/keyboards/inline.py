@@ -6,6 +6,8 @@ from tgbot.keyboards.factory import _
 lang_decode = {"uz": "name_uz", "de": "name_cyrl", "ru": "name_ru"}
 
 
+
+
 def language_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
@@ -32,6 +34,11 @@ def regions_keyboard(regions_list, lang="uz") -> InlineKeyboardBuilder:
         )
 
     keyboard.adjust(2)
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
 
     return keyboard.as_markup()
 
@@ -49,6 +56,11 @@ def districts_keyboard(districts_list, lang="uz") -> InlineKeyboardBuilder:
         )
 
     keyboard.adjust(2)
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
 
     return keyboard.as_markup()
 
@@ -71,9 +83,9 @@ def masjidlar_keyboard(
 
     keyboard.row(
         InlineKeyboardButton(
-            text=_("{icon} Orqaga".format(
+            text=_("{icon} Orqaga", locale=lang).format(
                 icon='⬅️' if current_page > 1 else '⏸'
-            ), locale=lang),
+            ),
             callback_data=factory.PagesData(page=current_page, action="prev").pack(),
         )
     )
@@ -91,7 +103,11 @@ def masjidlar_keyboard(
             ).pack(),
         ),
     )
-
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
     return keyboard.as_markup()
 
 
@@ -127,4 +143,80 @@ def masjid_kb(masjid_info, lang="uz") -> InlineKeyboardBuilder:
 
     return keyboard.as_markup()
 
+def namoz_vaqtlari_inline(mintaqa, lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("📅 Oylik namoz vaqtlari", locale=lang),
+            callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="oylik").pack()
+        ),
+        InlineKeyboardButton(
+            text=_("🔄 Mintaqa: {mintaqa}", locale=lang).format(mintaqa=mintaqa[lang_decode[lang]]),
+            callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="changemintaqa").pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
+    keyboard.adjust(1)
+    return keyboard.as_markup()
 
+def oylik_namoz_vaqtlari_inline(mintaqa, current_page,  has_next, lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("{icon} Orqaga", locale=lang).format(
+                icon='⬅️' if current_page > 1 else '⏸'
+            ),
+            callback_data=factory.PagesData(page=current_page, action="prev").pack(),
+        ),
+        InlineKeyboardButton(
+            text=f"{current_page}",
+            callback_data=factory.PagesData(page=current_page, action="page").pack(),
+        ),
+        InlineKeyboardButton(
+            text=_("{icon} Keyingi", locale=lang).format(
+                icon='➡️' if has_next else '⏸'
+            ),
+            callback_data=factory.PagesData(
+                page=current_page, action="next" if has_next else "stop"
+            ).pack(),
+        ),
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("📑 PDF formatida yuklash", locale=lang), callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa, action="downl").pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
+    return keyboard.as_markup()
+
+def mintaqa_viloyat_inline(viloyatlar, lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    for key, value in viloyatlar.items():
+        keyboard.add(InlineKeyboardButton(text=value, callback_data=factory.MintaqaViloyatData(viloyat_id=key).pack()))
+    keyboard.adjust(2)
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
+    return keyboard.as_markup()
+
+def mintaqa_inline(mintaqalar, lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    for mintaqa in mintaqalar:
+        keyboard.add(InlineKeyboardButton(text=mintaqa[lang_decode[lang]], callback_data=factory.MintaqaData(mintaqa_id=mintaqa['mintaqa_id']).pack()))
+    keyboard.adjust(2)
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
+    return keyboard.as_markup()

@@ -1,7 +1,8 @@
+from datetime import datetime
 import logging
 from traceback import print_exc
 from aiogram import F, Router
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from tgbot.services import api
@@ -12,17 +13,67 @@ from tgbot.misc.states import UserStates
 user_router = Router()
 lang_decode = {"uz": "name_uz", "de": "name_cyrl", "ru": "name_ru"}
 
+viloyatlar = {
+    "uz": {
+        "1": "Toshkent shaxri",
+        "2": "Andijon",
+        "3": "Buxoro",
+        "4": "Fargʻona",
+        "5": "Jizzax",
+        "6": "Namangan",
+        "7": "Navoiy",
+        "8": "Qashqadaryo",
+        "9": "Qoraqalpogʻiston",
+        "10": "Samarqand",
+        "11": "Sirdaryo",
+        "12": "Surxondaryo",
+        "13": "Toshkent viloyati",
+        "14": "Xorazm",
+        "99": "Boshqa",
+    
+    },
+    "de": {
+        "1":  "Тошкент шахри", 
+        "2":  "Андижон", 
+        "3":  "Бухоро", 
+        "4":  "Фарғона", 
+        "5":  "Жиззах", 
+        "6":  "Наманган", 
+        "7":  "Навоий", 
+        "8":  "Қашқадарё", 
+        "9":  "Қорақалпоғистон", 
+        "10":  "Самарқанд", 
+        "11":  "Сирдарё", 
+        "12":  "Сурхондарё", 
+        "13":  "Тошкент вилояти", 
+        "14":  "Хоразм", 
+        "99":  "Бошқа", 
+    },
+    "ru": {},
+}
+
+
+pages = {
+    1: [1, 2, 3, 4, 5],
+    2: [6, 7, 8, 9, 10],
+    3: [11, 12, 13, 14, 15],
+    4: [16, 17, 18, 19, 20],
+    5: [21, 22, 23, 24, 25],
+    6: [26, 27, 28, 29, 30],
+    7: [31],
+}
+
+
 @user_router.message(CommandStart())
 async def user_start(message: Message, state: FSMContext):
     data = await state.get_data()
+    await state.set_state(UserStates.menu)
     if data.get("registered", False):
         await message.answer(
             _("🏡 Bosh menyu", locale=data["locale"]),
             reply_markup=reply.main_menu_user(data["locale"]),
         )
-        user = await api.update_or_create_user(
-            user_id=message.chat.id, full_name=message.from_user.full_name
-        )
+        
 
     else:
         await message.answer(
@@ -52,17 +103,23 @@ async def set_language(
     await state.set_state(UserStates.menu)
     await callback_query.message.delete()
 
+    user = await api.update_or_create_user(
+            user_id=callback_query.message.chat.id, full_name=callback_query.from_user.full_name, lang=callback_data.language
+        )
+
 
 @user_router.message(
     F.text.in_(["🕌 Jamoat vaqtlari", "🕌 Жамоат вақтлари"]), UserStates.menu
 )
 async def jamoat(message: Message, state: FSMContext):
     data = await state.get_data()
-    regions = await api.get_regions(data["locale"])
+    regions = await api.get_regions()
+    t = await message.answer(".", reply_markup=ReplyKeyboardRemove())
     await message.answer(
         _("🏙 Hududni  tanlang:", locale=data["locale"]),
-        reply_markup=inline.regions_keyboard(regions),
+        reply_markup=inline.regions_keyboard(regions, data["locale"]),
     )
+    await t.delete()
 
 
 @user_router.callback_query(factory.RegionData.filter())
@@ -85,10 +142,11 @@ async def get_masjids(
     state: FSMContext,
 ):
     await state.update_data(current_page=1, current_district=callback_data.ditrict)
+    await state.set_state(UserStates.select_masjid)
     data = await state.get_data()
     masjidlar = await api.get_masjidlar(callback_data.ditrict)
     has_next = True if (1 * 5) < masjidlar["count"] else False
- 
+
     logging.warning(masjidlar)
     await callback_query.message.edit_text(
         "🕌 Masjidni tanlang:",
@@ -98,7 +156,7 @@ async def get_masjids(
     )
 
 
-@user_router.callback_query(factory.PagesData.filter())
+@user_router.callback_query(factory.PagesData.filter(), UserStates.select_masjid)
 async def get_masjids(
     callback_query: CallbackQuery, callback_data: factory.PagesData, state: FSMContext
 ):
@@ -107,11 +165,14 @@ async def get_masjids(
     if callback_data.action == "next":
         page = int(data["current_page"]) + 1
         masjidlar = await api.get_masjidlar(data["current_district"], page=page)
-        has_next = True if ((page ) * 5) < masjidlar["count"] else False
+        has_next = True if ((page) * 5) < masjidlar["count"] else False
         await callback_query.message.edit_text(
             "🕌 Masjidni tanlang:",
             reply_markup=inline.masjidlar_keyboard(
-                masjidlar["items"], lang=data["locale"], current_page=page, has_next=has_next
+                masjidlar["items"],
+                lang=data["locale"],
+                current_page=page,
+                has_next=has_next,
             ),
         )
 
@@ -122,7 +183,6 @@ async def get_masjids(
         masjidlar = await api.get_masjidlar(data["current_district"], page=page)
 
         has_next = True if ((page) * 5) < masjidlar["count"] else False
-
 
         await callback_query.message.edit_text(
             "🕌 Masjidni tanlang:",
@@ -135,7 +195,8 @@ async def get_masjids(
 
     await callback_query.answer()
 
-@user_router.callback_query(factory.MasjidData.filter())
+
+@user_router.callback_query(factory.MasjidData.filter(), UserStates.select_masjid)
 async def masjid_info(
     callback_query: CallbackQuery, callback_data: factory.MasjidData, state: FSMContext
 ):
@@ -143,59 +204,112 @@ async def masjid_info(
     data = await state.get_data()
     masjid = await api.masjid_info(callback_data.masjid)
     logging.warning(masjid)
-    text = f"""
-🕌 Masjid: {masjid[lang_decode[data["locale"]]]}
-📍 Manzili: {masjid['district']['region'][lang_decode[data["locale"]]]}, {masjid['district'][lang_decode[data["locale"]]]}
+    text = _(
+        """
+🕌 Masjid: <b>{masjid}</b>
+📍 Manzili: <b>{manzili1}, {manzili2}</b>
 
-🕒 Vaqtlari:
-🏞 Bomdod: {masjid['bomdod']}
-🌇 Peshin: {masjid['peshin']}
-🌆 Asr: {masjid['asr']}
-🌃 Shom: {masjid['shom']}
-🌌 Xufton: {masjid['hufton']}
-"""
-    
-    
+🕒 Vaqtlari
+🏞 Bomdod: <b>{bomdod}</b>
+🌇 Peshin: <b>{peshin}</b>
+🌆 Asr: <b>{asr}</b>
+🌃 Shom: <b>{shom}</b>
+🌌 Xufton: <b>{hufton}</b>""",
+        locale=data["locale"],
+    ).format(
+        masjid=masjid[lang_decode[data["locale"]]],
+        manzili1=masjid["district"]["region"][lang_decode[data["locale"]]],
+        manzili2=masjid["district"][lang_decode[data["locale"]]],
+        bomdod=masjid["bomdod"],
+        peshin=masjid["peshin"],
+        asr=masjid["asr"],
+        shom=masjid["shom"],
+        hufton=masjid["hufton"],
+    )
+
     markup = inline.masjid_kb(masjid, lang=data["locale"])
-    if str(masjid.get('photo', False)) != "None":
+    if str(masjid.get("photo", False)) != "None":
         try:
             # raise Exception
-            await callback_query.message.answer_photo(photo=masjid['photo'], caption=text, reply_markup=markup)
+            await callback_query.message.answer_photo(
+                photo=masjid["photo"], caption=text, reply_markup=markup
+            )
         except:
             print_exc()
             try:
-                await callback_query.message.answer_photo(photo=api.global_url + masjid['photo_file'], caption=text, reply_markup=markup)
+                await callback_query.message.answer_photo(
+                    photo=api.global_url + masjid["photo_file"],
+                    caption=text,
+                    reply_markup=markup,
+                )
             except:
                 print_exc()
                 await callback_query.message.edit_text(text=text, reply_markup=markup)
     else:
         await callback_query.message.edit_text(text=text, reply_markup=markup)
 
-    await callback_query.message.delete()
 
 @user_router.callback_query(factory.MasjidLocationData.filter())
 async def masjid_location(
-    callback_query: CallbackQuery, callback_data: factory.MasjidLocationData, state: FSMContext
+    callback_query: CallbackQuery,
+    callback_data: factory.MasjidLocationData,
+    state: FSMContext,
 ):
-    await callback_query.message.answer_location(latitude=float(callback_data.lt), longitude=float(callback_data.ln))
+    await callback_query.message.answer_location(
+        latitude=float(callback_data.lt), longitude=float(callback_data.ln)
+    )
+
 
 @user_router.callback_query(factory.MasjidInfoData.filter())
 async def masjid_info(
-    callback_query: CallbackQuery, callback_data: factory.MasjidInfoData, state: FSMContext
+    callback_query: CallbackQuery,
+    callback_data: factory.MasjidInfoData,
+    state: FSMContext,
 ):
     logging.warning(callback_data)
+    data = await state.get_data()
     if callback_data.action == "main":
         await user_start(callback_query.message, state)
         await callback_query.message.delete()
         return
-    resp = await api.masjid_subscription(user_id=callback_query.message.chat.id, masjid_id=callback_data.masjid, action=callback_data.action)
-    if resp['success']:
+    resp = await api.masjid_subscription(
+        user_id=callback_query.message.chat.id,
+        masjid_id=callback_data.masjid,
+        action=callback_data.action,
+    )
+    if resp["success"]:
+        logging.warning(resp)
+        masjid = resp["masjid"]
         if callback_data.action == "subscribe":
-            await callback_query.answer(text="Obuna bo'ldingiz")
+            await callback_query.message.edit_text(
+                _(
+                    "✅ {district} {masjid} masjidi jamoat vaqtlariga obuna boʻldingiz",
+                    locale=data["locale"],
+                ).format(
+                    district=masjid["district"][lang_decode[data["locale"]]],
+                    masjid=masjid[lang_decode[data["locale"]]],
+                )
+            )
+            await state.set_state(UserStates.menu)
         elif callback_data.action == "unsubscribe":
-            await callback_query.answer(text="Obunani bekor qildingiz")    
+            await callback_query.message.edit_text(
+                _(
+                    "☑️ {district} {masjid} masjidi jamoat vaqtlariga obuna bekor qilindi",
+                    locale=data["locale"],
+                ).format(
+                    district=masjid["district"][lang_decode[data["locale"]]],
+                    masjid=masjid[lang_decode[data["locale"]]],
+                ),
+            )
+            await state.set_state(UserStates.menu)
+
+        await callback_query.message.answer(
+            _("🏡 Bosh menyu", locale=data["locale"]),
+            reply_markup=reply.main_menu_user(data["locale"]),
+        )
     else:
         await callback_query.answer(text="Xatolik yuz berdi")
+
 
 @user_router.message(F.text.in_(["✅ Obunalar", "✅ Обуналар"]))
 async def masjid_info(message: Message, state: FSMContext):
@@ -210,12 +324,255 @@ async def masjid_info(message: Message, state: FSMContext):
         text += f"🕓 {masjid['masjid']['bomdod']} | {masjid['masjid']['peshin']} | {masjid['masjid']['asr']} | {masjid['masjid']['shom']} | {masjid['masjid']['hufton']} \n\n"
     await message.answer(text)
 
+
 @user_router.message(F.text.in_(["🇺🇿 Yozuvni o'zgartirish", "🇺🇿 Ёзувни ўзгартириш"]))
 async def change_lang(message: Message, state: FSMContext):
     data = await state.get_data()
     await message.answer(
-            _("✅ Yozuvni tanlang:", locale=data["locale"]),
-            reply_markup=inline.language_keyboard(),
+        _("✅ Yozuvni tanlang:", locale=data["locale"]),
+        reply_markup=inline.language_keyboard(),
+    )
+
+
+@user_router.message(F.text.in_(["🕰 Namoz vaqtlari", "🕰 Намоз вақтлари"]))
+async def namoz_vaqti(message: Message, state: FSMContext):
+    data = await state.get_data()
+    mintaqa = data.get("mintaqa", 27)
+    currint_time = datetime.now()
+    bugungi_namoz_vaqti = await api.get_today_namoz_vaqti(
+        mintaqa=mintaqa, milodiy_oy=currint_time.month, milodiy_kun=currint_time.day
+    )
+    logging.warning(bugungi_namoz_vaqti)
+    vaqtlar = bugungi_namoz_vaqti["vaqtlari"].split("|")
+    text = _(
+        """
+<b>Bugungi namoz vaqtlari</b>
+
+<i>🏙 Tong: <b>{tong}</b> (saharlik tugashi) 
+🌅 Quyosh: <b>{quyosh}</b>
+🏞 Peshin: <b>{peshin}</b>
+🌇 Asr: <b>{asr}</b>
+🌆 Shom: <b>{shom}</b> (iftorlik boshlanishi)
+🌌 Xufton: <b>{xufton}</b></i>
+""",
+        locale=data["locale"],
+    ).format(
+        tong=vaqtlar[0].strip(),
+        quyosh=vaqtlar[1].strip(),
+        peshin=vaqtlar[2].strip(),
+        asr=vaqtlar[3].strip(),
+        shom=vaqtlar[4].strip(),
+        xufton=vaqtlar[5].strip(),
+    )
+    t = await message.answer(".", reply_markup=ReplyKeyboardRemove()) 
+    await message.answer(
+        text,
+        reply_markup=inline.namoz_vaqtlari_inline(
+            mintaqa=bugungi_namoz_vaqti["mintaqa"], lang=data["locale"]
+        ),
+    )
+    await t.delete()
+
+@user_router.callback_query(factory.NamozVaqtlariData.filter())
+async def namoz_vaqti_callback(
+    callback_query: CallbackQuery,
+    callback_data: factory.NamozVaqtlariData,
+    state: FSMContext,
+):
+    current_time = datetime.now()
+    data = await state.get_data()
+    if callback_data.action == "oylik":
+        logging.warning(callback_data)
+        current_time = datetime.now()
+        page = 1
+        await state.set_state(UserStates.select_namoz_vaqti)
+        for key, value in pages.items():
+            if current_time.day in value:
+                page = key
+
+        oylik = await api.get_namoz_vaqtlari(
+            mintaqa=callback_data.mintaqa, milodiy_oy=current_time.month, page=page
+        )
+        has_next = True if ((page) * 5) < oylik["count"] else False
+
+        dates = []
+        for kun in oylik["items"]:
+            vaqtlar = kun["vaqtlari"].split("|")
+            sana = f"{current_time.year}.{kun['milodiy_oy']}.{kun['milodiy_kun']}"
+            text = _(
+                """<i>Sana: <b>{sana}</b>
+🏙 Tong: <b>{tong}</b> (saharlik tugashi)
+🌅 Quyosh: <b>{quyosh}</b>
+🏞 Peshin: <b>{peshin}</b>
+🌇 Asr: <b>{asr}</b>
+🌆 Shom: <b>{shom}</b> (iftorlik boshlanishi)
+🌌 Xufton: <b>{xufton}</b></i>
+                     
+""",
+                locale=data["locale"],
+            ).format(
+                sana=sana,
+                tong=vaqtlar[0].strip(),
+                quyosh=vaqtlar[1].strip(),
+                peshin=vaqtlar[2].strip(),
+                asr=vaqtlar[3].strip(),
+                shom=vaqtlar[4].strip(),
+                xufton=vaqtlar[5].strip(),
+            )
+            dates.append(text)
+
+        await callback_query.message.edit_text(
+            _("Ushbu oy namoz vaqtlari\n\n", locale=data["locale"]) + "".join(dates),
+            reply_markup=inline.oylik_namoz_vaqtlari_inline(
+                mintaqa=callback_data.mintaqa,
+                current_page=page,
+                has_next=has_next,
+                lang=data["locale"],
+            ),
+        )
+        await state.update_data(
+            current_page=page, current_mintaqa=callback_data.mintaqa
+        )
+
+    if callback_data.action == "downl":
+        await callback_query.message.answer_document(
+            f"https://islom.uz/prayertime/pdf/{callback_data.mintaqa}/{current_time.month}"
+        )
+
+    if callback_data.action == "changemintaqa":
+        await callback_query.message.edit_text(
+            _("Mintaqani o'zgartirish:", locale=data["locale"]),
+            reply_markup=inline.mintaqa_viloyat_inline(
+                viloyatlar[data["locale"]], data["locale"]
+            ),
         )
 
 
+@user_router.callback_query(factory.PagesData.filter(), UserStates.select_namoz_vaqti)
+async def pages_namoz_vaqtlari(
+    callback_query: CallbackQuery, callback_data: factory.PagesData, state: FSMContext
+):
+    data = await state.get_data()
+    current_time = datetime.now()
+
+    if callback_data.action == "next":
+        page = int(data["current_page"]) + 1
+        oylik = await api.get_namoz_vaqtlari(
+            mintaqa=data["current_mintaqa"], milodiy_oy=current_time.month, page=page
+        )
+        has_next = True if ((page) * 5) < oylik["count"] else False
+
+        dates = []
+        for kun in oylik["items"]:
+            vaqtlar = kun["vaqtlari"].split("|")
+            sana = f"{current_time.year}.{kun['milodiy_oy']}.{kun['milodiy_kun']}"
+            text = _(
+                """<i>Sana: <b>{sana}</b>
+🏙 Tong: <b>{tong}</b> (saharlik tugashi)
+🌅 Quyosh: <b>{quyosh}</b>
+🏞 Peshin: <b>{peshin}</b>
+🌇 Asr: <b>{asr}</b>
+🌆 Shom: <b>{shom}</b> (iftorlik boshlanishi)
+🌌 Xufton: <b>{xufton}</b></i>
+                     
+""",
+                locale=data["locale"],
+            ).format(
+                sana=sana,
+                tong=vaqtlar[0].strip(),
+                quyosh=vaqtlar[1].strip(),
+                peshin=vaqtlar[2].strip(),
+                asr=vaqtlar[3].strip(),
+                shom=vaqtlar[4].strip(),
+                xufton=vaqtlar[5].strip(),
+            )
+            dates.append(text)
+
+        await callback_query.message.edit_text(
+            _("Ushbu oy namoz vaqtlari\n\n", locale=data["locale"]) + "".join(dates),
+            reply_markup=inline.oylik_namoz_vaqtlari_inline(
+                mintaqa=data["current_mintaqa"],
+                current_page=page,
+                has_next=has_next,
+                lang=data["locale"],
+            ),
+        )
+
+        await state.update_data(current_page=page)
+
+    elif callback_data.action == "prev" and int(data["current_page"]) > 1:
+        page = int(data["current_page"]) - 1
+        oylik = await api.get_namoz_vaqtlari(
+            mintaqa=data["current_mintaqa"], milodiy_oy=current_time.month, page=page
+        )
+        has_next = True if ((page) * 5) < oylik["count"] else False
+
+        dates = []
+        for kun in oylik["items"]:
+            vaqtlar = kun["vaqtlari"].split("|")
+            sana = f"{current_time.year}.{kun['milodiy_oy']}.{kun['milodiy_kun']}"
+            text = _(
+                """<i>Sana: <b>{sana}</b>
+🏙 Tong: <b>{tong}</b> (saharlik tugashi)
+🌅 Quyosh: <b>{quyosh}</b>
+🏞 Peshin: <b>{peshin}</b>
+🌇 Asr: <b>{asr}</b>
+🌆 Shom: <b>{shom}</b> (iftorlik boshlanishi)
+🌌 Xufton: <b>{xufton}</b></i>
+                     
+""",
+                locale=data["locale"],
+            ).format(
+                sana=sana,
+                tong=vaqtlar[0].strip(),
+                quyosh=vaqtlar[1].strip(),
+                peshin=vaqtlar[2].strip(),
+                asr=vaqtlar[3].strip(),
+                shom=vaqtlar[4].strip(),
+                xufton=vaqtlar[5].strip(),
+            )
+            dates.append(text)
+
+        await callback_query.message.edit_text(
+            _("Ushbu oy namoz vaqtlari\n\n", locale=data["locale"]) + "".join(dates),
+            reply_markup=inline.oylik_namoz_vaqtlari_inline(
+                mintaqa=data["current_mintaqa"],
+                current_page=page,
+                has_next=has_next,
+                lang=data["locale"],
+            ),
+        )
+
+        await state.update_data(current_page=page)
+
+    await callback_query.answer()
+
+
+@user_router.callback_query(factory.MintaqaViloyatData.filter())
+async def mintaqa_viloyat(
+    callback_query: CallbackQuery,
+    callback_data: factory.MintaqaViloyatData,
+    state: FSMContext,
+):
+    pass
+    data = await state.get_data()
+
+    mintaqalar = await api.get_viloyat_mintaqalari(viloyat_id=callback_data.viloyat_id)
+    await callback_query.message.edit_text(
+        _("Mintaqani o'zgartirish:", locale=data["locale"]),
+        reply_markup=inline.mintaqa_inline(mintaqalar, data["locale"]),
+    )
+
+
+@user_router.callback_query(factory.MintaqaData.filter())
+async def mintaqa(
+    callback_query: CallbackQuery, callback_data: factory.MintaqaData, state: FSMContext
+):
+    await callback_query.message.delete()
+    await state.update_data(mintaqa=callback_data.mintaqa_id)
+    await namoz_vaqti(callback_query.message, state)
+    # await state.set_state(UserStates.menu)
+    # await callback_query.message.answer(
+    #         _("🏡 Bosh menyu", locale=data["locale"]),
+    #         reply_markup=reply.main_menu_user(data["locale"]),
+    #     )
