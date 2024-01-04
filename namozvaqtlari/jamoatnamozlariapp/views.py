@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import user_passes_test
 from .models import District, Masjid, Region
 from django.db.models import Count
 
-
 def is_admin(user):
     return user.is_authenticated and user.is_staff
 
@@ -79,8 +78,7 @@ def masjid_statistics(request):
 
 # views.py
 
-from django.shortcuts import render
-from .models import Region, District, Masjid
+
 
 
 @user_passes_test(is_admin)
