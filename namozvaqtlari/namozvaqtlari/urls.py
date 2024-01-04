@@ -20,8 +20,8 @@ from django.urls import include, path, re_path
 from .api import api 
 urlpatterns = [
     re_path(r'^rosetta/', include('rosetta.urls')),
+    path('admin/', include('jamoatnamozlariapp.urls')),
     path('admin/', admin.site.urls),
     path('api/', api.urls),
-    path('app/', include('jamoatnamozlariapp.urls')),
 
 ]

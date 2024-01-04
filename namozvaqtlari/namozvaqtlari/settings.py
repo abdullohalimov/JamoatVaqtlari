@@ -177,24 +177,26 @@ JAZZMIN_SETTINGS = {
     # Top Menu #
     ############
     # Links to put along the top menu
-    # "topmenu_links": [
-    #     # Url that gets reversed (Permissions can be added)
-    #     {"name": "Home",  "url": "admin:index", "permissions": ["auth.view_user"]},
-    #     # external url that opens in a new window (Permissions can be added)
-    #     {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
-    #     # model admin to link to (Permissions checked against model)
-    #     {"model": "auth.User"},
-    #     # App with dropdown menu to all its models pages (Permissions checked against models)
-    #     {"app": "books"},
-    # ],
+    "topmenu_links": [
+        # Url that gets reversed (Permissions can be added)
+        {"name": "Bosh menyu",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        # external url that opens in a new window (Permissions can be added)
+        {"name": "Masjidlar statisikasi", "url": "/admin/masjid_s"},
+        {"name": "Tuman statisikasi", "url": "/admin/district_s"},
+        {"name": "Viloyat statisikasi", "url": "/admin/region_s"},
+
+    ],
     #############
     # User Menu #
     #############
     # Additional links to include in the user menu on the top right ("app" url type is not allowed)
-    # "usermenu_links": [
-    #     {"name": "Support", "url": "https://github.com/farridav/django-jazzmin/issues", "new_window": True},
-    #     {"model": "auth.user"}
-    # ],
+    "usermenu_links": [
+        {"name": "Masjidlar statisikasi", "url": "/admin/masjid_s", 'icon': "fas fa-mosque"},
+        {"name": "Tuman statisikasi", "url": "/admin/district_s", 'icon': "fas fa-city"},
+        {"name": "Viloyat statisikasi", "url": "/admin/region_s", 'icon': "fas fa-map-marked"},
+        {"name": "Bosh menyu",  "url": "admin:index", "permissions": ["auth.view_user"], 'icon': "fas fa-home"},
+
+    ],
     #############
     # Side Menu #
     #############
@@ -233,6 +235,16 @@ JAZZMIN_SETTINGS = {
         "auth": "fas fa-users-cog",
         "auth.user": "fas fa-user",
         "auth.Group": "fas fa-users",
+        "jamoatnamozlariapp.customuser": "fas fa-user-tie",
+        "jamoatnamozlariapp.region": "fas fa-map-marked",
+        "jamoatnamozlariapp.district": "fas fa-city",
+        "jamoatnamozlariapp.masjid": "fas fa-mosque",
+        "jamoatnamozlariapp.mintaqa": "fas fa-globe-americas",
+        "jamoatnamozlariapp.namozvaqti": "fas fa-clock",
+        "jamoatnamozlariapp.user": "fas fa-users",
+        "jamoatnamozlariapp.subscription": "fas fa-rss",
+        "jamoatnamozlariapp.ShaxarViloyatTimesChange": "fas fa-exchange-alt",
+        "jamoatnamozlariapp.TumanTimesChange": "fas fa-exchange-alt",
     },
     # Icons that are used when one is not manually specified
     "default_icon_parents": "fas fa-chevron-circle-right",

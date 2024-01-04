@@ -2,97 +2,145 @@
 {% extends 'jamoatnamozlariapp/custom_view_base.html' %}
 
 {% block custom_content %}
-<h1>Charts Page</h1>
-<div>
+  <h1>Charts Page</h1>
+  <div class="chart-container">
     <!-- Set the canvas width and height to fill the viewport -->
-    <canvas id="myChart" style="width: 70vw; height: 70vh;"></canvas>
-    <canvas id="myChart2" style="width: 70vw; height: 70vh;"></canvas>
-    <canvas id="myChart3" style="width: 70vw; height: 70vh;"></canvas>
-</div>
+    <div class="chart">
+      <canvas id="myChart" style="width: 100%; height: 100%;"></canvas>
+    </div>
+    <div class="chart">
+      <canvas id="myChart2" style="width: 100%; height: 100%;"></canvas>
+    </div>
+    <div class="chart">
+      <canvas id="myChart3" style="width: 100%; height: 100%;"></canvas>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script>
-    const ctx = document.getElementById('myChart');
-    const ctx2 = document.getElementById('myChart2');
-    const ctx3 = document.getElementById('myChart3');
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const ctx = document.getElementById('myChart');
+      const ctx2 = document.getElementById('myChart2');
+      const ctx3 = document.getElementById('myChart3');
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: {{ viloyat_labels | safe }},
+      var data1 = {
+        labels: {{ viloyat_labels | safe }},
         datasets: [{
-            label: '# of Subscriptions',
-            data: {{ viloyat_values | safe }},
-        borderWidth: 1
-            }]
-          },
-        options: {
-        scales: {
-            y: {
-                beginAtZero: true,
-                padding: 10
-            }
-        },
-        plugins: {
-            title: {
-                display: true,
-                text: 'Viloyatlar Statistikasi'
-            }
-        }
-    }
-        });
+          label: '# of Subscriptions',
+          data: {{ viloyat_values | safe }},
+          borderWidth: 1
+        }]
+      };
 
-    new Chart(ctx2, {
-        type: 'bar',
-        data: {
-            labels: {{ district_labels | safe }},
+      var data2 = {
+        labels: {{ district_labels | safe }},
         datasets: [{
-            label: '# of Subscriptions',
-            data: {{ district_values | safe }},
-        borderWidth: 1
-            }]
-          },
-        options: {
-        scales: {
-            y: {
-                beginAtZero: true,
-                padding: 10
-            }
-        },
-        plugins: {
-            title: {
-                display: true,
-                text: 'Tumanlar Statistikasi'
-            }
-        }
-    }
-        });
+          label: '# of Subscriptions',
+          data: {{ district_values | safe }},
+        }]
+      };
 
-    new Chart(ctx3, {
-        type: 'bar',
-        data: {
-            labels: {{ masjid_labels | safe }},
+      var data3 = {
+        labels: {{ masjid_labels | safe }},
         datasets: [{
-            label: '# of Subscriptions',
-            data: {{ masjid_values | safe }},
-        borderWidth: 1
-            }]
-          },
+          label: '# of Subscriptions',
+          data: {{ masjid_values | safe }},
+        }]
+      };
+
+      data1.datasets[0].data.sort(function (a, b) {
+        return a - b; // Change to b - a for descending order
+      });
+
+      data2.datasets[0].data.sort(function (a, b) {
+        return a - b; // Change to b - a for descending order
+      });
+
+      data3.datasets[0].data.sort(function (a, b) {
+        return a - b; // Change to b - a for descending order
+      });
+
+      // Calculate the maximum value from the data and add 10
+        var maxY1 = Math.max(...data1.datasets[0].data) + 10;
+        var maxY2 = Math.max(...data2.datasets[0].data) + 10;
+        var maxY3 = Math.max(...data3.datasets[0].data) + 10;
+
+        // Ensure maxY3 is at least 10 if the data is empty
+        maxY3 = Math.max(maxY3, 10);
+
+      new Chart(ctx, {
+        type: 'bar',
+        data: data1,
         options: {
-        scales: {
+          scales: {
             y: {
-                beginAtZero: true,
-                padding: 10
+              beginAtZero: true,
+              max: maxY1,
+              padding: 10
             }
-        },
-        plugins: {
+          },
+          plugins: {
             title: {
-                display: true,
-                text: 'Masjidlar Statistikasi'
+              display: true,
+              text: 'Viloyatlar Statistikasi'
             }
+          }
         }
+      });
+
+      new Chart(ctx2, {
+        type: 'bar',
+        data: data2,
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: maxY2,
+              padding: 10
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Tumanlar Statistikasi'
+            }
+          }
+        }
+      });
+
+      new Chart(ctx3, {
+        type: 'bar',
+        data: data3,
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: maxY3,
+              padding: 10
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: 'Masjidlar Statistikasi'
+            }
+          }
+        }
+      });
+    });
+  </script>
+
+  <style>
+    .chart-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px; /* Adjust the gap as needed */
     }
-        });
-</script>
+
+    .chart {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
 {% endblock %}
