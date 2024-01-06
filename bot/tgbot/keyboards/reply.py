@@ -9,7 +9,7 @@ def main_menu_user(lang) -> ReplyKeyboardBuilder:
         KeyboardButton(text=_("🕰 Namoz vaqtlari", locale=lang)),
         KeyboardButton(text=_("✅ Obunalar", locale=lang)),
         KeyboardButton(text=_("📊 Statistika", locale=lang)),
-        KeyboardButton(text=_("🇺🇿 Yozuvni o'zgartirish", locale=lang)),
+        KeyboardButton(text=_("🇺🇿 Yozuvni oʻzgartirish", locale=lang)),
     )
     keyboard.adjust(1,1,2)
     return keyboard.as_markup(resize_keyboard=True, inline_placeholder=_("Bosh menyu", locale=lang), is_persistent=True)

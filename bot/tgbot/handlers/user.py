@@ -51,6 +51,36 @@ viloyatlar = {
     "ru": {},
 }
 
+months = {
+    "uz": {
+        1: "Yanvar",
+        2: "Fevral",
+        3: "Mart",
+        4: "Aprel",
+        5: "May",
+        6: "Iyun",
+        7: "Iyul",
+        8: "Avgust",
+        9: "Sentyabr",
+        10: "Oktyabr",
+        11: "Noyabr",
+        12: "Dekabr",
+    },
+    "de": {
+        1: "Январь",
+        2: "Февраль",
+        3: "Март",
+        4: "Апрель",
+        5: "Май",
+        6: "Июнь",
+        7: "Июль",
+        8: "Август",
+        9: "Сентябрь",
+        10: "Октябрь",
+        11: "Ноябрь",
+        12: "Декабрь",
+    },
+}
 
 pages = {
     1: [1, 2, 3, 4, 5],
@@ -112,7 +142,7 @@ async def set_language(
     F.text.in_(["🕌 Jamoat vaqtlari", "🕌 Жамоат вақтлари"]), UserStates.menu
 )
 async def jamoat(message: Message, state: FSMContext):
-    await state.update_data(masjid_action='subscription')
+    await state.update_data(masjid_action="subscription")
     data = await state.get_data()
     regions = await api.get_regions()
     t = await message.answer(".", reply_markup=ReplyKeyboardRemove())
@@ -374,7 +404,8 @@ async def statistika(message: Message, state: FSMContext):
 {district} boʻyicha: {district_count}-oʻrin
 {region} boʻyicha: {region_count}-oʻrin
 Oʻzbekiston boʻyicha: {global_count}-oʻrin
-""", locale=data["locale"],
+""",
+            locale=data["locale"],
         ).format(
             masjid=masjid["masjid"][lang_decode[data["locale"]]],
             district=masjid["masjid"]["district"][lang_decode[data["locale"]]],
@@ -406,7 +437,7 @@ async def other_masjids(
     await t.delete()
 
 
-@user_router.message(F.text.in_(["🇺🇿 Yozuvni o'zgartirish", "🇺🇿 Ёзувни ўзгартириш"]))
+@user_router.message(F.text.in_(["🇺🇿 Yozuvni oʻzgartirish", "🇺🇿 Ёзувни ўзгартириш"]))
 async def change_lang(message: Message, state: FSMContext):
     data = await state.get_data()
     await message.answer(
@@ -427,7 +458,9 @@ async def namoz_vaqti(message: Message, state: FSMContext):
     vaqtlar = bugungi_namoz_vaqti["vaqtlari"].split("|")
     text = _(
         """
-<b>Bugungi namoz vaqtlari</b>
+<b>Namoz vaqtlari
+
+{sana}</b>
 
 <i>🏙 Tong: <b>{tong}</b> (saharlik tugashi) 
 🌅 Quyosh: <b>{quyosh}</b>
@@ -438,6 +471,7 @@ async def namoz_vaqti(message: Message, state: FSMContext):
 """,
         locale=data["locale"],
     ).format(
+        sana=datetime.now().strftime("%d.%m.%Y"),
         tong=vaqtlar[0].strip(),
         quyosh=vaqtlar[1].strip(),
         peshin=vaqtlar[2].strip(),
@@ -476,13 +510,14 @@ async def namoz_vaqti_callback(
             mintaqa=callback_data.mintaqa, milodiy_oy=current_time.month, page=page
         )
         has_next = True if ((page) * 5) < oylik["count"] else False
-
+        mintaqatext = ""
         dates = []
         for kun in oylik["items"]:
+            mintaqatext = kun['mintaqa'][lang_decode[data['locale']]]
             vaqtlar = kun["vaqtlari"].split("|")
-            sana = f"{current_time.year}.{kun['milodiy_oy']}.{kun['milodiy_kun']}"
+            sana = f"{'0' + str(kun['milodiy_kun']) if kun['milodiy_kun'] < 10 else kun['milodiy_kun']}.{'0' + str(kun['milodiy_oy']) if kun['milodiy_oy'] < 10 else kun['milodiy_oy']}.{current_time.year}"
             text = _(
-                """📅 <i>Sana: <b>{sana}</b>
+                """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
 """,
                 locale=data["locale"],
@@ -499,9 +534,12 @@ async def namoz_vaqti_callback(
 
         await callback_query.message.edit_text(
             _(
-                "Ushbu oy namoz vaqtlari\nTong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n",
+                """<b>{year}-yil {month} oyi namoz vaqtlari
+Hudud: {mintaqa}</b>
+
+Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
                 locale=data["locale"],
-            )
+            ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
             + "".join(dates),
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=callback_data.mintaqa,
@@ -541,13 +579,14 @@ async def pages_namoz_vaqtlari(
             mintaqa=data["current_mintaqa"], milodiy_oy=current_time.month, page=page
         )
         has_next = True if ((page) * 5) < oylik["count"] else False
-
+        mintaqatext = ""
         dates = []
         for kun in oylik["items"]:
+            mintaqatext = kun["mintaqa"][lang_decode[data["locale"]]]
             vaqtlar = kun["vaqtlari"].split("|")
-            sana = f"{current_time.year}.{kun['milodiy_oy']}.{kun['milodiy_kun']}"
+            sana = f"{'0' + str(kun['milodiy_kun']) if kun['milodiy_kun'] < 10 else kun['milodiy_kun']}.{'0' + str(kun['milodiy_oy']) if kun['milodiy_oy'] < 10 else kun['milodiy_oy']}.{current_time.year}"
             text = _(
-                """📅 <i>Sana: <b>{sana}</b>
+                """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
 """,
                 locale=data["locale"],
@@ -564,9 +603,12 @@ async def pages_namoz_vaqtlari(
 
         await callback_query.message.edit_text(
             _(
-                "Ushbu oy namoz vaqtlari\nTong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n",
+                """<b>{year}-yil {month} oyi namoz vaqtlari
+Hudud: {mintaqa}</b>
+
+Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
                 locale=data["locale"],
-            )
+            ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
             + "".join(dates),
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=data["current_mintaqa"],
@@ -584,13 +626,14 @@ async def pages_namoz_vaqtlari(
             mintaqa=data["current_mintaqa"], milodiy_oy=current_time.month, page=page
         )
         has_next = True if ((page) * 5) < oylik["count"] else False
-
+        mintaqatext = ""
         dates = []
         for kun in oylik["items"]:
+            mintaqatext = kun["mintaqa"][lang_decode[data["locale"]]]
             vaqtlar = kun["vaqtlari"].split("|")
-            sana = f"{current_time.year}.{kun['milodiy_oy']}.{kun['milodiy_kun']}"
+            sana = f"{'0' + str(kun['milodiy_kun']) if kun['milodiy_kun'] < 10 else kun['milodiy_kun']}.{'0' + str(kun['milodiy_oy']) if kun['milodiy_oy'] < 10 else kun['milodiy_oy']}.{current_time.year}"
             text = _(
-                """📅 <i>Sana: <b>{sana}</b>
+                """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
 """,
                 locale=data["locale"],
@@ -607,9 +650,12 @@ async def pages_namoz_vaqtlari(
 
         await callback_query.message.edit_text(
             _(
-                "Ushbu oy namoz vaqtlari\nTong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n",
+                """<b>{year}-yil {month} oyi namoz vaqtlari
+Hudud: {mintaqa}</b>
+
+Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
                 locale=data["locale"],
-            )
+            ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
             + "".join(dates),
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=data["current_mintaqa"],
