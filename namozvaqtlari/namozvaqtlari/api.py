@@ -87,7 +87,9 @@ class NamozVaqtiSchema(Schema):
 @api.post("/create-new-user")
 def hello(request, name: str, chat_id, lang: str):
     try:
-        User.objects.update_or_create(user_id=chat_id, defaults={"full_name": name, "lang": lang})
+        User.objects.update_or_create(
+            user_id=chat_id, defaults={"full_name": name, "lang": lang}
+        )
         return {"success": "True"}
     except:
         return {"success": "False"}
@@ -113,6 +115,7 @@ def get_masjidlar(request, district_id):
 def masjid_info(request, masjid_pk):
     return Masjid.objects.get(pk=masjid_pk)
 
+
 @api.get("/masjid-statistikasi")
 def masjid_statistikasi(request, masjid_pk):
     masjid = Masjid.objects.get(pk=masjid_pk)
@@ -124,21 +127,20 @@ def masjid_statistikasi(request, masjid_pk):
         "name_ru": masjid.name_ru,
         "name_cyrl": masjid.name_cyrl,
         "district": {
-                    "pk": masjid.district.pk,
-                    "name_uz": masjid.district.name_uz,
-                    "name_ru": masjid.district.name_ru,
-                    "name_cyrl": masjid.district.name_cyrl,
-                    "region": {
-                        "pk": masjid.district.region.pk,
-                        "name_uz": masjid.district.region.name_uz,
-                        "name_ru": masjid.district.region.name_ru,
-                        "name_cyrl": masjid.district.region.name_cyrl,
-                    }
-                },
-        "statistic": statistic
+            "pk": masjid.district.pk,
+            "name_uz": masjid.district.name_uz,
+            "name_ru": masjid.district.name_ru,
+            "name_cyrl": masjid.district.name_cyrl,
+            "region": {
+                "pk": masjid.district.region.pk,
+                "name_uz": masjid.district.region.name_uz,
+                "name_ru": masjid.district.region.name_ru,
+                "name_cyrl": masjid.district.region.name_cyrl,
+            },
+        },
+        "statistic": statistic,
+        "subscription_count": Subscription.objects.filter(masjid=masjid).count(),
     }
-
-
 
 
 @api.post("/masjid-subscription")
@@ -200,11 +202,12 @@ def masjid_subscription(request, user_id, masjid_id, action):
 def user_subscriptions(request, user_id):
     return Subscription.objects.filter(user=User.objects.get(user_id=user_id))
 
+
 @api.get("/user-subscriptions-statistic")
 def user_subscriptions(request, user_id):
     masjidlar = Subscription.objects.filter(user=User.objects.get(user_id=user_id))
     results = []
-    for masjid in masjidlar:        
+    for masjid in masjidlar:
         result = {
             "masjid": {
                 "pk": masjid.masjid.pk,
@@ -221,13 +224,15 @@ def user_subscriptions(request, user_id):
                         "name_uz": masjid.masjid.district.region.name_uz,
                         "name_ru": masjid.masjid.district.region.name_ru,
                         "name_cyrl": masjid.masjid.district.region.name_cyrl,
-                    }
+                    },
                 },
-                "statistic": masjid.masjid.get_leaderboard_position()
+                "statistic": masjid.masjid.get_leaderboard_position(),
+                "subscription_count": masjid.masjid.subscription_set.count(),
             },
         }
         results.append(result)
     return results
+
 
 @api.get("/bugungi-namoz-vaqti", response=NamozVaqtiSchema)
 def bugungi_namoz_vaqti(request, mintaqa, milodiy_oy, milodiy_kun):

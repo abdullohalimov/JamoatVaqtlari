@@ -263,6 +263,7 @@ async def masjid_info(
                 _(
                     """
 🕌 <b>{masjid}</b> statistikasi
+Obunachilar: {subs_count} ta
 
 {district} boʻyicha: {district_count}-oʻrin
 {region} boʻyicha: {region_count}-oʻrin
@@ -276,6 +277,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
                     region=resp["district"]["region"][lang_decode[data["locale"]]],
                     region_count=resp["statistic"]["region_position"],
                     global_count=resp["statistic"]["all_position"],
+                    subs_count=resp["subscription_count"],
                 ),
                 reply_markup=inline.main_menu_inline(data["locale"]),
             )
