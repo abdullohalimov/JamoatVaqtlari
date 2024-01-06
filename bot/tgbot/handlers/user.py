@@ -539,7 +539,7 @@ async def namoz_vaqti_callback(
             day = kun['milodiy_kun']
             month = months[data['locale']][kun['milodiy_oy']].lower()
             weekday = weekdays[data['locale']][datetime.strptime(f"{current_time.year}-{kun['milodiy_oy']}-{kun['milodiy_kun']}", '%Y-%m-%d').weekday()].lower()
-            sana = f"""{day}-{month}, {weekday}"""
+            sana = f"""{day}{'-' if data['locale'] == 'uz' else ' '}{month}, {weekday}"""   
             text = _(
                 """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
@@ -611,7 +611,7 @@ async def pages_namoz_vaqtlari(
             day = kun['milodiy_kun']
             month = months[data['locale']][kun['milodiy_oy']].lower()
             weekday = weekdays[data['locale']][datetime.strptime(f"{current_time.year}-{kun['milodiy_oy']}-{kun['milodiy_kun']}", '%Y-%m-%d').weekday()].lower()
-            sana = f"""{day}-{month}, {weekday}"""            
+            sana = f"""{day}{'-' if data['locale'] == 'uz' else ' '}{month}, {weekday}"""              
             text = _(
                 """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
@@ -661,7 +661,7 @@ Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
             day = kun['milodiy_kun']
             month = months[data['locale']][kun['milodiy_oy']].lower()
             weekday = weekdays[data['locale']][datetime.strptime(f"{current_time.year}-{kun['milodiy_oy']}-{kun['milodiy_kun']}", '%Y-%m-%d').weekday()].lower()
-            sana = f"""{day}-{month}, {weekday}"""            
+            sana = f"""{day}{'-' if data['locale'] == 'uz' else ' '}{month}, {weekday}"""            
             text = _(
                 """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
