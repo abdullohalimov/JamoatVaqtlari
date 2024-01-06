@@ -211,7 +211,7 @@ async def masjid_info(
             await callback_query.message.edit_text(
                 _(
                     """
-🕌 Masjid: <b>{masjid}</b>
+🕌 <b>{masjid}</b> statistikasi
 
 {district} boʻyicha: {district_count}-oʻrin
 {region} boʻyicha: {region_count}-oʻrin
@@ -370,7 +370,7 @@ async def statistika(message: Message, state: FSMContext):
     for masjid in subs:
         text += _(
             """
-🕌 Masjid: <b>{masjid}</b>
+🕌 <b>{masjid}</b> statistikasi
 {district} boʻyicha: {district_count}-oʻrin
 {region} boʻyicha: {region_count}-oʻrin
 Oʻzbekiston boʻyicha: {global_count}-oʻrin
