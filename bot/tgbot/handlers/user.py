@@ -82,6 +82,27 @@ months = {
     },
 }
 
+weekdays = {
+    "uz": {
+        0: "Dushanba",
+        1: "Seshanba",
+        2: "Chorshanba",
+        3: "Payshanba",
+        4: "Juma",
+        5: "Shanba",
+        6: "Yakshanba",   
+    },
+    "de": {
+        0: "Душанба",
+        1: "Сешанба",
+        2: "Чоршанба",
+        3: "Пайшанба",
+        4: "Жума",
+        5: "Шанба",
+        6: "Якшанба",
+    }
+}
+
 pages = {
     1: [1, 2, 3, 4, 5],
     2: [6, 7, 8, 9, 10],
@@ -515,7 +536,10 @@ async def namoz_vaqti_callback(
         for kun in oylik["items"]:
             mintaqatext = kun['mintaqa'][lang_decode[data['locale']]]
             vaqtlar = kun["vaqtlari"].split("|")
-            sana = f"{'0' + str(kun['milodiy_kun']) if kun['milodiy_kun'] < 10 else kun['milodiy_kun']}.{'0' + str(kun['milodiy_oy']) if kun['milodiy_oy'] < 10 else kun['milodiy_oy']}.{current_time.year}"
+            day = kun['milodiy_kun']
+            month = months[data['locale']][kun['milodiy_oy']].lower()
+            weekday = weekdays[data['locale']][datetime.strptime(f"{current_time.year}-{kun['milodiy_oy']}-{kun['milodiy_kun']}", '%Y-%m-%d').weekday()].lower()
+            sana = f"""{day}-{month}, {weekday}"""
             text = _(
                 """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
@@ -584,7 +608,10 @@ async def pages_namoz_vaqtlari(
         for kun in oylik["items"]:
             mintaqatext = kun["mintaqa"][lang_decode[data["locale"]]]
             vaqtlar = kun["vaqtlari"].split("|")
-            sana = f"{'0' + str(kun['milodiy_kun']) if kun['milodiy_kun'] < 10 else kun['milodiy_kun']}.{'0' + str(kun['milodiy_oy']) if kun['milodiy_oy'] < 10 else kun['milodiy_oy']}.{current_time.year}"
+            day = kun['milodiy_kun']
+            month = months[data['locale']][kun['milodiy_oy']].lower()
+            weekday = weekdays[data['locale']][datetime.strptime(f"{current_time.year}-{kun['milodiy_oy']}-{kun['milodiy_kun']}", '%Y-%m-%d').weekday()].lower()
+            sana = f"""{day}-{month}, {weekday}"""            
             text = _(
                 """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
@@ -631,7 +658,10 @@ Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
         for kun in oylik["items"]:
             mintaqatext = kun["mintaqa"][lang_decode[data["locale"]]]
             vaqtlar = kun["vaqtlari"].split("|")
-            sana = f"{'0' + str(kun['milodiy_kun']) if kun['milodiy_kun'] < 10 else kun['milodiy_kun']}.{'0' + str(kun['milodiy_oy']) if kun['milodiy_oy'] < 10 else kun['milodiy_oy']}.{current_time.year}"
+            day = kun['milodiy_kun']
+            month = months[data['locale']][kun['milodiy_oy']].lower()
+            weekday = weekdays[data['locale']][datetime.strptime(f"{current_time.year}-{kun['milodiy_oy']}-{kun['milodiy_kun']}", '%Y-%m-%d').weekday()].lower()
+            sana = f"""{day}-{month}, {weekday}"""            
             text = _(
                 """📅 <i><b>{sana}</b>
 🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n
