@@ -43,3 +43,6 @@ class MintaqaViloyatData(CallbackData, prefix="mintaqaviloyat"):
 
 class MintaqaData(CallbackData, prefix="mintaqa"):
     mintaqa_id: Any
+
+class OtherMasjidsFactory(CallbackData, prefix="othermasjids"):
+    action: Any

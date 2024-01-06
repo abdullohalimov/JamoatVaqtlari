@@ -1,6 +1,7 @@
-from django.shortcuts import render
+import logging
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import user_passes_test
-from .models import District, Masjid, Region
+from .models import District, Masjid, Region, Subscription
 from django.db.models import Count
 
 def is_admin(user):
@@ -77,47 +78,73 @@ def masjid_statistics(request):
 
 
 # views.py
-
-
-
+# @user_passes_test(is_admin)
+# def your_custom_view2(request):
+#     return render(request, "jamoatnamozlariapp/statistic_menu.html")
 
 @user_passes_test(is_admin)
-def your_custom_view(request):
-    viloyats = Region.objects.all()
-    districts = District.objects.all()
-    masjids = Masjid.objects.all()
-    viloyat_labels = [viloyat.name_uz for viloyat in viloyats]
-    viloyat_values = []
-    district_labels = [district.name_uz for district in districts]
-    district_values = []
-    masjid_labels = [masjid.name_uz for masjid in masjids]
-    masjid_values = [masjid.subscription_set.all().count() for masjid in masjids]
-    for region in viloyats:
-        masjids = Masjid.objects.filter(district__region=region)
-        users = set()
-        for masjid in masjids:
-            users.add(masjid.subscription_set.all())
+def region_list_view(request):
+    regions = Region.objects.all()
+    return render(request, 'jamoatnamozlariapp/region_list.html', {'regions': regions})
 
-        viloyat_values.append(len(users))
+@user_passes_test(is_admin)
+def region_detail_view(request, pk):
+    region = get_object_or_404(Region, pk=pk)
+    districts = region.district_set.all()
 
-    for district in districts:
-        masjids = Masjid.objects.filter(district=district)
-        users = set()
-        for masjid in masjids:
-            users.add(masjid.subscription_set.all())
+    # Calculate the total number of masjids in the region
+    masjid_count = sum(district.masjid_set.count() for district in districts)
 
-        district_values.append(len(users))
-        # Fetch data from your models and convert to a list of dictionaries
+    context = {
+        'region': region,
+        'districts': districts,
+        'masjid_count': masjid_count,
+    }
+
+    return render(request, 'jamoatnamozlariapp/region_detail.html', context)
+
+@user_passes_test(is_admin)
+def masjids_in_district_statistics(request, district_id):
+    sort_order = request.GET.get("sort", "desc")
+
+    order_field = "-subscriber_count" if sort_order == "desc" else "subscriber_count"
+    masjid_stats = Masjid.objects.filter(district_id=district_id).annotate(
+        subscriber_count=Count('subscription')
+    ).order_by(order_field)
 
     return render(
         request,
-        "jamoatnamozlariapp/custom_view.html",
-        {
-            "district_labels": district_labels,
-            "district_values": district_values,
-            "masjid_labels": masjid_labels,
-            "masjid_values": masjid_values,
-            "viloyat_labels": viloyat_labels,
-            "viloyat_values": viloyat_values,
-        },
+        "jamoatnamozlariapp/masjids_in_district_statistics.html",
+        {"masjid_stats": masjid_stats, "sort_order": sort_order},
+    )
+
+@user_passes_test(is_admin)
+def masjids_in_region_statistics(request, region_id):
+    sort_order = request.GET.get("sort", "desc")
+
+    order_field = "-subscriber_count" if sort_order == "desc" else "subscriber_count"
+    masjid_stats = Masjid.objects.filter(district__region_id=region_id).annotate(
+        subscriber_count=Count('subscription')
+    ).order_by(order_field)
+
+    return render(
+        request,
+        "jamoatnamozlariapp/masjids_in_region_statistics.html",
+        {"masjid_stats": masjid_stats, "sort_order": sort_order},
+    )
+
+
+@user_passes_test(is_admin)
+def districts_in_region_statistics(request, region_id):
+    sort_order = request.GET.get("sort", "desc")
+
+    order_field = "-subscriber_count" if sort_order == "desc" else "subscriber_count"
+    district_stats = District.objects.filter(region_id=region_id).annotate(
+        subscriber_count=Count('masjid__subscription')
+    ).order_by(order_field)
+
+    return render(
+        request,
+        "jamoatnamozlariapp/districts_in_region_statistics.html",
+        {"district_stats": district_stats, "sort_order": sort_order},
     )

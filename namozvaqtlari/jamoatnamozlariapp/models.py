@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 import logging
 from django.db import models
+from django.db.models import Count
 from django.contrib.auth.models import AbstractUser
 
 from .tg_functions import get_photo_id, send_new_masjid_times, send_region_change_times
@@ -228,6 +229,22 @@ class Masjid(models.Model):
         null=True,
         blank=True,
     )
+
+    def get_leaderboard_position(self) -> dict:
+        all_masjids = Masjid.objects.annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
+        district_masjids = Masjid.objects.filter(district=self.district).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
+        region_masjids = Masjid.objects.filter(district__region=self.district.region).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
+
+        all_position = list(all_masjids).index(self) + 1 if self in all_masjids else None
+        district_position = list(district_masjids).index(self) + 1 if self in district_masjids else None
+        region_position = list(region_masjids).index(self) + 1 if self in region_masjids else None
+
+        return {
+            'all_position': all_position,
+            'district_position': district_position,
+            'region_position': region_position,
+        }
+
 
     def save(
         self,

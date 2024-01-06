@@ -181,9 +181,7 @@ JAZZMIN_SETTINGS = {
         # Url that gets reversed (Permissions can be added)
         {"name": "Bosh menyu",  "url": "admin:index", "permissions": ["auth.view_user"]},
         # external url that opens in a new window (Permissions can be added)
-        {"name": "Masjidlar statisikasi", "url": "/admin/masjid_s"},
-        {"name": "Tuman statisikasi", "url": "/admin/district_s"},
-        {"name": "Viloyat statisikasi", "url": "/admin/region_s"},
+        {"name": "Statistika", "url": "/admin/region_list"},
 
     ],
     #############
@@ -191,9 +189,7 @@ JAZZMIN_SETTINGS = {
     #############
     # Additional links to include in the user menu on the top right ("app" url type is not allowed)
     "usermenu_links": [
-        {"name": "Masjidlar statisikasi", "url": "/admin/masjid_s", 'icon': "fas fa-mosque"},
-        {"name": "Tuman statisikasi", "url": "/admin/district_s", 'icon': "fas fa-city"},
-        {"name": "Viloyat statisikasi", "url": "/admin/region_s", 'icon': "fas fa-map-marked"},
+        {"name": "Statistika", "url": "/admin/region_list", 'icon': "fas fa-chart-pie"},
         {"name": "Bosh menyu",  "url": "admin:index", "permissions": ["auth.view_user"], 'icon': "fas fa-home"},
 
     ],

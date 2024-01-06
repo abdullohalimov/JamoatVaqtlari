@@ -8,6 +8,7 @@ def main_menu_user(lang) -> ReplyKeyboardBuilder:
         KeyboardButton(text=_("🕌 Jamoat vaqtlari", locale=lang)),
         KeyboardButton(text=_("🕰 Namoz vaqtlari", locale=lang)),
         KeyboardButton(text=_("✅ Obunalar", locale=lang)),
+        KeyboardButton(text=_("📊 Statistika", locale=lang)),
         KeyboardButton(text=_("🇺🇿 Yozuvni o'zgartirish", locale=lang)),
     )
     keyboard.adjust(1,1,2)
