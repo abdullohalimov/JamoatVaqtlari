@@ -305,18 +305,18 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
         sana = f"""{day}{'-' if data['locale'] == 'uz' else ' '}{month} {masjid_date_tashkent.strftime("%H:%M")}"""   
         text = _(
             """
-🕌 Masjid: <b>{masjid}</b>
-📍 Manzili: <b>{manzili1}, {manzili2}</b>
+🕌 <b>{masjid} jamoat namozi vaqtlari</b>
+📍 <b>Manzili:</b> {manzili1}, {manzili2}
 
-🕒 <b>Jamoat namozi vaqtlari</b> 
-<i>(oxirgi marta {sana} da oʻzgargan)</i>
+🕒 <i>Oxirgi marta {sana} da yangilangan</i>
 
-🕒 Vaqtlari
 🏞 Bomdod: <b>{bomdod}</b>
 🌇 Peshin: <b>{peshin}</b>
 🌆 Asr: <b>{asr}</b>
 🌃 Shom: <b>{shom}</b>
-🌌 Xufton: <b>{hufton}</b>""",
+🌌 Xufton: <b>{hufton}</b>
+
+@jamoatvaqtlaribot""",
             locale=data["locale"],
         ).format(
             sana=sana,
@@ -500,7 +500,7 @@ async def namoz_vaqti(message: Message, state: FSMContext):
     text = _(
         """
 <b>Namoz vaqtlari
-
+Hudud: {hudud}
 {sana}</b>
 
 <i>🏙 Tong: <b>{tong}</b> (saharlik tugashi) 
@@ -509,10 +509,13 @@ async def namoz_vaqti(message: Message, state: FSMContext):
 🌇 Asr: <b>{asr}</b>
 🌆 Shom: <b>{shom}</b> (iftorlik boshlanishi)
 🌌 Xufton: <b>{xufton}</b></i>
+
+@jamoatvaqtlaribot
 """,
         locale=data["locale"],
     ).format(
         sana=datetime.now().strftime("%d.%m.%Y"),
+        hudud=bugungi_namoz_vaqti["mintaqa"][lang_decode[data["locale"]]],
         tong=vaqtlar[0].strip(),
         quyosh=vaqtlar[1].strip(),
         peshin=vaqtlar[2].strip(),
@@ -584,7 +587,7 @@ Hudud: {mintaqa}</b>
 Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
                 locale=data["locale"],
             ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
-            + "".join(dates),
+            + "".join(dates) + "@jamoatvaqtlaribot",
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=callback_data.mintaqa,
                 current_page=page,
@@ -603,7 +606,7 @@ Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
 
     if callback_data.action == "changemintaqa":
         await callback_query.message.edit_text(
-            _("Mintaqani oʻzgartirish:", locale=data["locale"]),
+            _("Hududni oʻzgartirish:", locale=data["locale"]),
             reply_markup=inline.mintaqa_viloyat_inline(
                 viloyatlar[data["locale"]], data["locale"]
             ),
@@ -656,7 +659,7 @@ Hudud: {mintaqa}</b>
 Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
                 locale=data["locale"],
             ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
-            + "".join(dates),
+            + "".join(dates) + "@jamoatvaqtlaribot",
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=data["current_mintaqa"],
                 current_page=page,
@@ -706,7 +709,7 @@ Hudud: {mintaqa}</b>
 Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
                 locale=data["locale"],
             ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
-            + "".join(dates),
+            + "".join(dates) + "@jamoatvaqtlaribot",
             reply_markup=inline.oylik_namoz_vaqtlari_inline(
                 mintaqa=data["current_mintaqa"],
                 current_page=page,
@@ -731,7 +734,7 @@ async def mintaqa_viloyat(
 
     mintaqalar = await api.get_viloyat_mintaqalari(viloyat_id=callback_data.viloyat_id)
     await callback_query.message.edit_text(
-        _("Mintaqani oʻzgartirish:", locale=data["locale"]),
+        _("Hududni oʻzgartirish:", locale=data["locale"]),
         reply_markup=inline.mintaqa_inline(mintaqalar, data["locale"]),
     )
 

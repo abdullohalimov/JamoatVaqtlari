@@ -151,7 +151,7 @@ def namoz_vaqtlari_inline(mintaqa, lang="uz") -> InlineKeyboardBuilder:
             callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="oylik").pack()
         ),
         InlineKeyboardButton(
-            text=_("🔄 Mintaqa: {mintaqa}", locale=lang).format(mintaqa=mintaqa[lang_decode[lang]]),
+            text=_("🔄 Hudud: {mintaqa}", locale=lang).format(mintaqa=mintaqa[lang_decode[lang]]),
             callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="changemintaqa").pack()
         )
     )
@@ -187,7 +187,7 @@ def oylik_namoz_vaqtlari_inline(mintaqa, current_page,  has_next, lang="uz") -> 
     )
     keyboard.row(
         InlineKeyboardButton(
-            text=_("📑 PDF formatida yuklash", locale=lang), callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa, action="downl").pack()
+            text=_("📑 PDF shaklda yuklash", locale=lang), callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa, action="downl").pack()
         )
     )
     keyboard.row(
