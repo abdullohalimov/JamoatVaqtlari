@@ -74,6 +74,7 @@ class CustomUserAdmin(usrmadmin):
 
 class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
+    readonly_fields = ["last_update",]
     # form = MasjidForm
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

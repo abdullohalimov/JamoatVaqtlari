@@ -194,27 +194,27 @@ class Masjid(models.Model):
     bomdod = models.CharField(
         max_length=255,
         verbose_name="Bomdod",
-        help_text="Masjidda bomdod namozi o'qilish vaqti",
+        help_text="Masjidda bomdod namozi oʻqilish vaqti",
     )
     peshin = models.CharField(
         max_length=255,
         verbose_name="Peshin",
-        help_text="Masjidda peshin namozi o'qilish vaqti",
+        help_text="Masjidda peshin namozi oʻqilish vaqti",
     )
     asr = models.CharField(
         max_length=255,
         verbose_name="Asr",
-        help_text="Masjidda asr namozi o'qilish vaqti",
+        help_text="Masjidda asr namozi oʻqilish vaqti",
     )
     shom = models.CharField(
         max_length=255,
         verbose_name="Shom",
-        help_text="Masjidda shom namozi o'qilish vaqti",
+        help_text="Masjidda shom namozi oʻqilish vaqti",
     )
     hufton = models.CharField(
         max_length=255,
         verbose_name="Xufton",
-        help_text="Masjidda xufton namozi o'qilish vaqti",
+        help_text="Masjidda xufton namozi oʻqilish vaqti",
     )
     location = models.CharField(
         max_length=255,
@@ -229,7 +229,7 @@ class Masjid(models.Model):
         null=True,
         blank=True,
     )
-
+    last_update = models.DateTimeField(auto_now=True, verbose_name="Yangilangan vaqti")
     def get_leaderboard_position(self) -> dict:
         all_masjids = Masjid.objects.annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
         district_masjids = Masjid.objects.filter(district=self.district).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
@@ -465,8 +465,8 @@ class ShaxarViloyatTimesChange(models.Model):
         # return super().save()
     
     class Meta:
-        verbose_name = "Shaxar/Viloyat namoz vaqtlarini o'zgartirish"
-        verbose_name_plural = "Shaxar/Viloyat vaqtlarini o'zgartirish"
+        verbose_name = "Shaxar/Viloyat namoz vaqtlarini oʻzgartirish"
+        verbose_name_plural = "Shaxar/Viloyat vaqtlarini oʻzgartirish"
 
 class TumanTimesChange(models.Model):
     district = models.ForeignKey(
@@ -510,5 +510,5 @@ class TumanTimesChange(models.Model):
         # return super().save()
 
     class Meta:
-        verbose_name = "Tuman namoz vaqtlarini o'zgartirish"
-        verbose_name_plural = "Tuman namoz vaqtlarini o'zgartirish"
+        verbose_name = "Tuman namoz vaqtlarini oʻzgartirish"
+        verbose_name_plural = "Tuman namoz vaqtlarini oʻzgartirish"

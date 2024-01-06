@@ -1,3 +1,4 @@
+import datetime
 from typing import Any, List
 from ninja import NinjaAPI, Schema, Form
 from ninja.pagination import PageNumberPagination, paginate
@@ -50,6 +51,7 @@ class MasjidInfo(Schema):
     shom: str
     hufton: str
     location: str | None
+    last_update: datetime.datetime
 
 
 class UserSchema(Schema):

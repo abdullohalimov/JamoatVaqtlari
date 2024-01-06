@@ -9,7 +9,7 @@ from tgbot.services import api
 from tgbot.keyboards import factory, inline, reply
 from tgbot.keyboards.factory import _
 from tgbot.misc.states import UserStates
-
+import pytz
 user_router = Router()
 lang_decode = {"uz": "name_uz", "de": "name_cyrl", "ru": "name_ru"}
 
@@ -287,10 +287,29 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
     elif data.get("masjid_action", False) == "subscription":
         masjid = await api.masjid_info(callback_data.masjid)
         logging.warning(masjid)
+        masjid_date = datetime.strptime(masjid["last_update"], "%Y-%m-%dT%H:%M:%S.%fZ")
+        # Specify the UTC timezone
+        utc_timezone = pytz.utc
+
+        # Convert the datetime to the UTC timezone
+        formatted_datetime_utc = utc_timezone.localize(masjid_date)
+
+        # Specify the target timezone ("Asia/Tashkent")
+        target_timezone = pytz.timezone("Asia/Tashkent")
+
+        # Convert the datetime to the target timezone
+        masjid_date_tashkent = formatted_datetime_utc.astimezone(target_timezone)
+
+        day = masjid_date_tashkent.day
+        month = months[data['locale']][masjid_date_tashkent.month].lower()
+        sana = f"""{day}{'-' if data['locale'] == 'uz' else ' '}{month} {masjid_date_tashkent.strftime("%H:%M")}"""   
         text = _(
             """
 🕌 Masjid: <b>{masjid}</b>
 📍 Manzili: <b>{manzili1}, {manzili2}</b>
+
+🕒 <b>Jamoat namozi vaqtlari</b> 
+<i>(oxirgi marta {sana} da oʻzgargan)</i>
 
 🕒 Vaqtlari
 🏞 Bomdod: <b>{bomdod}</b>
@@ -300,6 +319,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
 🌌 Xufton: <b>{hufton}</b>""",
             locale=data["locale"],
         ).format(
+            sana=sana,
             masjid=masjid[lang_decode[data["locale"]]],
             manzili1=masjid["district"]["region"][lang_decode[data["locale"]]],
             manzili2=masjid["district"][lang_decode[data["locale"]]],
@@ -583,7 +603,7 @@ Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
 
     if callback_data.action == "changemintaqa":
         await callback_query.message.edit_text(
-            _("Mintaqani o'zgartirish:", locale=data["locale"]),
+            _("Mintaqani oʻzgartirish:", locale=data["locale"]),
             reply_markup=inline.mintaqa_viloyat_inline(
                 viloyatlar[data["locale"]], data["locale"]
             ),
@@ -711,7 +731,7 @@ async def mintaqa_viloyat(
 
     mintaqalar = await api.get_viloyat_mintaqalari(viloyat_id=callback_data.viloyat_id)
     await callback_query.message.edit_text(
-        _("Mintaqani o'zgartirish:", locale=data["locale"]),
+        _("Mintaqani oʻzgartirish:", locale=data["locale"]),
         reply_markup=inline.mintaqa_inline(mintaqalar, data["locale"]),
     )
 

@@ -116,7 +116,7 @@ def masjid_kb(masjid_info, lang="uz") -> InlineKeyboardBuilder:
 
     keyboard.row(
         InlineKeyboardButton(
-            text=_("✅ Obuna bo'lish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="subscribe").pack()
+            text=_("✅ Obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="subscribe").pack()
         )
     )
     keyboard.row(
@@ -130,7 +130,7 @@ def masjid_kb(masjid_info, lang="uz") -> InlineKeyboardBuilder:
             lt, ln = float(lt), float(ln)
             keyboard.row(
             InlineKeyboardButton(
-                text=_("🗺 Xaritada ko'rish", locale=lang),  callback_data=factory.MasjidLocationData(ln=ln, lt=lt).pack()
+                text=_("🗺 Xaritada koʻrish", locale=lang),  callback_data=factory.MasjidLocationData(ln=ln, lt=lt).pack()
             )
         )
         except:
