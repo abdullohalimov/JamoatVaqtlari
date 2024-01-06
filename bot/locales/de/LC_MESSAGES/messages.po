@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-01-06 19:46+0500\n"
+"POT-Creation-Date: 2024-01-07 01:33+0500\n"
 "PO-Revision-Date: 2023-12-04 14:40+0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: de\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Generated-By: Babel 2.14.0\n"
 
 #: tgbot/handlers/user.py:123 tgbot/handlers/user.py:149
-#: tgbot/handlers/user.py:413 tgbot/keyboards/inline.py:39
+#: tgbot/handlers/user.py:415 tgbot/keyboards/inline.py:39
 #: tgbot/keyboards/inline.py:61 tgbot/keyboards/inline.py:108
 #: tgbot/keyboards/inline.py:140 tgbot/keyboards/inline.py:160
 #: tgbot/keyboards/inline.py:195 tgbot/keyboards/inline.py:207
@@ -27,7 +27,7 @@ msgstr ""
 msgid "🏡 Bosh menyu"
 msgstr "🏡 Бош меню"
 
-#: tgbot/handlers/user.py:171 tgbot/handlers/user.py:475
+#: tgbot/handlers/user.py:171 tgbot/handlers/user.py:479
 msgid "🏙 Hududni  tanlang:"
 msgstr "🏙 Ҳудудни танланг:"
 
@@ -40,6 +40,7 @@ msgid ""
 "\n"
 "🕌 <b>{masjid}</b> statistikasi\n"
 "\n"
+"Obunachilar soni: {subs_count} ta\n"
 "{district} boʻyicha: {district_count}-oʻrin\n"
 "{region} boʻyicha: {region_count}-oʻrin\n"
 "Oʻzbekiston boʻyicha: {global_count}-oʻrin\n"
@@ -47,15 +48,16 @@ msgstr ""
 "\n"
 "🕌 <b>{masjid}</b> статистикаси\n"
 "\n"
+"Обуначилар сони: {subs_count} та\n"
 "{district} бўйича: {district_count}-ўрин\n"
 "{region} бўйича: {region_count}-ўрин\n"
 "Ўзбекистон бўйича: {global_count}-ўрин\n"
 
-#: tgbot/handlers/user.py:284
+#: tgbot/handlers/user.py:286
 msgid "Ma'lumotlar topilmadi"
 msgstr "Маълумотлар топилмади"
 
-#: tgbot/handlers/user.py:306
+#: tgbot/handlers/user.py:308
 msgid ""
 "\n"
 "🕌 <b>{masjid} jamoat namozi vaqtlari</b>\n"
@@ -84,41 +86,43 @@ msgstr ""
 "🌌 Хуфтон: <b>{hufton}</b>\n"
 "@jamoatvaqtlaribot"
 
-#: tgbot/handlers/user.py:391
+#: tgbot/handlers/user.py:393
 msgid "✅ {district} {masjid} masjidi jamoat vaqtlariga obuna boʻldingiz"
 msgstr "✅ {district} {masjid} масжиди жамоат вақтларига обуна бўлдингиз"
 
-#: tgbot/handlers/user.py:402
+#: tgbot/handlers/user.py:404
 msgid "☑️ {district} {masjid} masjidi jamoat vaqtlariga obuna bekor qilindi"
 msgstr "☑️ {district} {masjid} масжиди жамоат вақтларига обуна бекор қилинди"
 
-#: tgbot/handlers/user.py:425
+#: tgbot/handlers/user.py:427
 msgid "✅ Obunalar:"
 msgstr "✅ Обуналар:"
 
-#: tgbot/handlers/user.py:439 tgbot/keyboards/reply.py:11
+#: tgbot/handlers/user.py:441 tgbot/keyboards/reply.py:11
 msgid "📊 Statistika"
 msgstr "📊 Статистика"
 
-#: tgbot/handlers/user.py:442
+#: tgbot/handlers/user.py:444
 msgid ""
 "\n"
 "🕌 <b>{masjid}</b> statistikasi\n"
+"Obunachilar soni: {subs_count} ta\n"
 "{district} boʻyicha: {district_count}-oʻrin\n"
 "{region} boʻyicha: {region_count}-oʻrin\n"
 "Oʻzbekiston boʻyicha: {global_count}-oʻrin\n"
 msgstr ""
 "\n"
 "🕌 <b>{masjid}</b> статистикаси\n"
+"Обуначилар сони: {subs_count} та\n"
 "{district} бўйича: {district_count}-ўрин\n"
 "{region} бўйича: {region_count}-ўрин\n"
 "Ўзбекистон бўйича: {global_count}-ўрин\n"
 
-#: tgbot/handlers/user.py:485
+#: tgbot/handlers/user.py:489
 msgid "✅ Yozuvni tanlang:"
 msgstr "✅ Ёзувни танланг:"
 
-#: tgbot/handlers/user.py:500
+#: tgbot/handlers/user.py:504
 msgid ""
 "\n"
 "<b>Namoz vaqtlari\n"
@@ -148,8 +152,8 @@ msgstr ""
 "\n"
 "@jamoatvaqtlaribot\n"
 
-#: tgbot/handlers/user.py:566 tgbot/handlers/user.py:638
-#: tgbot/handlers/user.py:688
+#: tgbot/handlers/user.py:570 tgbot/handlers/user.py:642
+#: tgbot/handlers/user.py:692
 msgid ""
 "📅 <i><b>{sana}</b>\n"
 "🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n"
@@ -159,8 +163,8 @@ msgstr ""
 "🕒 {tong} | {quyosh} | {peshin} | {asr} | {shom} | {xufton}</i>\n"
 "\n"
 
-#: tgbot/handlers/user.py:583 tgbot/handlers/user.py:655
-#: tgbot/handlers/user.py:705
+#: tgbot/handlers/user.py:587 tgbot/handlers/user.py:659
+#: tgbot/handlers/user.py:709
 msgid ""
 "<b>{year}-yil {month} oyi namoz vaqtlari\n"
 "Hudud: {mintaqa}</b>\n"
@@ -174,7 +178,7 @@ msgstr ""
 "Тонг | Қуёш | Пешин |  Аср |  Шом | Хуфтон\n"
 "\n"
 
-#: tgbot/handlers/user.py:609 tgbot/handlers/user.py:737
+#: tgbot/handlers/user.py:613 tgbot/handlers/user.py:741
 msgid "Hududni oʻzgartirish:"
 msgstr "Ҳудудни ўзгартириш:"
 
@@ -278,4 +282,32 @@ msgstr "Бош меню"
 
 #~ msgid "Mintaqani oʻzgartirish:"
 #~ msgstr "Минтақани ўзгартириш:"
+
+#~ msgid ""
+#~ "\n"
+#~ "🕌 <b>{masjid}</b> statistikasi\n"
+#~ "{district} boʻyicha: {district_count}-oʻrin\n"
+#~ "{region} boʻyicha: {region_count}-oʻrin\n"
+#~ "Oʻzbekiston boʻyicha: {global_count}-oʻrin\n"
+#~ msgstr ""
+#~ "\n"
+#~ "🕌 <b>{masjid}</b> статистикаси\n"
+#~ "{district} бўйича: {district_count}-ўрин\n"
+#~ "{region} бўйича: {region_count}-ўрин\n"
+#~ "Ўзбекистон бўйича: {global_count}-ўрин\n"
+
+#~ msgid ""
+#~ "\n"
+#~ "🕌 <b>{masjid}</b> statistikasi\n"
+#~ "Obunachilar soni: {subs_count}\n"
+#~ "{district} boʻyicha: {district_count}-oʻrin\n"
+#~ "{region} boʻyicha: {region_count}-oʻrin\n"
+#~ "Oʻzbekiston boʻyicha: {global_count}-oʻrin\n"
+#~ msgstr ""
+#~ "\n"
+#~ "🕌 <b>{masjid}</b> статистикаси\n"
+#~ "Обуначилар сони: {subs_count}\n"
+#~ "{district} бўйича: {district_count}-ўрин\n"
+#~ "{region} бўйича: {region_count}-ўрин\n"
+#~ "Ўзбекистон бўйича: {global_count}-ўрин\n"
 

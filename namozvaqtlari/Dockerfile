@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 
+RUN apt update
+RUN apt install -y cron
+
 WORKDIR /app
 
 COPY requirements.txt .

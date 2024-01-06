@@ -263,8 +263,8 @@ async def masjid_info(
                 _(
                     """
 🕌 <b>{masjid}</b> statistikasi
-Obunachilar: {subs_count} ta
 
+Obunachilar soni: {subs_count} ta
 {district} boʻyicha: {district_count}-oʻrin
 {region} boʻyicha: {region_count}-oʻrin
 Oʻzbekiston boʻyicha: {global_count}-oʻrin
@@ -444,12 +444,14 @@ async def statistika(message: Message, state: FSMContext):
         text += _(
             """
 🕌 <b>{masjid}</b> statistikasi
+Obunachilar soni: {subs_count} ta
 {district} boʻyicha: {district_count}-oʻrin
 {region} boʻyicha: {region_count}-oʻrin
 Oʻzbekiston boʻyicha: {global_count}-oʻrin
 """,
             locale=data["locale"],
         ).format(
+            subs_count=masjid["masjid"]["subscription_count"],
             masjid=masjid["masjid"][lang_decode[data["locale"]]],
             district=masjid["masjid"]["district"][lang_decode[data["locale"]]],
             district_count=masjid["masjid"]["statistic"]["district_position"],

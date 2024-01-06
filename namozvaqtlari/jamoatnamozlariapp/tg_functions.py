@@ -1,6 +1,8 @@
+from datetime import datetime
 import logging
 import os
 from telebot import TeleBot
+from telebot.types import InputFile
 
 # from .models import Masjid
 
@@ -10,6 +12,13 @@ bot = TeleBot(os.environ.get("BOT_TOKEN"), parse_mode="HTML")
 text_uz = ""
 text_cyrl = ""
 
+def send_text(text):
+
+    bot.send_message(chat_id=-1002111788540, text=text)
+
+def send_backup(backup):
+    
+    bot.send_document(chat_id=-1002111788540, document=InputFile(backup), caption="#jamoatvaqtlari DB File | " + datetime.now().strftime("%Y-%m-%d %H:%M"))
 
 def get_photo_id(photo_file):
 
