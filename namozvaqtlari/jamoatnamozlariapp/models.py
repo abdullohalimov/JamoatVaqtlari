@@ -10,7 +10,7 @@ from .tg_functions import get_photo_id, send_new_masjid_times, send_region_chang
 from django.db import models
 
 viloyatlar = [
-    ("1", "Toshkent shaxri"),
+    ("1", "Toshkent shahri"),
     ("2", "Andijon"),
     ("3", "Buxoro"),
     ("4", "Fargʻona"),
@@ -195,26 +195,42 @@ class Masjid(models.Model):
         max_length=255,
         verbose_name="Bomdod",
         help_text="Masjidda bomdod namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
     )
     peshin = models.CharField(
         max_length=255,
         verbose_name="Peshin",
         help_text="Masjidda peshin namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
+        
     )
     asr = models.CharField(
         max_length=255,
         verbose_name="Asr",
         help_text="Masjidda asr namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
     )
     shom = models.CharField(
         max_length=255,
         verbose_name="Shom",
         help_text="Masjidda shom namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
     )
     hufton = models.CharField(
         max_length=255,
         verbose_name="Xufton",
         help_text="Masjidda xufton namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
     )
     location = models.CharField(
         max_length=255,

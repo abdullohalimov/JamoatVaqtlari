@@ -18,6 +18,14 @@ from .models import (
 
 # Register your models here.
 
+class MasjidInline(admin.StackedInline):
+    model = Masjid
+    extra = 1
+
+
+class DistrictInline(admin.TabularInline):
+    model = District
+    extra = 1
 
 class CustomUserAdmin(usrmadmin):
     model = CustomUser
@@ -139,10 +147,13 @@ class DistrictAdmin(admin.ModelAdmin):
         elif request.user.admin_type == "district":
             return qs.filter(region__pk=request.user.district.region.pk)
 
+    inlines = [MasjidInline]
 
 class RegionAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
+
+    inlines = [DistrictInline]
 
 
 class SubscriptionAdmin(admin.ModelAdmin):

@@ -15,7 +15,7 @@ lang_decode = {"uz": "name_uz", "de": "name_cyrl", "ru": "name_ru"}
 
 viloyatlar = {
     "uz": {
-        "1": "Toshkent shaxri",
+        "1": "Toshkent shahri",
         "2": "Andijon",
         "3": "Buxoro",
         "4": "Fargʻona",
@@ -32,7 +32,7 @@ viloyatlar = {
         "99": "Boshqa",
     },
     "de": {
-        "1": "Тошкент шахри",
+        "1": "Тошкент шаҳри",
         "2": "Андижон",
         "3": "Бухоро",
         "4": "Фарғона",
@@ -168,7 +168,7 @@ async def jamoat(message: Message, state: FSMContext):
     regions = await api.get_regions()
     t = await message.answer(".", reply_markup=ReplyKeyboardRemove())
     await message.answer(
-        _("🏙 Hududni  tanlang:", locale=data["locale"]),
+        _("🏙 Hududni tanlang:", locale=data["locale"]),
         reply_markup=inline.regions_keyboard(regions, data["locale"]),
     )
     await t.delete()
@@ -182,7 +182,7 @@ async def get_districts(
     districts = await api.get_districts(callback_data.region)
     logging.warning(districts)
     await callback_query.message.edit_text(
-        _("🏘 Tumanni  tanlang:", locale=data["locale"]),
+        _("🏘 Tumanni tanlang:", locale=data["locale"]),
         reply_markup=inline.districts_keyboard(districts, data["locale"]),
     )
 
@@ -201,7 +201,7 @@ async def get_masjids(
 
     logging.warning(masjidlar)
     await callback_query.message.edit_text(
-        "🕌 Masjidni tanlang:",
+        _("🕌 Masjidni tanlang:", locale=data['locale']),
         reply_markup=inline.masjidlar_keyboard(
             masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next
         ),
@@ -219,7 +219,7 @@ async def get_masjids(
         masjidlar = await api.get_masjidlar(data["current_district"], page=page)
         has_next = True if ((page) * 5) < masjidlar["count"] else False
         await callback_query.message.edit_text(
-            "🕌 Masjidni tanlang:",
+        _("🕌 Masjidni tanlang:", locale=data['locale']),
             reply_markup=inline.masjidlar_keyboard(
                 masjidlar["items"],
                 lang=data["locale"],
@@ -237,7 +237,7 @@ async def get_masjids(
         has_next = True if ((page) * 5) < masjidlar["count"] else False
 
         await callback_query.message.edit_text(
-            "🕌 Masjidni tanlang:",
+        _("🕌 Masjidni tanlang:", locale=data['locale']),
             reply_markup=inline.masjidlar_keyboard(
                 masjidlar["items"], lang=data["locale"], current_page=page
             ),
@@ -262,7 +262,7 @@ async def masjid_info(
             await callback_query.message.edit_text(
                 _(
                     """
-🕌 <b>{masjid}</b> statistikasi
+🕌 <b>{masjid} statistikasi</b>
 
 Obunachilar soni: {subs_count} ta
 {district} boʻyicha: {district_count}-oʻrin
@@ -443,7 +443,8 @@ async def statistika(message: Message, state: FSMContext):
     for masjid in subs:
         text += _(
             """
-🕌 <b>{masjid}</b> statistikasi
+🕌 <b>{masjid} statistikasi</b>
+
 Obunachilar soni: {subs_count} ta
 {district} boʻyicha: {district_count}-oʻrin
 {region} boʻyicha: {region_count}-oʻrin
@@ -476,7 +477,7 @@ async def other_masjids(
     message = callback_query.message
     t = await message.answer(".", reply_markup=ReplyKeyboardRemove())
     await message.edit_text(
-        _("🏙 Hududni  tanlang:", locale=data["locale"]),
+        _("🏙 Hududni tanlang:", locale=data["locale"]),
         reply_markup=inline.regions_keyboard(regions, data["locale"]),
     )
     await t.delete()
@@ -588,7 +589,7 @@ async def namoz_vaqti_callback(
                 """<b>{year}-yil {month} oyi namoz vaqtlari
 Hudud: {mintaqa}</b>
 
-Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
+Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
                 locale=data["locale"],
             ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
             + "".join(dates) + "@jamoatvaqtlaribot",
@@ -660,7 +661,7 @@ async def pages_namoz_vaqtlari(
                 """<b>{year}-yil {month} oyi namoz vaqtlari
 Hudud: {mintaqa}</b>
 
-Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
+Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
                 locale=data["locale"],
             ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
             + "".join(dates) + "@jamoatvaqtlaribot",
@@ -710,7 +711,7 @@ Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
                 """<b>{year}-yil {month} oyi namoz vaqtlari
 Hudud: {mintaqa}</b>
 
-Tong | Quyosh | Peshin |  Asr |  Shom | Xufton\n\n""",
+Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
                 locale=data["locale"],
             ).format(year=current_time.year, mintaqa=mintaqatext, month=months[data["locale"]][current_time.month].lower())
             + "".join(dates) + "@jamoatvaqtlaribot",
