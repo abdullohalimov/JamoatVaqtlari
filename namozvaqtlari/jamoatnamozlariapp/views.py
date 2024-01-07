@@ -10,15 +10,14 @@ def is_admin(user):
 
 # Create your views here.
 
-
 @user_passes_test(is_admin)
 def region_statistics(request):
     regions = Region.objects.all()
 
-    # Calculate subscriber count for each region
+    # Calculate unique subscriber count for each region
     region_stats = []
     for region in regions:
-        subscriber_count = Masjid.objects.filter(district__region=region).count()
+        subscriber_count = Subscription.objects.filter(masjid__district__region=region).values('user').distinct().count()
         region_stats.append(
             {"name": region.name_uz, "subscriber_count": subscriber_count}
         )
@@ -34,15 +33,14 @@ def region_statistics(request):
     context = {"region_stats": region_stats}
     return render(request, "jamoatnamozlariapp/region_statistics.html", context)
 
-
 @user_passes_test(is_admin)
 def district_statistics(request):
     districts = District.objects.all()
 
-    # Calculate subscriber count for each district
+    # Calculate unique subscriber count for each district
     district_stats = []
     for district in districts:
-        subscriber_count = Masjid.objects.filter(district=district).count()
+        subscriber_count = Subscription.objects.filter(masjid__district=district).values('user').distinct().count()
         district_stats.append(
             {"name": district.name_uz, "subscriber_count": subscriber_count}
         )
@@ -57,6 +55,7 @@ def district_statistics(request):
 
     context = {"district_stats": district_stats}
     return render(request, "jamoatnamozlariapp/district_statistics.html", context)
+
 
 
 @user_passes_test(is_admin)
@@ -90,14 +89,13 @@ def region_list_view(request):
 @user_passes_test(is_admin)
 def region_detail_view(request, pk):
     region = get_object_or_404(Region, pk=pk)
-    districts = region.district_set.all()
-
+    districts_with_masjids = region.district_set.annotate(masjid_count=Count('masjid')).filter(masjid_count__gt=0)
     # Calculate the total number of masjids in the region
-    masjid_count = sum(district.masjid_set.count() for district in districts)
+    masjid_count = sum(district.masjid_set.count() for district in districts_with_masjids)
 
     context = {
         'region': region,
-        'districts': districts,
+        'districts': districts_with_masjids,
         'masjid_count': masjid_count,
     }
 
@@ -140,7 +138,7 @@ def districts_in_region_statistics(request, region_id):
 
     order_field = "-subscriber_count" if sort_order == "desc" else "subscriber_count"
     district_stats = District.objects.filter(region_id=region_id).annotate(
-        subscriber_count=Count('masjid__subscription')
+        subscriber_count=Count('masjid__subscription__user', distinct=True)
     ).order_by(order_field)
 
     return render(

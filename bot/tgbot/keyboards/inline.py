@@ -58,6 +58,11 @@ def districts_keyboard(districts_list, lang="uz") -> InlineKeyboardBuilder:
     keyboard.adjust(2)
     keyboard.row(
         InlineKeyboardButton(
+            text=_("🏙 Hududni oʻzgartirish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="region").pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
             text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
         )
     )
@@ -105,9 +110,15 @@ def masjidlar_keyboard(
     )
     keyboard.row(
         InlineKeyboardButton(
+            text=_("🏘 Tumanni oʻzgartirish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="district").pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
             text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
         )
     )
+    
     return keyboard.as_markup()
 
 
@@ -151,7 +162,7 @@ def namoz_vaqtlari_inline(mintaqa, lang="uz") -> InlineKeyboardBuilder:
             callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="oylik").pack()
         ),
         InlineKeyboardButton(
-            text=_("🔄 Hudud: {mintaqa}", locale=lang).format(mintaqa=mintaqa[lang_decode[lang]]),
+            text=_("🔄 Hududni oʻzgartirish", locale=lang),
             callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="changemintaqa").pack()
         )
     )
@@ -235,6 +246,15 @@ def main_menu_inline(lang="uz") -> InlineKeyboardBuilder:
     keyboard.row(
         InlineKeyboardButton(
             text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
+    return keyboard.as_markup()
+
+def subscribe_inline(lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🕌 Masjidga obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="subscribe").pack()
         )
     )
     return keyboard.as_markup()

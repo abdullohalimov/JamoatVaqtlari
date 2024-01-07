@@ -103,8 +103,8 @@ class Region(models.Model):
         return self.name_uz
 
     class Meta:
-        verbose_name = "Viloyat/Shaxar"
-        verbose_name_plural = "Viloyat/Shaxarlar"
+        verbose_name = "Viloyat"
+        verbose_name_plural = "Viloyatlar"
 
 
 class District(models.Model):
@@ -149,8 +149,8 @@ class District(models.Model):
         return self.name_uz
 
     class Meta:
-        verbose_name = "Tuman"
-        verbose_name_plural = "Tumanlar"
+        verbose_name = "Tuman(shahar)"
+        verbose_name_plural = "Tuman(shahar)lar"
 
 
 class Masjid(models.Model):
@@ -481,8 +481,8 @@ class ShaxarViloyatTimesChange(models.Model):
         # return super().save()
     
     class Meta:
-        verbose_name = "Shaxar/Viloyat namoz vaqtlarini oʻzgartirish"
-        verbose_name_plural = "Shaxar/Viloyat vaqtlarini oʻzgartirish"
+        verbose_name = "Viloyat vaqtlarini oʻzgartirish"
+        verbose_name_plural = "Viloyat vaqtlarini oʻzgartirish"
 
 class TumanTimesChange(models.Model):
     district = models.ForeignKey(
@@ -526,5 +526,5 @@ class TumanTimesChange(models.Model):
         # return super().save()
 
     class Meta:
-        verbose_name = "Tuman namoz vaqtlarini oʻzgartirish"
-        verbose_name_plural = "Tuman namoz vaqtlarini oʻzgartirish"
+        verbose_name = "Tuman (shahar) vaqtlarini oʻzgartirish"
+        verbose_name_plural = "Tuman (shahar) vaqtlarini oʻzgartirish"

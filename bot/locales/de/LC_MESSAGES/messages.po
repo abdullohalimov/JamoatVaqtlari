@@ -89,6 +89,7 @@ msgstr ""
 "🌆 Аср: <b>{asr}</b>\n"
 "🌃 Шом: <b>{shom}</b>\n"
 "🌌 Хуфтон: <b>{hufton}</b>\n"
+"\n"
 "@jamoatvaqtlaribot"
 
 #: tgbot/handlers/user.py:393

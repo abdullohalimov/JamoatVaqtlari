@@ -13,6 +13,4 @@ urlpatterns = [
     path('masjids_in_region/<int:region_id>/', masjids_in_region_statistics, name='masjids_in_region_statistic'),
     path('districts_in_region/<int:region_id>/', districts_in_region_statistics, name='districts_in_region_statistic'),
 
-
-
 ]

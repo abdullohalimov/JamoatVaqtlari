@@ -182,7 +182,7 @@ async def get_districts(
     districts = await api.get_districts(callback_data.region)
     logging.warning(districts)
     await callback_query.message.edit_text(
-        _("🏘 Tumanni tanlang:", locale=data["locale"]),
+        _("🏘 Tuman yoki shaharni tanlang:", locale=data["locale"]),
         reply_markup=inline.districts_keyboard(districts, data["locale"]),
     )
 
@@ -201,7 +201,7 @@ async def get_masjids(
 
     logging.warning(masjidlar)
     await callback_query.message.edit_text(
-        _("🕌 Masjidni tanlang:", locale=data['locale']),
+        _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
         reply_markup=inline.masjidlar_keyboard(
             masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next
         ),
@@ -219,7 +219,7 @@ async def get_masjids(
         masjidlar = await api.get_masjidlar(data["current_district"], page=page)
         has_next = True if ((page) * 5) < masjidlar["count"] else False
         await callback_query.message.edit_text(
-        _("🕌 Masjidni tanlang:", locale=data['locale']),
+        _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
             reply_markup=inline.masjidlar_keyboard(
                 masjidlar["items"],
                 lang=data["locale"],
@@ -237,7 +237,7 @@ async def get_masjids(
         has_next = True if ((page) * 5) < masjidlar["count"] else False
 
         await callback_query.message.edit_text(
-        _("🕌 Masjidni tanlang:", locale=data['locale']),
+        _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
             reply_markup=inline.masjidlar_keyboard(
                 masjidlar["items"], lang=data["locale"], current_page=page
             ),
@@ -310,7 +310,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
 🕌 <b>{masjid} jamoat namozi vaqtlari</b>
 📍 <b>Manzili:</b> {manzili1}, {manzili2}
 
-🕒 <i>Oxirgi marta {sana} da yangilangan</i>
+🕒 <i>Oxirgi marta {sana} da yangilangan.</i>
 
 🏞 Bomdod: <b>{bomdod}</b>
 🌇 Peshin: <b>{peshin}</b>
@@ -391,7 +391,7 @@ async def masjid_info(
         if callback_data.action == "subscribe":
             await callback_query.message.edit_text(
                 _(
-                    "✅ {district} {masjid} masjidi jamoat vaqtlariga obuna boʻldingiz",
+                    "✅ {district} {masjid} jamoat vaqtlariga obuna boʻldingiz.",
                     locale=data["locale"],
                 ).format(
                     district=masjid["district"][lang_decode[data["locale"]]],
@@ -402,7 +402,7 @@ async def masjid_info(
         elif callback_data.action == "unsubscribe":
             await callback_query.message.edit_text(
                 _(
-                    "☑️ {district} {masjid} masjidi jamoat vaqtlariga obuna bekor qilindi",
+                    "☑️ {district} {masjid} jamoat vaqtlariga obuna bekor qilindi.",
                     locale=data["locale"],
                 ).format(
                     district=masjid["district"][lang_decode[data["locale"]]],
@@ -424,14 +424,16 @@ async def masjid_info(message: Message, state: FSMContext):
     data = await state.get_data()
     subs = await api.get_subscriptions(message.chat.id)
     logging.warning(subs)
-    await message.answer(_("✅ Obunalar:", locale=data["locale"]))
-    text = ""
-    for masjid in subs:
-        text += f"🕌 {masjid['masjid'][lang_decode[data['locale']]]}\n"
-        text += f"📍 {masjid['masjid']['district']['region'][lang_decode[data['locale']]]}, {masjid['masjid']['district'][lang_decode[data['locale']]]}\n"
-        text += f"🕓 {masjid['masjid']['bomdod']} | {masjid['masjid']['peshin']} | {masjid['masjid']['asr']} | {masjid['masjid']['shom']} | {masjid['masjid']['hufton']} \n\n"
-    await message.answer(text)
-
+    if len(subs) != 0:
+        await message.answer(_("✅ Obunalar:", locale=data["locale"]))
+        text = ""
+        for masjid in subs:
+            text += f"🕌 {masjid['masjid'][lang_decode[data['locale']]]}\n"
+            text += f"📍 {masjid['masjid']['district']['region'][lang_decode[data['locale']]]}, {masjid['masjid']['district'][lang_decode[data['locale']]]}\n"
+            text += f"🕓 {masjid['masjid']['bomdod']} | {masjid['masjid']['peshin']} | {masjid['masjid']['asr']} | {masjid['masjid']['shom']} | {masjid['masjid']['hufton']} \n\n"
+        await message.answer(text)
+    else:
+        await message.answer(_("Siz hech qaysi masjidga obuna boʻlmagansiz. Quyidagi tugma orqali obuna boʻlishingiz mumkin.", locale=data["locale"]), reply_markup=inline.subscribe_inline(data["locale"]))
 
 @user_router.message(F.text.in_(["📊 Statistika", "📊 Статистика"]), UserStates.menu)
 async def statistika(message: Message, state: FSMContext):
@@ -440,8 +442,9 @@ async def statistika(message: Message, state: FSMContext):
     logging.warning(subs)
     await message.answer(_("📊 Statistika", locale=data["locale"]))
     text = ""
-    for masjid in subs:
-        text += _(
+    if subs:
+        for masjid in subs:
+            text += _(
             """
 🕌 <b>{masjid} statistikasi</b>
 
@@ -450,17 +453,18 @@ Obunachilar soni: {subs_count} ta
 {region} boʻyicha: {region_count}-oʻrin
 Oʻzbekiston boʻyicha: {global_count}-oʻrin
 """,
-            locale=data["locale"],
-        ).format(
-            subs_count=masjid["masjid"]["subscription_count"],
-            masjid=masjid["masjid"][lang_decode[data["locale"]]],
-            district=masjid["masjid"]["district"][lang_decode[data["locale"]]],
-            district_count=masjid["masjid"]["statistic"]["district_position"],
-            region=masjid["masjid"]["district"]["region"][lang_decode[data["locale"]]],
-            region_count=masjid["masjid"]["statistic"]["region_position"],
-            global_count=masjid["masjid"]["statistic"]["all_position"],
-        )
-
+                locale=data["locale"],
+            ).format(
+                subs_count=masjid["masjid"]["subscription_count"],
+                masjid=masjid["masjid"][lang_decode[data["locale"]]],
+                district=masjid["masjid"]["district"][lang_decode[data["locale"]]],
+                district_count=masjid["masjid"]["statistic"]["district_position"],
+                region=masjid["masjid"]["district"]["region"][lang_decode[data["locale"]]],
+                region_count=masjid["masjid"]["statistic"]["region_position"],
+                global_count=masjid["masjid"]["statistic"]["all_position"],
+            )
+    else:
+        text = _("Masjidni tanlang", locale=data["locale"])
     await message.answer(text, reply_markup=inline.other_masjids_inline(data["locale"]))
 
 

@@ -23,6 +23,12 @@ class MasjidInline(admin.StackedInline):
     extra = 1
 
 
+class SubscriptionInline(admin.TabularInline):
+    model = Subscription
+    extra = 0
+    
+
+
 class DistrictInline(admin.TabularInline):
     model = District
     extra = 1
@@ -84,6 +90,7 @@ class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
     readonly_fields = ["last_update",]
     # form = MasjidForm
+    inlines = [SubscriptionInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "district":
@@ -169,7 +176,7 @@ class UserAdmin(admin.ModelAdmin):
         "full_name",
         "user_id",
     ]
-
+    inlines = [SubscriptionInline]
 
 class MintaqaAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "viloyat", "mintaqa_id"]

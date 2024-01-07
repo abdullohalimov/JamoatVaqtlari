@@ -32,7 +32,7 @@ def get_photo_id(photo_file):
 def send_new_masjid_times(masjid, subscriptions):
     old, new = masjid
     text = f"""
- {new.district.region.name_uz}, {new.district.name_uz}, {new.name_uz} jamoat vaqtlari oʻzgardi.
+ {new.district.region.name_uz} {new.district.name_uz}, {new.name_uz} jamoat vaqtlari oʻzgardi.
 
 🏞 Bomdod: {new.bomdod}
 🌇 Peshin: {new.peshin}
@@ -48,7 +48,7 @@ def send_new_masjid_times(masjid, subscriptions):
             pass
     
 def send_region_change_times(users, region, type):
-    region_text = f"{region.district.region.name_uz}, {region.district.name_uz}" if type == "district" else region.region.name_uz
+    region_text = f"{region.district.region.name_uz} {region.district.name_uz}" if type == "district" else region.region.name_uz
 
     text = f"""
  🕌 {region_text} masjidlari jamoat vaqtlari oʻzgardi.
