@@ -6,8 +6,6 @@ from tgbot.keyboards.factory import _
 lang_decode = {"uz": "name_uz", "de": "name_cyrl", "ru": "name_ru"}
 
 
-
-
 def language_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
@@ -71,7 +69,7 @@ def districts_keyboard(districts_list, lang="uz") -> InlineKeyboardBuilder:
 
 
 def masjidlar_keyboard(
-    masjid_list, lang="uz", current_page=1, has_next=True
+    masjid_list, lang="uz", current_page=1, has_next=True, is_subs_menu=False
 ) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     for masjid in masjid_list:
@@ -85,56 +83,57 @@ def masjidlar_keyboard(
         )
 
     keyboard.adjust(1)
-
-    keyboard.row(
-        InlineKeyboardButton(
-            text=_("{icon} Orqaga", locale=lang).format(
-                icon='⬅️' if current_page > 1 else '⏸'
-            ),
-            callback_data=factory.PagesData(page=current_page, action="prev").pack(),
+    if not is_subs_menu:
+        keyboard.row(
+            InlineKeyboardButton(
+                text=_("{icon} Orqaga", locale=lang).format(
+                    icon='⬅️' if current_page > 1 else '⏸'
+                ),
+                callback_data=factory.PagesData(page=current_page, action="prev").pack(),
+            )
         )
-    )
-    keyboard.add(
-        InlineKeyboardButton(
-            text=f"{current_page}",
-            callback_data=factory.PagesData(page=current_page, action="page").pack(),
-        ),
-        InlineKeyboardButton(
-            text=_("{icon} Keyingi", locale=lang).format(
-                icon='➡️' if has_next else '⏸'
+        keyboard.add(
+            InlineKeyboardButton(
+                text=f"{current_page}",
+                callback_data=factory.PagesData(page=current_page, action="page").pack(),
             ),
-            callback_data=factory.PagesData(
-                page=current_page, action="next" if has_next else "stop"
-            ).pack(),
-        ),
-    )
-    keyboard.row(
-        InlineKeyboardButton(
-            text=_("🏘 Tumanni oʻzgartirish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="district").pack()
+            InlineKeyboardButton(
+                text=_("{icon} Keyingi", locale=lang).format(
+                    icon='➡️' if has_next else '⏸'
+                ),
+                callback_data=factory.PagesData(
+                    page=current_page, action="next" if has_next else "stop"
+                ).pack(),
+            ),
         )
-    )
+        keyboard.row(
+            InlineKeyboardButton(
+                text=_("🏘 Tumanni oʻzgartirish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="district").pack()
+            )
+        )
     keyboard.row(
         InlineKeyboardButton(
             text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
         )
     )
-    
+        
     return keyboard.as_markup()
 
 
-def masjid_kb(masjid_info, lang="uz") -> InlineKeyboardBuilder:
+def masjid_kb(masjid_info, lang="uz", is_subscribed=False) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
-
-    keyboard.row(
-        InlineKeyboardButton(
-            text=_("✅ Obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="subscribe").pack()
+    if not is_subscribed:
+        keyboard.row(
+            InlineKeyboardButton(
+                text=_("✅ Obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="subscribe_to").pack()
+            )
         )
-    )
-    keyboard.row(
-        InlineKeyboardButton(
-            text=_("❌ Obunani bekor qilish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="unsubscribe").pack()
-        )
-    )
+    else:
+        keyboard.row(
+                InlineKeyboardButton(
+                    text=_("❌ Obunani bekor qilish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="unsubscribe").pack()
+                )
+            )
     if str(masjid_info['location']) != "None":
         try:
             lt, ln = masjid_info['location'].split(",")[:2]

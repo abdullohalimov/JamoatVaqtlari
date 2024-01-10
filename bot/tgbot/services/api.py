@@ -48,8 +48,8 @@ async def get_masjidlar(district_id, page=1):
             return await response.json()
 
 
-async def masjid_info(masjid_id):
-    payload = {"masjid_pk": int(masjid_id)}
+async def masjid_info(masjid_id, user_id):
+    payload = {"masjid_pk": int(masjid_id), "user_id": int(user_id)}
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f"{main_url}/api/masjid-info", params=payload

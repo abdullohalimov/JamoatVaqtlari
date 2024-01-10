@@ -185,6 +185,7 @@ async def get_districts(
         _("🏘 Tuman yoki shaharni tanlang:", locale=data["locale"]),
         reply_markup=inline.districts_keyboard(districts, data["locale"]),
     )
+    await state.update_data(current_region=callback_data.region)
 
 
 @user_router.callback_query(factory.DistrictData.filter())
@@ -287,7 +288,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
                 reply_markup=inline.main_menu_inline(data["locale"]),
             )
     elif data.get("masjid_action", False) == "subscription":
-        masjid = await api.masjid_info(callback_data.masjid)
+        masjid = await api.masjid_info(callback_data.masjid, user_id=callback_query.from_user.id)
         logging.warning(masjid)
         masjid_date = datetime.strptime(masjid["last_update"], "%Y-%m-%dT%H:%M:%S.%fZ")
         # Specify the UTC timezone
@@ -332,7 +333,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
             hufton=masjid["hufton"],
         )
 
-        markup = inline.masjid_kb(masjid, lang=data["locale"])
+        markup = inline.masjid_kb(masjid, lang=data["locale"], is_subscribed=masjid["is_subscribed"])
         if str(masjid.get("photo", False)) != "None":
             try:
                 # raise Exception
@@ -368,7 +369,7 @@ async def masjid_location(
 
 
 @user_router.callback_query(factory.MasjidInfoData.filter())
-async def masjid_info(
+async def masjid_info_action(
     callback_query: CallbackQuery,
     callback_data: factory.MasjidInfoData,
     state: FSMContext,
@@ -380,6 +381,22 @@ async def masjid_info(
         await user_start(callback_query.message, state)
         await callback_query.message.delete()
         return
+    elif callback_data.action == "district":
+        chosen_region = data.get("current_region", 27)
+        await get_districts(callback_query=callback_query, callback_data=factory.RegionData(region=chosen_region), state=state) 
+        return
+    elif callback_data.action == "subscribe":
+        await jamoat(callback_query.message, state)
+        await callback_query.message.delete()
+        return
+    elif callback_data.action == "region":
+        regions = await api.get_regions()
+        await callback_query.message.edit_text(
+            _("🏙 Hududni tanlang:", locale=data["locale"]),
+            reply_markup=inline.regions_keyboard(regions, data["locale"]),
+        )
+        return
+    
     resp = await api.masjid_subscription(
         user_id=callback_query.message.chat.id,
         masjid_id=callback_data.masjid,
@@ -388,7 +405,7 @@ async def masjid_info(
     if resp["success"]:
         logging.warning(resp)
         masjid = resp["masjid"]
-        if callback_data.action == "subscribe":
+        if callback_data.action == "subscribe_to":
             await callback_query.message.edit_text(
                 _(
                     "✅ {district} {masjid} jamoat vaqtlariga obuna boʻldingiz.",
@@ -420,18 +437,19 @@ async def masjid_info(
 
 
 @user_router.message(F.text.in_(["✅ Obunalar", "✅ Обуналар"]))
-async def masjid_info(message: Message, state: FSMContext):
+async def masjid_info_sub(message: Message, state: FSMContext):
     data = await state.get_data()
     subs = await api.get_subscriptions(message.chat.id)
     logging.warning(subs)
     if len(subs) != 0:
-        await message.answer(_("✅ Obunalar:", locale=data["locale"]))
+        await message.answer(_("✅ Obunalar:", locale=data["locale"]), reply_markup=ReplyKeyboardRemove())
         text = ""
         for masjid in subs:
-            text += f"🕌 {masjid['masjid'][lang_decode[data['locale']]]}\n"
-            text += f"📍 {masjid['masjid']['district']['region'][lang_decode[data['locale']]]}, {masjid['masjid']['district'][lang_decode[data['locale']]]}\n"
-            text += f"🕓 {masjid['masjid']['bomdod']} | {masjid['masjid']['peshin']} | {masjid['masjid']['asr']} | {masjid['masjid']['shom']} | {masjid['masjid']['hufton']} \n\n"
-        await message.answer(text)
+            text += f"🕌 {masjid[lang_decode[data['locale']]]}\n"
+            text += f"📍 {masjid['district']['region'][lang_decode[data['locale']]]}, {masjid['district'][lang_decode[data['locale']]]}\n"
+            text += f"🕓 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n\n"
+        await message.answer(text, reply_markup=inline.masjidlar_keyboard(masjid_list=subs, lang=data["locale"], is_subs_menu=True))
+        await state.set_state(UserStates.select_masjid)
     else:
         await message.answer(_("Siz hech qaysi masjidga obuna boʻlmagansiz. Quyidagi tugma orqali obuna boʻlishingiz mumkin.", locale=data["locale"]), reply_markup=inline.subscribe_inline(data["locale"]))
 

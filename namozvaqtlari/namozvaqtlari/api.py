@@ -52,6 +52,7 @@ class MasjidInfo(Schema):
     hufton: str
     location: str | None
     last_update: datetime.datetime
+    is_subscribed: bool = False
 
 
 class UserSchema(Schema):
@@ -60,9 +61,9 @@ class UserSchema(Schema):
     user_id: int
 
 
-class SubscriptionsSchema(Schema):
-    pk: int
-    masjid: MasjidInfo
+# class SubscriptionsSchema(Schema):
+#     pk: int
+#     masjid: MasjidInfo
 
 
 class MintaqaSchema(Schema):
@@ -112,8 +113,15 @@ def get_masjidlar(request, district_id):
 
 
 @api.get("/masjid-info", response=MasjidInfo)
-def masjid_info(request, masjid_pk):
-    return Masjid.objects.get(pk=masjid_pk)
+def masjid_info(request, masjid_pk, user_id):
+    masjid = Masjid.objects.get(pk=masjid_pk)
+    user = User.objects.get(user_id=user_id)
+    is_subscribed = Subscription.objects.filter(
+        masjid=masjid, user=user
+    ).exists()
+    setattr(masjid, "is_subscribed", is_subscribed)
+    return masjid
+
 
 
 @api.get("/masjid-statistikasi")
@@ -145,7 +153,7 @@ def masjid_statistikasi(request, masjid_pk):
 
 @api.post("/masjid-subscription")
 def masjid_subscription(request, user_id, masjid_id, action):
-    if action == "subscribe":
+    if action == "subscribe_to":
         try:
             user = User.objects.get(user_id=user_id)
             masjid = Masjid.objects.get(pk=masjid_id)
@@ -198,10 +206,11 @@ def masjid_subscription(request, user_id, masjid_id, action):
     return {"success": "False"}
 
 
-@api.get("/user-subscriptions", response=List[SubscriptionsSchema])
+@api.get("/user-subscriptions", response=List[MasjidInfo])
 def user_subscriptions(request, user_id):
-    return Subscription.objects.filter(user=User.objects.get(user_id=user_id))
-
+    return Masjid.objects.filter(
+        pk__in=Subscription.objects.filter(user=User.objects.get(user_id=user_id)).values_list("masjid", flat=True)
+    )
 
 @api.get("/user-subscriptions-statistic")
 def user_subscriptions(request, user_id):
