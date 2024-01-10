@@ -17,8 +17,10 @@ def send_text(text):
     bot.send_message(chat_id=-1002111788540, text=text)
 
 def send_backup(backup):
-    
-    bot.send_document(chat_id=-1002111788540, document=InputFile(backup), caption="#jamoatvaqtlari DB File | " + datetime.now().strftime("%Y-%m-%d %H:%M"))
+    try:
+        bot.send_document(chat_id=-1002111788540, document=InputFile(backup), caption="#jamoatvaqtlari DB File | " + datetime.now().strftime("%Y-%m-%d %H:%M"))
+    except:
+        bot.send_message(chat_id=1357813137, text="Error sending backup file | JamoatVaqtlariBot | " + datetime.now().strftime("%Y-%m-%d %H:%M"))
 
 def get_photo_id(photo_file):
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from .tg_functions import send_backup, send_text
 import logging
 from bs4 import BeautifulSoup
@@ -105,4 +106,5 @@ def update():
 
 @kronos.register("*/30 * * * *")
 def backup():
-    send_backup("/app/dbfile/db.sqlite3")
+    os.popen(f'7z a backup.zip /app/dbfile/db.sqlite3 -pJamoatVaqtlari@2024')
+    send_backup("/root/backup.zip")
