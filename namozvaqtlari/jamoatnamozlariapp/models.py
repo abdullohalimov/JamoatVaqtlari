@@ -297,6 +297,7 @@ class Masjid(models.Model):
             subscriptions = self.subscription_set.all()
             send_new_masjid_times([old, self], subscriptions)
         else:
+            pass
             logging.warning(f"there was no masjid so this is create")
         return super().save()
 
@@ -521,7 +522,6 @@ class TumanTimesChange(models.Model):
         send_region_change_times(users, self, "district")
         
 
-        logging.warning(users)
 
         # return super().save()
 

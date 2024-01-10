@@ -21,6 +21,7 @@ class DistrictData(CallbackData, prefix="district"):
 
 class MasjidData(CallbackData, prefix="masjid"):
     masjid: Any
+    is_sub: bool
 
 class PagesData(CallbackData, prefix="page"):
     page: Any

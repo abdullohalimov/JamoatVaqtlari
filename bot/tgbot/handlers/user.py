@@ -1,3 +1,4 @@
+import calendar
 from datetime import datetime
 import logging
 from traceback import print_exc
@@ -113,12 +114,22 @@ pages = {
     7: [31],
 }
 
+async def restore_defaults(state: FSMContext):
+    data = await state.get_data()
 
+    newdata = {
+        'locale': data['locale'],
+        'registered': data['registered'],
+        'mintaqa': data['mintaqa'], 
+
+    }
+    await state.set_data(newdata)
 @user_router.message(CommandStart())
 async def user_start(message: Message, state: FSMContext):
     data = await state.get_data()
     await state.set_state(UserStates.menu)
     if data.get("registered", False):
+        await restore_defaults(state)
         await message.answer(
             _("🏡 Bosh menyu", locale=data["locale"]),
             reply_markup=reply.main_menu_user(data["locale"]),
@@ -180,7 +191,6 @@ async def get_districts(
 ):
     data = await state.get_data()
     districts = await api.get_districts(callback_data.region)
-    logging.warning(districts)
     await callback_query.message.edit_text(
         _("🏘 Tuman yoki shaharni tanlang:", locale=data["locale"]),
         reply_markup=inline.districts_keyboard(districts, data["locale"]),
@@ -199,18 +209,18 @@ async def get_masjids(
     data = await state.get_data()
     masjidlar = await api.get_masjidlar(callback_data.ditrict)
     has_next = True if (1 * 5) < masjidlar["count"] else False
+    max_page = int((masjidlar["count"] / 5) + 1) 
 
-    logging.warning(masjidlar)
     await callback_query.message.edit_text(
         _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
         reply_markup=inline.masjidlar_keyboard(
-            masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next
+            masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next, max_page=max_page
         ),
     )
 
 
 @user_router.callback_query(factory.PagesData.filter(), UserStates.select_masjid)
-async def get_masjids(
+async def get_masjids_pagination(
     callback_query: CallbackQuery, callback_data: factory.PagesData, state: FSMContext
 ):
     data = await state.get_data()
@@ -218,6 +228,7 @@ async def get_masjids(
     if callback_data.action == "next":
         page = int(data["current_page"]) + 1
         masjidlar = await api.get_masjidlar(data["current_district"], page=page)
+        max_page = int((masjidlar["count"] / 5) + 1) 
         has_next = True if ((page) * 5) < masjidlar["count"] else False
         await callback_query.message.edit_text(
         _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
@@ -226,6 +237,7 @@ async def get_masjids(
                 lang=data["locale"],
                 current_page=page,
                 has_next=has_next,
+                max_page=max_page
             ),
         )
 
@@ -234,13 +246,13 @@ async def get_masjids(
     elif callback_data.action == "prev" and int(data["current_page"]) > 1:
         page = int(data["current_page"]) - 1
         masjidlar = await api.get_masjidlar(data["current_district"], page=page)
-
+        max_page = int((masjidlar["count"] / 5) + 1) 
         has_next = True if ((page) * 5) < masjidlar["count"] else False
 
         await callback_query.message.edit_text(
         _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
             reply_markup=inline.masjidlar_keyboard(
-                masjidlar["items"], lang=data["locale"], current_page=page
+                masjidlar["items"], lang=data["locale"], current_page=page, max_page=max_page
             ),
         )
 
@@ -280,16 +292,15 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
                     global_count=resp["statistic"]["all_position"],
                     subs_count=resp["subscription_count"],
                 ),
-                reply_markup=inline.main_menu_inline(data["locale"]),
+                reply_markup=inline.stats_main_menu_inline(data["locale"]),
             )
         else:
             await callback_query.message.edit_text(
                 _("Ma'lumotlar topilmadi", locale=data["locale"]),
-                reply_markup=inline.main_menu_inline(data["locale"]),
+                reply_markup=inline.stats_main_menu_inline(data["locale"]),
             )
     elif data.get("masjid_action", False) == "subscription":
         masjid = await api.masjid_info(callback_data.masjid, user_id=callback_query.from_user.id)
-        logging.warning(masjid)
         masjid_date = datetime.strptime(masjid["last_update"], "%Y-%m-%dT%H:%M:%S.%fZ")
         # Specify the UTC timezone
         utc_timezone = pytz.utc
@@ -333,7 +344,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
             hufton=masjid["hufton"],
         )
 
-        markup = inline.masjid_kb(masjid, lang=data["locale"], is_subscribed=masjid["is_subscribed"])
+        markup = inline.masjid_kb(masjid, lang=data["locale"], is_subscribed=masjid["is_subscribed"], is_subs_menu=callback_data.is_sub)
         if str(masjid.get("photo", False)) != "None":
             try:
                 # raise Exception
@@ -374,7 +385,6 @@ async def masjid_info_action(
     callback_data: factory.MasjidInfoData,
     state: FSMContext,
 ):
-    logging.warning(callback_data)
     data = await state.get_data()
 
     if callback_data.action == "main":
@@ -396,14 +406,14 @@ async def masjid_info_action(
             reply_markup=inline.regions_keyboard(regions, data["locale"]),
         )
         return
-    
+    elif callback_data.action == "changemasjid":
+        await get_masjids(callback_query, callback_data=factory.DistrictData(ditrict=data["current_district"], region=data["current_region"]), state=state)
     resp = await api.masjid_subscription(
         user_id=callback_query.message.chat.id,
         masjid_id=callback_data.masjid,
         action=callback_data.action,
     )
     if resp["success"]:
-        logging.warning(resp)
         masjid = resp["masjid"]
         if callback_data.action == "subscribe_to":
             await callback_query.message.edit_text(
@@ -440,7 +450,6 @@ async def masjid_info_action(
 async def masjid_info_sub(message: Message, state: FSMContext):
     data = await state.get_data()
     subs = await api.get_subscriptions(message.chat.id)
-    logging.warning(subs)
     if len(subs) != 0:
         await message.answer(_("✅ Obunalar:", locale=data["locale"]), reply_markup=ReplyKeyboardRemove())
         text = ""
@@ -457,7 +466,6 @@ async def masjid_info_sub(message: Message, state: FSMContext):
 async def statistika(message: Message, state: FSMContext):
     data = await state.get_data()
     subs = await api.get_subscriptions_statistics(message.chat.id)
-    logging.warning(subs)
     await message.answer(_("📊 Statistika", locale=data["locale"]))
     text = ""
     if subs:
@@ -522,7 +530,6 @@ async def namoz_vaqti(message: Message, state: FSMContext):
     bugungi_namoz_vaqti = await api.get_today_namoz_vaqti(
         mintaqa=mintaqa, milodiy_oy=currint_time.month, milodiy_kun=currint_time.day
     )
-    logging.warning(bugungi_namoz_vaqti)
     vaqtlar = bugungi_namoz_vaqti["vaqtlari"].split("|")
     text = _(
         """
@@ -569,7 +576,6 @@ async def namoz_vaqti_callback(
     current_time = datetime.now()
     data = await state.get_data()
     if callback_data.action == "oylik":
-        logging.warning(callback_data)
         current_time = datetime.now()
         page = 1
         await state.set_state(UserStates.select_namoz_vaqti)
@@ -620,6 +626,7 @@ Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
                 current_page=page,
                 has_next=has_next,
                 lang=data["locale"],
+                max_day=calendar.monthrange(current_time.year, current_time.month)[1]
             ),
         )
         await state.update_data(
@@ -692,6 +699,7 @@ Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
                 current_page=page,
                 has_next=has_next,
                 lang=data["locale"],
+                max_day=calendar.monthrange(current_time.year, current_time.month)[1]
             ),
         )
 
@@ -742,6 +750,7 @@ Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
                 current_page=page,
                 has_next=has_next,
                 lang=data["locale"],
+                max_day=calendar.monthrange(current_time.year, current_time.month)[1]
             ),
         )
 

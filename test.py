@@ -31,9 +31,7 @@ def parse_vaqtlar():
         if last_hijri > int(text[0]) or last_hijri == 0:
             hijri_day = requests.get(f"http://api.aladhan.com/v1/gToH/{text[1]}-{datetime.now().month}-{datetime.now().year}")
             result = hijri_day.json()
-            logging.warning(result)
             hijri_month = result['data']['hijri']['month']['number']
-            logging.warning("Changing")
         last_hijri = int(text[0])
         print(f"{text[0]}-{hijri_month}")
         print(text)

@@ -86,9 +86,7 @@ def update():
                         f"http://api.aladhan.com/v1/gToH/{text[1]}-{datetime.now().month}-{datetime.now().year}"
                     )
                     result = hijri_day.json()
-                    logging.warning(result)
                     hijri_month = result["data"]["hijri"]["month"]["number"]
-                    logging.warning("Changing")
                 last_hijri = int(text[0])
                 a, b = NamozVaqti.objects.get_or_create(
                     mintaqa=mintaqa,
