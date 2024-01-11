@@ -207,6 +207,7 @@ def masjid_subscription(request, user_id, masjid_id, action):
 
 
 @api.get("/user-subscriptions", response=List[MasjidInfo])
+@paginate(PageNumberPagination, page_size=5)
 def user_subscriptions(request, user_id):
     return Masjid.objects.filter(
         pk__in=Subscription.objects.filter(user=User.objects.get(user_id=user_id)).values_list("masjid", flat=True)

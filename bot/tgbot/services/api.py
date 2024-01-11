@@ -66,8 +66,8 @@ async def masjid_subscription(user_id, masjid_id, action):
             return await response.json()
 
 
-async def get_subscriptions(user_id):
-    payload = {"user_id": int(user_id)}
+async def get_subscriptions(user_id, page=1):
+    payload = {"user_id": int(user_id), "page": int(page)}
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f"{main_url}/api/user-subscriptions", params=payload

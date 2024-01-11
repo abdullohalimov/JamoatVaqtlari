@@ -114,13 +114,46 @@ pages = {
     7: [31],
 }
 
+
+async def send_masjid_text(callback_query: CallbackQuery, data, masjidlar, page, has_next, max_page, type='def'):
+    if type == 'def':
+        await callback_query.message.edit_text(
+            _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
+                reply_markup=inline.masjidlar_keyboard(
+                    masjidlar["items"],
+                    lang=data["locale"],
+                    current_page=page,
+                    has_next=has_next,
+                    max_page=max_page
+                ),
+            ) 
+    else:
+        text = ""
+        for masjid in masjidlar['items']:
+            text += f"🕌 {masjid[lang_decode[data['locale']]]}\n"
+            text += f"📍 {masjid['district']['region'][lang_decode[data['locale']]]}, {masjid['district'][lang_decode[data['locale']]]}\n"
+            text += f"🕓 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n\n"
+        await callback_query.message.edit_text(
+                text,
+                reply_markup=inline.masjidlar_keyboard(
+                    masjidlar["items"],
+                    lang=data["locale"],
+                    current_page=page,
+                    has_next=has_next,
+                    max_page=max_page,
+                    is_subs_menu=True
+
+                ),
+            ) 
+
+
 async def restore_defaults(state: FSMContext):
     data = await state.get_data()
 
     newdata = {
-        'locale': data['locale'],
-        'registered': data['registered'],
-        'mintaqa': data['mintaqa'], 
+        'locale': data.get('locale', 'uz'),
+        'registered': data.get('registered', False),
+        'mintaqa': data.get('mintaqa', 27), 
 
     }
     await state.set_data(newdata)
@@ -174,7 +207,7 @@ async def set_language(
     F.text.in_(["🕌 Jamoat vaqtlari", "🕌 Жамоат вақтлари"]), UserStates.menu
 )
 async def jamoat(message: Message, state: FSMContext):
-    await state.update_data(masjid_action="subscription")
+    await state.update_data(masjid_action="subscription", page_type="def")
     data = await state.get_data()
     regions = await api.get_regions()
     t = await message.answer(".", reply_markup=ReplyKeyboardRemove())
@@ -209,7 +242,7 @@ async def get_masjids(
     data = await state.get_data()
     masjidlar = await api.get_masjidlar(callback_data.ditrict)
     has_next = True if (1 * 5) < masjidlar["count"] else False
-    max_page = int((masjidlar["count"] / 5) + 1) 
+    max_page = int((masjidlar["count"] / 5) + 1) if (masjidlar["count"] % 5) != 0 else int(masjidlar["count"] / 5)
 
     await callback_query.message.edit_text(
         _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
@@ -227,34 +260,27 @@ async def get_masjids_pagination(
 
     if callback_data.action == "next":
         page = int(data["current_page"]) + 1
-        masjidlar = await api.get_masjidlar(data["current_district"], page=page)
-        max_page = int((masjidlar["count"] / 5) + 1) 
+        if data.get('page_type') == "subs":
+            masjidlar = await api.get_subscriptions(user_id=callback_query.from_user.id, page=page)
+        else:    
+            masjidlar = await api.get_masjidlar(data["current_district"], page=page)
+        max_page = int((masjidlar["count"] / 5) + 1) if (masjidlar["count"] % 5) != 0 else int(masjidlar["count"] / 5)
         has_next = True if ((page) * 5) < masjidlar["count"] else False
-        await callback_query.message.edit_text(
-        _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
-            reply_markup=inline.masjidlar_keyboard(
-                masjidlar["items"],
-                lang=data["locale"],
-                current_page=page,
-                has_next=has_next,
-                max_page=max_page
-            ),
-        )
+
+        await send_masjid_text(callback_query, data, masjidlar, page, has_next, max_page, data.get('page_type', 'def'))
 
         await state.update_data(current_page=page)
 
     elif callback_data.action == "prev" and int(data["current_page"]) > 1:
         page = int(data["current_page"]) - 1
-        masjidlar = await api.get_masjidlar(data["current_district"], page=page)
+        if data.get('page_type') == "subs":
+            masjidlar = await api.get_subscriptions(user_id=callback_query.from_user.id, page=page)
+        else:    
+            masjidlar = await api.get_masjidlar(data["current_district"], page=page)
         max_page = int((masjidlar["count"] / 5) + 1) 
         has_next = True if ((page) * 5) < masjidlar["count"] else False
 
-        await callback_query.message.edit_text(
-        _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
-            reply_markup=inline.masjidlar_keyboard(
-                masjidlar["items"], lang=data["locale"], current_page=page, max_page=max_page
-            ),
-        )
+        await send_masjid_text(callback_query, data, masjidlar, page, has_next, max_page, data.get('page_type', 'def'))
 
         await state.update_data(current_page=page)
 
@@ -451,13 +477,17 @@ async def masjid_info_sub(message: Message, state: FSMContext):
     data = await state.get_data()
     subs = await api.get_subscriptions(message.chat.id)
     if len(subs) != 0:
+        has_next = True if (1 * 5) < subs["count"] else False
+        max_page = int((subs["count"] / 5) + 1) if subs["count"] % 5 != 0 else int(subs["count"] / 5)
         await message.answer(_("✅ Obunalar:", locale=data["locale"]), reply_markup=ReplyKeyboardRemove())
         text = ""
-        for masjid in subs:
+        for masjid in subs['items']:
+            current_district = masjid['district']['pk']
             text += f"🕌 {masjid[lang_decode[data['locale']]]}\n"
             text += f"📍 {masjid['district']['region'][lang_decode[data['locale']]]}, {masjid['district'][lang_decode[data['locale']]]}\n"
             text += f"🕓 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n\n"
-        await message.answer(text, reply_markup=inline.masjidlar_keyboard(masjid_list=subs, lang=data["locale"], is_subs_menu=True))
+        await state.update_data(masjid_action="subscription", current_page=1, current_district=current_district, page_type='subs')
+        await message.answer(text, reply_markup=inline.masjidlar_keyboard(is_subs_menu=True, masjid_list=subs['items'], lang=data["locale"], current_page=1, has_next=has_next, max_page=max_page))
         await state.set_state(UserStates.select_masjid)
     else:
         await message.answer(_("Siz hech qaysi masjidga obuna boʻlmagansiz. Quyidagi tugma orqali obuna boʻlishingiz mumkin.", locale=data["locale"]), reply_markup=inline.subscribe_inline(data["locale"]))

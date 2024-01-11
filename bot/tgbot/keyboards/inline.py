@@ -84,29 +84,29 @@ def masjidlar_keyboard(
         )
 
     keyboard.adjust(1)
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("{icon} Orqaga", locale=lang).format(
+                icon='⬅️' if current_page > 1 else '⏸'
+            ),
+            callback_data=factory.PagesData(page=current_page, action="prev").pack(),
+        )
+    )
+    keyboard.add(
+        InlineKeyboardButton(
+            text=f"{current_page}/{max_page}",
+            callback_data=factory.PagesData(page=current_page, action="page").pack(),
+        ),
+        InlineKeyboardButton(
+            text=_("{icon} Keyingi", locale=lang).format(
+                icon='➡️' if has_next else '⏸'
+            ),
+            callback_data=factory.PagesData(
+                page=current_page, action="next" if has_next else "stop"
+            ).pack(),
+        ),
+    )
     if not is_subs_menu:
-        keyboard.row(
-            InlineKeyboardButton(
-                text=_("{icon} Orqaga", locale=lang).format(
-                    icon='⬅️' if current_page > 1 else '⏸'
-                ),
-                callback_data=factory.PagesData(page=current_page, action="prev").pack(),
-            )
-        )
-        keyboard.add(
-            InlineKeyboardButton(
-                text=f"{current_page}/{max_page}",
-                callback_data=factory.PagesData(page=current_page, action="page").pack(),
-            ),
-            InlineKeyboardButton(
-                text=_("{icon} Keyingi", locale=lang).format(
-                    icon='➡️' if has_next else '⏸'
-                ),
-                callback_data=factory.PagesData(
-                    page=current_page, action="next" if has_next else "stop"
-                ).pack(),
-            ),
-        )
         keyboard.row(
             InlineKeyboardButton(
                 text=_("🏘 Tumanni oʻzgartirish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="district").pack()
