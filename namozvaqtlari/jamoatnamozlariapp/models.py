@@ -8,6 +8,7 @@ from .tg_functions import get_photo_id, send_new_masjid_times, send_region_chang
 
 
 from django.db import models
+from UzTransliterator import UzTransliterator
 
 viloyatlar = [
     ("1", "Toshkent shahri"),
@@ -94,7 +95,8 @@ class Region(models.Model):
         update_fields: Iterable[str] | None = ...,
     ) -> None:
         if self.name_cyrl == None:
-            self.name_cyrl = self.name_uz
+            obj = UzTransliterator.UzTransliterator()
+            self.name_cyrl = obj.transliterate(self.name_uz, from_="lat", to="cyr")
         if self.name_ru == None:
             self.name_ru = self.name_uz
         return super().save()
@@ -140,7 +142,8 @@ class District(models.Model):
         update_fields: Iterable[str] | None = ...,
     ) -> None:
         if self.name_cyrl == None:
-            self.name_cyrl = self.name_uz
+            obj = UzTransliterator.UzTransliterator()
+            self.name_cyrl = obj.transliterate(self.name_uz, from_="lat", to="cyr")
         if self.name_ru == None:
             self.name_ru = self.name_uz
         return super().save()
@@ -273,7 +276,8 @@ class Masjid(models.Model):
         if self.name_ru == None:
             self.name_ru = self.name_uz
         if self.name_cyrl == None:
-            self.name_cyrl = self.name_uz
+            obj = UzTransliterator.UzTransliterator()
+            self.name_cyrl = obj.transliterate(self.name_uz, from_="lat", to="cyr")
             
         if self.photo_file:
             if not self.photo:
