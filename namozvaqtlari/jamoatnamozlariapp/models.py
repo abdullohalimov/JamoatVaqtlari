@@ -300,9 +300,9 @@ class Masjid(models.Model):
                 is_times_changed = True
             if self.hufton != old.hufton:
                 is_times_changed = True
-            
-            subscriptions = self.subscription_set.all()
-            send_new_masjid_times([old, self], subscriptions)
+            if is_times_changed:
+                subscriptions = self.subscription_set.all()
+                send_new_masjid_times([old, self], subscriptions)
         else:
             pass
             logging.warning(f"there was no masjid so this is create")
