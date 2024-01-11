@@ -415,7 +415,7 @@ async def masjid_info_action(
 
     if callback_data.action == "main":
         await user_start(callback_query.message, state)
-        await callback_query.message.delete()
+        await callback_query.message.edit_reply_markup()
         return
     elif callback_data.action == "district":
         chosen_region = data.get("current_region", 27)
@@ -476,7 +476,7 @@ async def masjid_info_action(
 async def masjid_info_sub(message: Message, state: FSMContext):
     data = await state.get_data()
     subs = await api.get_subscriptions(message.chat.id)
-    if len(subs) != 0:
+    if len(subs['items']) != 0:
         has_next = True if (1 * 5) < subs["count"] else False
         max_page = int((subs["count"] / 5) + 1) if subs["count"] % 5 != 0 else int(subs["count"] / 5)
         await message.answer(_("✅ Obunalar:", locale=data["locale"]), reply_markup=ReplyKeyboardRemove())
