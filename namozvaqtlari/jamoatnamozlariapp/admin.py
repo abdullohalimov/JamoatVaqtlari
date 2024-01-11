@@ -90,7 +90,7 @@ class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
     readonly_fields = ["last_update",]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
-    list_filter = ["region", "district"]
+    list_filter = ["district__region", "district"]
     # form = MasjidForm
     inlines = [SubscriptionInline]
 
