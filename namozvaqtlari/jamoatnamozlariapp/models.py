@@ -272,6 +272,9 @@ class Masjid(models.Model):
     ) -> None:
         if self.name_ru == None:
             self.name_ru = self.name_uz
+        if self.name_cyrl == None:
+            self.name_cyrl = self.name_uz
+            
         if self.photo_file:
             if not self.photo:
                 self.photo = get_photo_id(self.photo_file.file)

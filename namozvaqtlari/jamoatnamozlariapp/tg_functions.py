@@ -3,7 +3,7 @@ import logging
 import os
 from telebot import TeleBot
 from telebot.types import InputFile
-
+from UzTransliterator import UzTransliterator
 # from .models import Masjid
 
 bot = TeleBot(os.environ.get("BOT_TOKEN"), parse_mode="HTML")
@@ -11,6 +11,37 @@ bot = TeleBot(os.environ.get("BOT_TOKEN"), parse_mode="HTML")
 
 text_uz = ""
 text_cyrl = ""
+
+months = {
+    "uz": {
+        1: "Yanvar",
+        2: "Fevral",
+        3: "Mart",
+        4: "Aprel",
+        5: "May",
+        6: "Iyun",
+        7: "Iyul",
+        8: "Avgust",
+        9: "Sentyabr",
+        10: "Oktyabr",
+        11: "Noyabr",
+        12: "Dekabr",
+    },
+    "de": {
+        1: "Январь",
+        2: "Февраль",
+        3: "Март",
+        4: "Апрель",
+        5: "Май",
+        6: "Июнь",
+        7: "Июль",
+        8: "Август",
+        9: "Сентябрь",
+        10: "Октябрь",
+        11: "Ноябрь",
+        12: "Декабрь",
+    },
+}
 
 def send_text(text):
 
@@ -30,18 +61,27 @@ def get_photo_id(photo_file):
     return ph.photo[-1].file_id
 
 def send_new_masjid_times(masjid, subscriptions):
+    obj = UzTransliterator.UzTransliterator()
     old, new = masjid
+    current_time = datetime.now()
+
     text = f"""
- {new.district.region.name_uz} {new.district.name_uz}, {new.name_uz} jamoat vaqtlari oʻzgardi.
+ {new.district.region.name_uz} {new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
+
+ 🕒 {current_time.day} {months['uz'][current_time.month]}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {new.bomdod}
 🌇 Peshin: {new.peshin}
 🌆 Asr: {new.asr}
 🌃 Shom: {new.shom}
 🌌 Xufton: {new.hufton}
+
+@jamoatvaqtlaribot
 """
 
     for sub in subscriptions:
+        if sub.user.lang == "de":
+            text = obj.transliterate(text, from_="lat", to="cyr")
         try:
             bot.send_message(chat_id=sub.user.user_id, text=text)
         except:
@@ -49,19 +89,26 @@ def send_new_masjid_times(masjid, subscriptions):
     
 def send_region_change_times(users, region, type):
     region_text = f"{region.district.region.name_uz} {region.district.name_uz}" if type == "district" else region.region.name_uz
-
+    obj = UzTransliterator.UzTransliterator()
+    current_time = datetime.now()
     text = f"""
  🕌 {region_text} masjidlari jamoat vaqtlari oʻzgardi.
+
+🕒 {current_time.day} {months['uz'][current_time.month]}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {region.bomdod}
 🌇 Peshin: {region.peshin}
 🌆 Asr: {region.asr}
 🌃 Shom: {region.shom}
 🌌 Xufton: {region.xufton}
+
+@jamoatvaqtlaribot
 """
     
     for sub in users:
         try:
+            if sub.lang == "de":
+                text = obj.transliterate(text, from_="lat", to="cyr")
             bot.send_message(chat_id=sub.user.user_id, text=text)
         except:
             pass
