@@ -243,6 +243,7 @@ async def get_masjids(
     masjidlar = await api.get_masjidlar(callback_data.ditrict)
     has_next = True if (1 * 5) < masjidlar["count"] else False
     max_page = int((masjidlar["count"] / 5) + 1) if (masjidlar["count"] % 5) != 0 else int(masjidlar["count"] / 5)
+    max_page = max_page if max_page > 0 else 1
 
     await callback_query.message.edit_text(
         _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
@@ -265,6 +266,7 @@ async def get_masjids_pagination(
         else:    
             masjidlar = await api.get_masjidlar(data["current_district"], page=page)
         max_page = int((masjidlar["count"] / 5) + 1) if (masjidlar["count"] % 5) != 0 else int(masjidlar["count"] / 5)
+        max_page = max_page if max_page > 0 else 1
         has_next = True if ((page) * 5) < masjidlar["count"] else False
 
         await send_masjid_text(callback_query, data, masjidlar, page, has_next, max_page, data.get('page_type', 'def'))
@@ -277,7 +279,8 @@ async def get_masjids_pagination(
             masjidlar = await api.get_subscriptions(user_id=callback_query.from_user.id, page=page)
         else:    
             masjidlar = await api.get_masjidlar(data["current_district"], page=page)
-        max_page = int((masjidlar["count"] / 5) + 1) 
+        max_page = int((masjidlar["count"] / 5) + 1) if (masjidlar["count"] % 5) != 0 else int(masjidlar["count"] / 5)
+        max_page = max_page if max_page > 0 else 1
         has_next = True if ((page) * 5) < masjidlar["count"] else False
 
         await send_masjid_text(callback_query, data, masjidlar, page, has_next, max_page, data.get('page_type', 'def'))
@@ -479,6 +482,7 @@ async def masjid_info_sub(message: Message, state: FSMContext):
     if len(subs['items']) != 0:
         has_next = True if (1 * 5) < subs["count"] else False
         max_page = int((subs["count"] / 5) + 1) if subs["count"] % 5 != 0 else int(subs["count"] / 5)
+        max_page = max_page if max_page > 0 else 1
         await message.answer(_("✅ Obunalar:", locale=data["locale"]), reply_markup=ReplyKeyboardRemove())
         text = ""
         for masjid in subs['items']:
