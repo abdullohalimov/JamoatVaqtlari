@@ -70,19 +70,19 @@ class Region(models.Model):
     name_uz = models.CharField(
         max_length=255,
         verbose_name="Lotin",
-        help_text="Viloyat/Shaxarning lotincha nomi",
+        help_text="Viloyatning lotincha nomi",
     )
     name_cyrl = models.CharField(
         max_length=255,
         verbose_name="Kirill",
-        help_text="Viloyat/Shaxarning kirillcha nomi",
+        help_text="Viloyatning kirillcha nomi",
         null=True,
         blank=True,
     )
     name_ru = models.CharField(
         max_length=255,
         verbose_name="Rus",
-        help_text="Viloyat/Shaxarning ruscha nomi",
+        help_text="Viloyatning ruscha nomi",
         null=True,
         blank=True,
     )
@@ -111,27 +111,27 @@ class Region(models.Model):
 
 class District(models.Model):
     name_uz = models.CharField(
-        max_length=255, verbose_name="Lotin", help_text="Tumanning lotincha nomi"
+        max_length=255, verbose_name="Lotin", help_text="Tuman(shahar)ning lotincha nomi"
     )
     name_cyrl = models.CharField(
         max_length=255,
         verbose_name="Kirill",
-        help_text="Tumanning kirillcha nomi",
+        help_text="Tuman(shahar)ning kirillcha nomi",
         null=True,
         blank=True,
     )
     name_ru = models.CharField(
         max_length=255,
         verbose_name="Rus",
-        help_text="Tumanning ruscha nomi",
+        help_text="Tuman(shahar)ning ruscha nomi",
         null=True,
         blank=True,
     )
     region = models.ForeignKey(
         Region,
         on_delete=models.CASCADE,
-        verbose_name="Viloyat/Shaxar",
-        help_text="Tuman joylashgan viloyat/shaxar",
+        verbose_name="Viloyat",
+        help_text="Tuman(shahar) joylashgan viloyat",
     )
 
     def save(
@@ -191,8 +191,8 @@ class Masjid(models.Model):
     district = models.ForeignKey(
         District,
         on_delete=models.CASCADE,
-        verbose_name="Tuman",
-        help_text="Masjid joylashgan tuman",
+        verbose_name="Tuman(shahar)",
+        help_text="Masjid joylashgan tuman(shahar)",
     )
     bomdod = models.CharField(
         max_length=255,
