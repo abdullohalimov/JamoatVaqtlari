@@ -1,6 +1,7 @@
 from collections.abc import Iterable
 import logging
 from django.db import models
+from django.db.models import Count
 from django.contrib.auth.models import AbstractUser
 
 from .tg_functions import get_photo_id, send_new_masjid_times, send_region_change_times
@@ -9,7 +10,7 @@ from .tg_functions import get_photo_id, send_new_masjid_times, send_region_chang
 from django.db import models
 
 viloyatlar = [
-    ("1", "Toshkent shaxri"),
+    ("1", "Toshkent shahri"),
     ("2", "Andijon"),
     ("3", "Buxoro"),
     ("4", "Fargʻona"),
@@ -102,8 +103,8 @@ class Region(models.Model):
         return self.name_uz
 
     class Meta:
-        verbose_name = "Viloyat/Shaxar"
-        verbose_name_plural = "Viloyat/Shaxarlar"
+        verbose_name = "Viloyat"
+        verbose_name_plural = "Viloyatlar"
 
 
 class District(models.Model):
@@ -148,8 +149,8 @@ class District(models.Model):
         return self.name_uz
 
     class Meta:
-        verbose_name = "Tuman"
-        verbose_name_plural = "Tumanlar"
+        verbose_name = "Tuman(shahar)"
+        verbose_name_plural = "Tuman(shahar)lar"
 
 
 class Masjid(models.Model):
@@ -193,27 +194,43 @@ class Masjid(models.Model):
     bomdod = models.CharField(
         max_length=255,
         verbose_name="Bomdod",
-        help_text="Masjidda bomdod namozi o'qilish vaqti",
+        help_text="Masjidda bomdod namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
     )
     peshin = models.CharField(
         max_length=255,
         verbose_name="Peshin",
-        help_text="Masjidda peshin namozi o'qilish vaqti",
+        help_text="Masjidda peshin namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
+        
     )
     asr = models.CharField(
         max_length=255,
         verbose_name="Asr",
-        help_text="Masjidda asr namozi o'qilish vaqti",
+        help_text="Masjidda asr namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
     )
     shom = models.CharField(
         max_length=255,
         verbose_name="Shom",
-        help_text="Masjidda shom namozi o'qilish vaqti",
+        help_text="Masjidda shom namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
     )
     hufton = models.CharField(
         max_length=255,
         verbose_name="Xufton",
-        help_text="Masjidda xufton namozi o'qilish vaqti",
+        help_text="Masjidda xufton namozi oʻqilish vaqti",
+                default="00:00",
+        null=True,
+        blank=True,
     )
     location = models.CharField(
         max_length=255,
@@ -228,6 +245,22 @@ class Masjid(models.Model):
         null=True,
         blank=True,
     )
+    last_update = models.DateTimeField(auto_now=True, verbose_name="Yangilangan vaqti")
+    def get_leaderboard_position(self) -> dict:
+        all_masjids = Masjid.objects.annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
+        district_masjids = Masjid.objects.filter(district=self.district).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
+        region_masjids = Masjid.objects.filter(district__region=self.district.region).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
+
+        all_position = list(all_masjids).index(self) + 1 if self in all_masjids else None
+        district_position = list(district_masjids).index(self) + 1 if self in district_masjids else None
+        region_position = list(region_masjids).index(self) + 1 if self in region_masjids else None
+
+        return {
+            'all_position': all_position,
+            'district_position': district_position,
+            'region_position': region_position,
+        }
+
 
     def save(
         self,
@@ -264,6 +297,7 @@ class Masjid(models.Model):
             subscriptions = self.subscription_set.all()
             send_new_masjid_times([old, self], subscriptions)
         else:
+            pass
             logging.warning(f"there was no masjid so this is create")
         return super().save()
 
@@ -448,8 +482,8 @@ class ShaxarViloyatTimesChange(models.Model):
         # return super().save()
     
     class Meta:
-        verbose_name = "Shaxar/Viloyat namoz vaqtlarini o'zgartirish"
-        verbose_name_plural = "Shaxar/Viloyat vaqtlarini o'zgartirish"
+        verbose_name = "Viloyat vaqtlarini oʻzgartirish"
+        verbose_name_plural = "Viloyat vaqtlarini oʻzgartirish"
 
 class TumanTimesChange(models.Model):
     district = models.ForeignKey(
@@ -488,10 +522,9 @@ class TumanTimesChange(models.Model):
         send_region_change_times(users, self, "district")
         
 
-        logging.warning(users)
 
         # return super().save()
 
     class Meta:
-        verbose_name = "Tuman namoz vaqtlarini o'zgartirish"
-        verbose_name_plural = "Tuman namoz vaqtlarini o'zgartirish"
+        verbose_name = "Tuman (shahar) vaqtlarini oʻzgartirish"
+        verbose_name_plural = "Tuman (shahar) vaqtlarini oʻzgartirish"

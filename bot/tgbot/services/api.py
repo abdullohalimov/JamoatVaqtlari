@@ -20,6 +20,14 @@ async def get_regions():
             f"{main_url}/api/get-regions"
         ) as response:
             return await response.json()
+        
+async def get_statistics(masjid_id):
+    payload = {"masjid_pk": int(masjid_id)}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{main_url}/api/masjid-statistikasi", params=payload
+        ) as response:
+            return await response.json()
 
 
 async def get_districts(region_id):
@@ -40,8 +48,8 @@ async def get_masjidlar(district_id, page=1):
             return await response.json()
 
 
-async def masjid_info(masjid_id):
-    payload = {"masjid_pk": int(masjid_id)}
+async def masjid_info(masjid_id, user_id):
+    payload = {"masjid_pk": int(masjid_id), "user_id": int(user_id)}
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f"{main_url}/api/masjid-info", params=payload
@@ -58,11 +66,19 @@ async def masjid_subscription(user_id, masjid_id, action):
             return await response.json()
 
 
-async def get_subscriptions(user_id):
-    payload = {"user_id": int(user_id)}
+async def get_subscriptions(user_id, page=1):
+    payload = {"user_id": int(user_id), "page": int(page)}
     async with aiohttp.ClientSession() as session:
         async with session.get(
             f"{main_url}/api/user-subscriptions", params=payload
+        ) as response:
+            return await response.json()
+        
+async def get_subscriptions_statistics(user_id):
+    payload = {"user_id": int(user_id)}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{main_url}/api/user-subscriptions-statistic", params=payload
         ) as response:
             return await response.json()
 

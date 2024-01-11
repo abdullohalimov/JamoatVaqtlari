@@ -5,7 +5,7 @@
 <body>
     <div class="container mt-4">
         <div class="header-block">
-            <h1 class="display-4 mb-0">Viloyat (Shahar) statistikasi</h1>
+            <h1 class="display-4 mb-0">Hududlar boʻyicha statistika</h1>
         </div>
 
         <!-- Little header for the button group -->
@@ -14,19 +14,19 @@
                 <h5>Saralash:</h5>
             </div>
             <div class="btn-group" role="group" aria-label="Sort Order">
-                <button type="button" class="btn btn-info" onclick="window.location.href='?sort=asc'">O'sish</button>
+                <button type="button" class="btn btn-info" onclick="window.location.href='?sort=asc'">Oʻsish</button>
                 <button type="button" class="btn btn-warning"
                     onclick="window.location.href='?sort=desc'">Kamayish</button>
             </div>
             <div class="sort-header">
-                <h5>bo'yicha</h5>
+                <h5>boʻyicha</h5>
             </div>
         </div>
         
         <table class="table table-striped table-hover mt-3">
             <thead>
                 <tr>
-                    <th scope="col">Viloyat (Shahar)</th>
+                    <th scope="col">Hudud</th>
                     <th scope="col">Obunachilar soni</th>
                 </tr>
             </thead>
@@ -40,6 +40,8 @@
             </tbody>
         </table>
     </div>
+
+    <a href="{% url 'region_list' %}" class="btn btn-primary mt-4">Hududlarga qaytish</a>
 
     <script>
         // Change the page title using JavaScript

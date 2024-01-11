@@ -3,7 +3,7 @@ environs~=9.0
 redis
 betterlogging
 babel
-
+pytz
 # # For enabling api:
 # backoff
 # ujson

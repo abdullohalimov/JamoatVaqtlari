@@ -18,6 +18,20 @@ from .models import (
 
 # Register your models here.
 
+class MasjidInline(admin.StackedInline):
+    model = Masjid
+    extra = 1
+
+
+class SubscriptionInline(admin.TabularInline):
+    model = Subscription
+    extra = 0
+    
+
+
+class DistrictInline(admin.TabularInline):
+    model = District
+    extra = 1
 
 class CustomUserAdmin(usrmadmin):
     model = CustomUser
@@ -74,7 +88,9 @@ class CustomUserAdmin(usrmadmin):
 
 class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
+    readonly_fields = ["last_update",]
     # form = MasjidForm
+    inlines = [SubscriptionInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "district":
@@ -138,10 +154,13 @@ class DistrictAdmin(admin.ModelAdmin):
         elif request.user.admin_type == "district":
             return qs.filter(region__pk=request.user.district.region.pk)
 
+    inlines = [MasjidInline]
 
 class RegionAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
+
+    inlines = [DistrictInline]
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
@@ -157,7 +176,7 @@ class UserAdmin(admin.ModelAdmin):
         "full_name",
         "user_id",
     ]
-
+    inlines = [SubscriptionInline]
 
 class MintaqaAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "viloyat", "mintaqa_id"]

@@ -21,6 +21,7 @@ class DistrictData(CallbackData, prefix="district"):
 
 class MasjidData(CallbackData, prefix="masjid"):
     masjid: Any
+    is_sub: bool
 
 class PagesData(CallbackData, prefix="page"):
     page: Any
@@ -43,3 +44,6 @@ class MintaqaViloyatData(CallbackData, prefix="mintaqaviloyat"):
 
 class MintaqaData(CallbackData, prefix="mintaqa"):
     mintaqa_id: Any
+
+class OtherMasjidsFactory(CallbackData, prefix="othermasjids"):
+    action: Any

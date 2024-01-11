@@ -6,8 +6,6 @@ from tgbot.keyboards.factory import _
 lang_decode = {"uz": "name_uz", "de": "name_cyrl", "ru": "name_ru"}
 
 
-
-
 def language_keyboard() -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
@@ -58,6 +56,11 @@ def districts_keyboard(districts_list, lang="uz") -> InlineKeyboardBuilder:
     keyboard.adjust(2)
     keyboard.row(
         InlineKeyboardButton(
+            text=_("🏙 Hududni oʻzgartirish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="region").pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
             text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
         )
     )
@@ -66,7 +69,7 @@ def districts_keyboard(districts_list, lang="uz") -> InlineKeyboardBuilder:
 
 
 def masjidlar_keyboard(
-    masjid_list, lang="uz", current_page=1, has_next=True
+    masjid_list, lang="uz", current_page=1, has_next=True, is_subs_menu=False, max_page=1
 ) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     for masjid in masjid_list:
@@ -75,12 +78,12 @@ def masjidlar_keyboard(
                 text=masjid[lang_decode[lang]],
                 callback_data=factory.MasjidData(
                     masjid=masjid["pk"],
+                    is_sub=is_subs_menu
                 ).pack(),
             )
         )
 
     keyboard.adjust(1)
-
     keyboard.row(
         InlineKeyboardButton(
             text=_("{icon} Orqaga", locale=lang).format(
@@ -91,7 +94,7 @@ def masjidlar_keyboard(
     )
     keyboard.add(
         InlineKeyboardButton(
-            text=f"{current_page}",
+            text=f"{current_page}/{max_page}",
             callback_data=factory.PagesData(page=current_page, action="page").pack(),
         ),
         InlineKeyboardButton(
@@ -103,43 +106,58 @@ def masjidlar_keyboard(
             ).pack(),
         ),
     )
+    if not is_subs_menu:
+        keyboard.row(
+            InlineKeyboardButton(
+                text=_("🏘 Tumanni oʻzgartirish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="district").pack()
+            )
+        )
     keyboard.row(
         InlineKeyboardButton(
             text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
         )
     )
+        
     return keyboard.as_markup()
 
 
-def masjid_kb(masjid_info, lang="uz") -> InlineKeyboardBuilder:
+def masjid_kb(masjid_info, lang="uz", is_subscribed=False, is_subs_menu=False) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
-
-    keyboard.row(
-        InlineKeyboardButton(
-            text=_("✅ Obuna bo'lish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="subscribe").pack()
+    if not is_subscribed:
+        keyboard.row(
+            InlineKeyboardButton(
+                text=_("✅ Obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="subscribe_to").pack()
+            )
         )
-    )
-    keyboard.row(
-        InlineKeyboardButton(
-            text=_("❌ Obunani bekor qilish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="unsubscribe").pack()
-        )
-    )
+    else:
+        keyboard.row(
+                InlineKeyboardButton(
+                    text=_("❌ Obunani bekor qilish", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="unsubscribe").pack()
+                )
+            )
     if str(masjid_info['location']) != "None":
         try:
             lt, ln = masjid_info['location'].split(",")[:2]
             lt, ln = float(lt), float(ln)
             keyboard.row(
             InlineKeyboardButton(
-                text=_("🗺 Xaritada ko'rish", locale=lang),  callback_data=factory.MasjidLocationData(ln=ln, lt=lt).pack()
+                text=_("🗺 Xaritada koʻrish", locale=lang),  callback_data=factory.MasjidLocationData(ln=ln, lt=lt).pack()
             )
         )
         except:
             pass
+    if not is_subs_menu:
+        keyboard.row(
+            InlineKeyboardButton(
+                text=_("🕌 Boshqa masjidni tanlash", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="changemasjid").pack()
+            )
+        )
     keyboard.row(
         InlineKeyboardButton(
             text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid=masjid_info['pk'], action="main").pack()
         )
     )
+    
 
     return keyboard.as_markup()
 
@@ -151,7 +169,7 @@ def namoz_vaqtlari_inline(mintaqa, lang="uz") -> InlineKeyboardBuilder:
             callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="oylik").pack()
         ),
         InlineKeyboardButton(
-            text=_("🔄 Mintaqa: {mintaqa}", locale=lang).format(mintaqa=mintaqa[lang_decode[lang]]),
+            text=_("🔄 Hududni oʻzgartirish", locale=lang),
             callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa['mintaqa_id'], action="changemintaqa").pack()
         )
     )
@@ -163,7 +181,7 @@ def namoz_vaqtlari_inline(mintaqa, lang="uz") -> InlineKeyboardBuilder:
     keyboard.adjust(1)
     return keyboard.as_markup()
 
-def oylik_namoz_vaqtlari_inline(mintaqa, current_page,  has_next, lang="uz") -> InlineKeyboardBuilder:
+def oylik_namoz_vaqtlari_inline(mintaqa, current_page,  has_next, lang="uz", max_day=31) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(
@@ -173,7 +191,7 @@ def oylik_namoz_vaqtlari_inline(mintaqa, current_page,  has_next, lang="uz") -> 
             callback_data=factory.PagesData(page=current_page, action="prev").pack(),
         ),
         InlineKeyboardButton(
-            text=f"{current_page}",
+            text=f"{current_page}/{'7' if max_day == 31 else '6'}",
             callback_data=factory.PagesData(page=current_page, action="page").pack(),
         ),
         InlineKeyboardButton(
@@ -187,7 +205,7 @@ def oylik_namoz_vaqtlari_inline(mintaqa, current_page,  has_next, lang="uz") -> 
     )
     keyboard.row(
         InlineKeyboardButton(
-            text=_("📑 PDF formatida yuklash", locale=lang), callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa, action="downl").pack()
+            text=_("📑 PDF shaklda yuklash", locale=lang), callback_data=factory.NamozVaqtlariData(mintaqa=mintaqa, action="downl").pack()
         )
     )
     keyboard.row(
@@ -220,3 +238,36 @@ def mintaqa_inline(mintaqalar, lang="uz") -> InlineKeyboardBuilder:
         )
     )
     return keyboard.as_markup()
+
+def other_masjids_inline(lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("Boshqa masjid statistikasini koʻrish", locale=lang), callback_data=factory.OtherMasjidsFactory(action="other").pack()
+        )
+    )
+    return keyboard.as_markup()
+
+def stats_main_menu_inline(lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+            InlineKeyboardButton(
+                text=_("🕌 Boshqa masjidni tanlash", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="changemasjid").pack()
+            )
+        )
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🏡 Bosh menyu", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="main").pack()
+        )
+    )
+    return keyboard.as_markup()
+
+def subscribe_inline(lang="uz") -> InlineKeyboardBuilder:
+    keyboard = InlineKeyboardBuilder()
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("🕌 Masjidga obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="subscribe").pack()
+        )
+    )
+    return keyboard.as_markup()
+

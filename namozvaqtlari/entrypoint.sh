@@ -1,8 +1,10 @@
 cd /app
 
+env >> /etc/environment
+cron
 python manage.py makemigrations
 python manage.py migrate
-
+python manage.py installtasks
 python manage.py collectstatic --noinput
 
 cp main.js static/jazzmin/js/main.js
