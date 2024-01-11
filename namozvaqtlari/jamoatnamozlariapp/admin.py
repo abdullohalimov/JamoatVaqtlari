@@ -89,6 +89,8 @@ class CustomUserAdmin(usrmadmin):
 class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
     readonly_fields = ["last_update",]
+    search_fields = ["name_uz", "name_cyrl", "name_ru"]
+    list_filter = ["region", "district"]
     # form = MasjidForm
     inlines = [SubscriptionInline]
 
@@ -125,6 +127,8 @@ class MasjidAdmin(admin.ModelAdmin):
 
 class DistrictAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "region"]
+    search_fields = ["name_uz", "name_cyrl", "name_ru"]
+    list_filter = ["region"]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "district":
@@ -159,12 +163,14 @@ class DistrictAdmin(admin.ModelAdmin):
 class RegionAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
+    search_fields = ["name_uz", "name_cyrl", "name_ru"]
 
     inlines = [DistrictInline]
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ["user", "masjid"]
+    search_fields = ["user__full_name", "masjid__name_uz", "masjid__name_cyrl", "masjid__name_ru"]
 
 
 class AdminModelAdmin(admin.ModelAdmin):
@@ -176,11 +182,14 @@ class UserAdmin(admin.ModelAdmin):
         "full_name",
         "user_id",
     ]
+    search_fields = ["full_name", "user_id"]
+    list_filter = ["lang",]
     inlines = [SubscriptionInline]
 
 class MintaqaAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "viloyat", "mintaqa_id"]
     search_fields = ["name_uz", "name_cyrl", "name_ru", "viloyat"]
+    list_filter = ["viloyat"]
 
 
 class NamozVaqtiAdmin(admin.ModelAdmin):
@@ -193,6 +202,8 @@ class NamozVaqtiAdmin(admin.ModelAdmin):
         "vaqtlari",
     ]
     autocomplete_fields = ["mintaqa"]
+    search_fields = ["mintaqa__name_uz", "mintaqa__name_cyrl", "mintaqa__name_ru"]
+    list_filter = ["mintaqa__viloyat"]
 
 class TimeChangeAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

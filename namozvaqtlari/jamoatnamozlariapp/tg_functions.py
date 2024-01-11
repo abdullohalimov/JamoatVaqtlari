@@ -68,22 +68,19 @@ def send_new_masjid_times(masjid, subscriptions):
     text = f"""
  {new.district.region.name_uz} {new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
 
- 🕒 {current_time.day} {months['uz'][current_time.month]}, {current_time.strftime("%H:%M")}
+ 🕒 {current_time.day} {months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {new.bomdod}
 🌇 Peshin: {new.peshin}
 🌆 Asr: {new.asr}
 🌃 Shom: {new.shom}
-🌌 Xufton: {new.hufton}
-
-@jamoatvaqtlaribot
-"""
+🌌 Xufton: {new.hufton}"""
 
     for sub in subscriptions:
         if sub.user.lang == "de":
             text = obj.transliterate(text, from_="lat", to="cyr")
         try:
-            bot.send_message(chat_id=sub.user.user_id, text=text)
+            bot.send_message(chat_id=sub.user.user_id, text=text + "\n\n@jamoatvaqtlaribot")
         except:
             pass
     
@@ -94,21 +91,18 @@ def send_region_change_times(users, region, type):
     text = f"""
  🕌 {region_text} masjidlari jamoat vaqtlari oʻzgardi.
 
-🕒 {current_time.day} {months['uz'][current_time.month]}, {current_time.strftime("%H:%M")}
+🕒 {current_time.day} {months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {region.bomdod}
 🌇 Peshin: {region.peshin}
 🌆 Asr: {region.asr}
 🌃 Shom: {region.shom}
-🌌 Xufton: {region.xufton}
-
-@jamoatvaqtlaribot
-"""
+🌌 Xufton: {region.xufton}"""
     
     for sub in users:
         try:
             if sub.lang == "de":
                 text = obj.transliterate(text, from_="lat", to="cyr")
-            bot.send_message(chat_id=sub.user.user_id, text=text)
+            bot.send_message(chat_id=sub.user.user_id, text=text + "\n\n@jamoatvaqtlaribot")
         except:
             pass
