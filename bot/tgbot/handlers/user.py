@@ -447,7 +447,7 @@ async def masjid_info_action(
         if callback_data.action == "subscribe_to":
             if callback_query.message.photo:
                 await callback_query.message.edit_caption(
-                    _(
+                    caption=_(
                     "✅ {district} {masjid} jamoat vaqtlariga obuna boʻldingiz.",
                     locale=data["locale"],
                 ).format(
@@ -470,7 +470,7 @@ async def masjid_info_action(
         elif callback_data.action == "unsubscribe":
             if callback_query.message.photo:
                 await callback_query.message.edit_caption(
-                   _(
+                   caption=_(
                     "☑️ {district} {masjid} jamoat vaqtlariga obuna bekor qilindi.",
                     locale=data["locale"],
                 ).format(
