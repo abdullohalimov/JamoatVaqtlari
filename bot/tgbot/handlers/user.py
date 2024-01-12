@@ -445,7 +445,19 @@ async def masjid_info_action(
     if resp["success"]:
         masjid = resp["masjid"]
         if callback_data.action == "subscribe_to":
-            await callback_query.message.edit_text(
+            if callback_query.message.photo:
+                await callback_query.message.edit_caption(
+                    _(
+                    "✅ {district} {masjid} jamoat vaqtlariga obuna boʻldingiz.",
+                    locale=data["locale"],
+                ).format(
+                    district=masjid["district"][lang_decode[data["locale"]]],
+                    masjid=masjid[lang_decode[data["locale"]]],
+                )
+                )
+            
+            else:
+                await callback_query.message.edit_text(
                 _(
                     "✅ {district} {masjid} jamoat vaqtlariga obuna boʻldingiz.",
                     locale=data["locale"],
@@ -456,7 +468,18 @@ async def masjid_info_action(
             )
             await state.set_state(UserStates.menu)
         elif callback_data.action == "unsubscribe":
-            await callback_query.message.edit_text(
+            if callback_query.message.photo:
+                await callback_query.message.edit_caption(
+                   _(
+                    "☑️ {district} {masjid} jamoat vaqtlariga obuna bekor qilindi.",
+                    locale=data["locale"],
+                ).format(
+                    district=masjid["district"][lang_decode[data["locale"]]],
+                    masjid=masjid[lang_decode[data["locale"]]],
+                ), 
+                )
+            else:
+                await callback_query.message.edit_text(
                 _(
                     "☑️ {district} {masjid} jamoat vaqtlariga obuna bekor qilindi.",
                     locale=data["locale"],
@@ -524,7 +547,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
                 global_count=masjid["masjid"]["statistic"]["all_position"],
             )
     else:
-        text = _("Masjidni tanlang", locale=data["locale"])
+        text = _("Siz hech qaysi masjidga obuna boʻlmagansiz. Quyidagi tugma orqali obuna boʻlishingiz mumkin.", locale=data["locale"])
     await message.answer(text, reply_markup=inline.other_masjids_inline(data["locale"]))
 
 

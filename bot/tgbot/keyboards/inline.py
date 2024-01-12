@@ -243,7 +243,12 @@ def other_masjids_inline(lang="uz") -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(
-            text=_("Boshqa masjid statistikasini koʻrish", locale=lang), callback_data=factory.OtherMasjidsFactory(action="other").pack()
+            text=_("🕌 Masjidga obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="subscribe").pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text=_("Masjid statistikasini koʻrish", locale=lang), callback_data=factory.OtherMasjidsFactory(action="other").pack()
         )
     )
     return keyboard.as_markup()
