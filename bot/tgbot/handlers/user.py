@@ -546,9 +546,11 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
                 region_count=masjid["masjid"]["statistic"]["region_position"],
                 global_count=masjid["masjid"]["statistic"]["all_position"],
             )
+        sub_enable = False
     else:
         text = _("Siz hech qaysi masjidga obuna boʻlmagansiz. Quyidagi tugma orqali obuna boʻlishingiz mumkin.", locale=data["locale"])
-    await message.answer(text, reply_markup=inline.other_masjids_inline(data["locale"]))
+        sub_enable = True
+    await message.answer(text, reply_markup=inline.other_masjids_inline(data["locale"], sub_enable=sub_enable)) 
 
 
 @user_router.callback_query(factory.OtherMasjidsFactory.filter())

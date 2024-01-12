@@ -239,13 +239,14 @@ def mintaqa_inline(mintaqalar, lang="uz") -> InlineKeyboardBuilder:
     )
     return keyboard.as_markup()
 
-def other_masjids_inline(lang="uz") -> InlineKeyboardBuilder:
+def other_masjids_inline(lang="uz", sub_enable=False) -> InlineKeyboardBuilder:
     keyboard = InlineKeyboardBuilder()
-    keyboard.row(
-        InlineKeyboardButton(
-            text=_("🕌 Masjidga obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="subscribe").pack()
+    if sub_enable:
+        keyboard.row(
+            InlineKeyboardButton(
+                text=_("🕌 Masjidga obuna boʻlish", locale=lang), callback_data=factory.MasjidInfoData(masjid="0", action="subscribe").pack()
+            )
         )
-    )
     keyboard.row(
         InlineKeyboardButton(
             text=_("Masjid statistikasini koʻrish", locale=lang), callback_data=factory.OtherMasjidsFactory(action="other").pack()
