@@ -713,7 +713,7 @@ Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
             month=months[data["locale"]][current_time.month].lower(),
         )
         await callback_query.message.answer_document(
-            URLInputFile(url=f"https://islom.uz/prayertime/pdf/{callback_data.mintaqa}/{current_time.month}", filename=f"{current_time.year}-{current_time.month}, {mintaqa_text}.pdf")
+            URLInputFile(url=f"https://islom.uz/prayertime/pdf/{callback_data.mintaqa}/{current_time.month}", filename=f"{current_time.strftime('%Y-%m')}, {mintaqa_text}.pdf"), caption=text
             
         )
 
