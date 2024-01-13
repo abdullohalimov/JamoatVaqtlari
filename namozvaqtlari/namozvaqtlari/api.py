@@ -265,6 +265,6 @@ def namoz_vaqtlari(request, mintaqa, oy):
 def viloyat_mintaqalari(request, viloyat_id):
     return Mintaqa.objects.filter(viloyat=viloyat_id)
 
-@api.get("mintaqa-malumotlari", MintaqaSchema)
-def mintaqa_malumotlari(request, mintaqa_id: str):
+@api.get("mintaqa-malumotlari", response=MintaqaSchema)
+def mintaqa_malumotlari(request, mintaqa_id):
     return Mintaqa.objects.get(mintaqa_id=mintaqa_id)
