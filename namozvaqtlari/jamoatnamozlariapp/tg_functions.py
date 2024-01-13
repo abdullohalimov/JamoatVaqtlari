@@ -79,7 +79,10 @@ def send_new_masjid_times(masjid, subscriptions):
     for sub in subscriptions:
         
         try:
-            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
+            if sub.user.lang == "de":
+                bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot")
+            elif sub.user.lang == "uz":
+                bot.send_message(chat_id=sub.user.user_id, text=text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
         except:
             pass
     
@@ -100,7 +103,10 @@ def send_region_change_times(users, region, type):
     
     for sub in users:
         try:
-            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
+            if sub.user.lang == "de":
+                bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot")
+            elif sub.user.lang == "uz":
+                bot.send_message(chat_id=sub.user.user_id, text=text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
 
         except:
             pass
