@@ -68,7 +68,7 @@ def send_new_masjid_times(masjid, subscriptions):
     text = f"""
  {new.district.region.name_uz} {new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
 
- 🕒 {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
+ 🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {new.bomdod}
 🌇 Peshin: {new.peshin}
@@ -93,7 +93,7 @@ def send_region_change_times(users, region, type):
     text = f"""
  🕌 {region_text} masjidlari jamoat vaqtlari oʻzgardi.
 
-🕒 {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
+🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {region.bomdod}
 🌇 Peshin: {region.peshin}
