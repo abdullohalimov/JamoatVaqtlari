@@ -65,24 +65,23 @@ def send_new_masjid_times(masjid, subscriptions):
     old, new = masjid
     current_time = datetime.now()
 
-    sendtext = f"""
- {new.district.region.name_uz}|||{new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
 
- 🕒 {current_time.day} {months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
+    for sub in subscriptions:
+        text = f"""
+{new.district.region.name_uz}{"-" if sub.user.lang == "uz" else " "}{new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
+
+🕒 {current_time.day} {months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {new.bomdod}
 🌇 Peshin: {new.peshin}
 🌆 Asr: {new.asr}
 🌃 Shom: {new.shom}
 🌌 Xufton: {new.hufton}"""
-
-    for sub in subscriptions:
-        text = sendtext
         try:
             if sub.user.lang == "de":
-                bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot")
+                bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr") + "\n\n@jamoatvaqtlaribot")
             elif sub.user.lang == "uz":
-                bot.send_message(chat_id=sub.user.user_id, text=text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
+                bot.send_message(chat_id=sub.user.user_id, text=text + "\n\n@jamoatvaqtlaribot")
         except:
             pass
     
@@ -90,25 +89,25 @@ def send_region_change_times(users, region, type):
     region_text = f"{region.district.region.name_uz} {region.district.name_uz}" if type == "district" else region.region.name_uz
     obj = UzTransliterator.UzTransliterator()
     current_time = datetime.now()
-    sendtext = f"""
+    
+    for sub in users:
+        sendtext = f"""
  🕌 {region_text} masjidlari jamoat vaqtlari oʻzgardi.
 
-🕒 {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
+🕒 {current_time.day}{"-" if sub.user.lang == "uz" else " "}{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {region.bomdod}
 🌇 Peshin: {region.peshin}
 🌆 Asr: {region.asr}
 🌃 Shom: {region.shom}
 🌌 Xufton: {region.xufton}"""
-    
-    for sub in users:
         text = sendtext
 
         try:
             if sub.user.lang == "de":
-                bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot")
+                bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr") + "\n\n@jamoatvaqtlaribot")
             elif sub.user.lang == "uz":
-                bot.send_message(chat_id=sub.user.user_id, text=text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
+                bot.send_message(chat_id=sub.user.user_id, text=text + "\n\n@jamoatvaqtlaribot")
 
         except:
             pass
