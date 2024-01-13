@@ -388,6 +388,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
                 await callback_query.message.answer_photo(
                     photo=masjid["photo"], caption=text, reply_markup=markup
                 )
+                await callback_query.message.delete()
             except:
                 print_exc()
                 try:
@@ -396,6 +397,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
                         caption=text,
                         reply_markup=markup,
                     )
+                    await callback_query.message.delete()
                 except:
                     print_exc()
                     await callback_query.message.edit_text(
