@@ -244,8 +244,16 @@ async def get_masjids(
     has_next = True if (1 * 5) < masjidlar["count"] else False
     max_page = int((masjidlar["count"] / 5) + 1) if (masjidlar["count"] % 5) != 0 else int(masjidlar["count"] / 5)
     max_page = max_page if max_page > 0 else 1
-
-    await callback_query.message.edit_text(
+    if callback_query.message.photo:
+        await callback_query.message.delete()
+        await callback_query.message.answer(
+            caption=_("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
+            reply_markup=inline.masjidlar_keyboard(
+                masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next, max_page=max_page
+            ),
+        )
+    else:
+        await callback_query.message.edit_text(
         _("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
         reply_markup=inline.masjidlar_keyboard(
             masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next, max_page=max_page
