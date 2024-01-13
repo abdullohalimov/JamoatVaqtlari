@@ -66,7 +66,7 @@ def send_new_masjid_times(masjid, subscriptions):
     current_time = datetime.now()
 
     text = f"""
- {new.district.region.name_uz} {new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
+ {new.district.region.name_uz}|||{new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
 
  🕒 {current_time.day} {months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
@@ -79,7 +79,7 @@ def send_new_masjid_times(masjid, subscriptions):
     for sub in subscriptions:
         
         try:
-            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text + "\n\n@jamoatvaqtlaribot")
+            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
         except:
             pass
     
@@ -90,7 +90,7 @@ def send_region_change_times(users, region, type):
     text = f"""
  🕌 {region_text} masjidlari jamoat vaqtlari oʻzgardi.
 
-🕒 {current_time.day} {months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
+🕒 {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
 🏞 Bomdod: {region.bomdod}
 🌇 Peshin: {region.peshin}
@@ -100,7 +100,7 @@ def send_region_change_times(users, region, type):
     
     for sub in users:
         try:
-            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text + "\n\n@jamoatvaqtlaribot")
+            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
 
         except:
             pass
