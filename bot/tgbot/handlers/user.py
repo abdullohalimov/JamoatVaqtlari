@@ -247,7 +247,7 @@ async def get_masjids(
     if callback_query.message.photo:
         await callback_query.message.delete()
         await callback_query.message.answer(
-            caption=_("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
+            text=_("🕌 Masjidni tanlang:", locale=data['locale']) if masjidlar["count"] != 0 else _("Bu hudud masjidlari tez orada qoʻshiladi.", locale=data['locale']),
             reply_markup=inline.masjidlar_keyboard(
                 masjidlar["items"], lang=data["locale"], current_page=1, has_next=has_next, max_page=max_page
             ),
