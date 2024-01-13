@@ -107,3 +107,13 @@ async def get_viloyat_mintaqalari(viloyat_id):
             f"{main_url}/api/viloyat-mintaqalari", params=payload
         ) as response:
             return await response.json()
+        
+async def get_mintaqa_info(mintaqa_id):
+    payload = {"mintaqa_id": mintaqa_id}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+            f"{main_url}/api/mintaqa-malumotlari", params=payload
+        ) as response:
+            return await response.json()
+
+

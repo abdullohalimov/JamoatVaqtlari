@@ -264,3 +264,7 @@ def namoz_vaqtlari(request, mintaqa, oy):
 @api.get("/viloyat-mintaqalari", response=List[MintaqaSchema])
 def viloyat_mintaqalari(request, viloyat_id):
     return Mintaqa.objects.filter(viloyat=viloyat_id)
+
+@api.get("mintaqa-malumotlari", MintaqaSchema)
+def mintaqa_malumotlari(request, mintaqa_id: str):
+    return Mintaqa.objects.get(mintaqa_id=mintaqa_id)

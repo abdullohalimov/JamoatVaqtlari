@@ -3,7 +3,7 @@ from datetime import datetime
 import logging
 from traceback import print_exc
 from aiogram import F, Router
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, URLInputFile
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from tgbot.services import api
@@ -703,8 +703,18 @@ Tong | Quyosh | Peshin | Asr | Shom | Xufton\n\n""",
         )
 
     if callback_data.action == "downl":
+        resp = await api.get_mintaqa_info(callback_data.mintaqa)
+        mintaqa_text = resp[lang_decode[data['locale']]]
+        text = _(
+            """<b>{year}-yil {month} oyi namoz vaqtlari\nHudud: {mintaqa}</b>\n\n@jamoatvaqtlaribot"""
+        ).format(
+            year=current_time.year,
+            mintaqa=mintaqa_text,
+            month=months[data["locale"]][current_time.month].lower(),
+        )
         await callback_query.message.answer_document(
-            f"https://islom.uz/prayertime/pdf/{callback_data.mintaqa}/{current_time.month}"
+            URLInputFile(url=f"https://islom.uz/prayertime/pdf/{callback_data.mintaqa}/{current_time.month}", filename=f"{current_time.year}-{current_time.month}, {mintaqa_text}.pdf")
+            
         )
 
     if callback_data.action == "changemintaqa":
