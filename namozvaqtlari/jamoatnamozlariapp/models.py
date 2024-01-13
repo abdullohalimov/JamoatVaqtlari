@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from datetime import datetime
 import logging
 from django.db import models
 from django.db.models import Count
@@ -248,7 +249,7 @@ class Masjid(models.Model):
         null=True,
         blank=True,
     )
-    last_update = models.DateTimeField(auto_now=True, verbose_name="Yangilangan vaqti")
+    last_update = models.DateTimeField(auto_now=False, verbose_name="Yangilangan vaqti")
     def get_leaderboard_position(self) -> dict:
         all_masjids = Masjid.objects.annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
         district_masjids = Masjid.objects.filter(district=self.district).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
@@ -284,7 +285,7 @@ class Masjid(models.Model):
                 self.photo = get_photo_id(self.photo_file.file)
             else:
                 old = Masjid.objects.get(pk=self.pk)
-                if self.photo != old.photo:
+                if self.photo_file != old.photo_file:
                     self.photo = get_photo_id(self.photo_file.file)
         
         if self.pk and not is_global_change:
@@ -301,10 +302,12 @@ class Masjid(models.Model):
             if self.hufton != old.hufton:
                 is_times_changed = True
             if is_times_changed:
+                self.last_update = datetime.now()
                 subscriptions = self.subscription_set.all()
                 send_new_masjid_times([old, self], subscriptions)
         else:
             pass
+            self.last_update = datetime.now()
             logging.warning(f"there was no masjid so this is create")
         return super().save()
 

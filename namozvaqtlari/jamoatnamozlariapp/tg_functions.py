@@ -77,10 +77,9 @@ def send_new_masjid_times(masjid, subscriptions):
 🌌 Xufton: {new.hufton}"""
 
     for sub in subscriptions:
-        if sub.user.lang == "de":
-            text = obj.transliterate(text, from_="lat", to="cyr")
+        
         try:
-            bot.send_message(chat_id=sub.user.user_id, text=text + "\n\n@jamoatvaqtlaribot")
+            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text + "\n\n@jamoatvaqtlaribot")
         except:
             pass
     
@@ -101,8 +100,7 @@ def send_region_change_times(users, region, type):
     
     for sub in users:
         try:
-            if sub.lang == "de":
-                text = obj.transliterate(text, from_="lat", to="cyr")
-            bot.send_message(chat_id=sub.user.user_id, text=text + "\n\n@jamoatvaqtlaribot")
+            bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr") + "\n\n@jamoatvaqtlaribot" if sub.user.lang == "de" else text + "\n\n@jamoatvaqtlaribot")
+
         except:
             pass
