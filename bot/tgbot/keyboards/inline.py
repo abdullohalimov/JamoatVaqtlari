@@ -1,5 +1,5 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import InlineKeyboardButton
+from aiogram.types import InlineKeyboardButton, WebAppInfo
 from tgbot.keyboards import factory
 from tgbot.keyboards.factory import _
 
@@ -276,4 +276,15 @@ def subscribe_inline(lang="uz") -> InlineKeyboardBuilder:
         )
     )
     return keyboard.as_markup()
+
+def admin_panel_inl():
+    keyb = InlineKeyboardBuilder()
+
+    keyb.button(
+        text="Kirish",
+        web_app=WebAppInfo(url="https://jamoat.ftp.sh/admin/")
+    )
+    return keyb.as_markup(
+        
+    )
 

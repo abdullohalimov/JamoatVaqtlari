@@ -4,7 +4,7 @@ import logging
 from traceback import print_exc
 from aiogram import F, Router
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove, URLInputFile
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from tgbot.services import api
 from tgbot.keyboards import factory, inline, reply
@@ -866,3 +866,9 @@ async def mintaqa(
     #         _("🏡 Bosh menyu", locale=data["locale"]),
     #         reply_markup=reply.main_menu_user(data["locale"]),
     #     )
+
+
+@user_router.message(Command('admin_paneli', prefix='!!'))
+async def admin_paneli(message: Message):
+    await message.delete()
+    await message.answer("Admin paneliga kirish", reply_markup=inline.admin_panel_inl())
