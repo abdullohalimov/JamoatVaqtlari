@@ -157,6 +157,14 @@ async def restore_defaults(state: FSMContext):
 
     }
     await state.set_data(newdata)
+
+@user_router.message(Command('admin_paneli'))
+async def admin_paneli(message: Message):
+    await message.delete()
+    await message.answer("Admin paneliga kirish", reply_markup=inline.admin_panel_inl())
+
+
+
 @user_router.message(CommandStart())
 async def user_start(message: Message, state: FSMContext):
     data = await state.get_data()
@@ -868,7 +876,3 @@ async def mintaqa(
     #     )
 
 
-@user_router.message(Command('admin_paneli', prefix='!!'))
-async def admin_paneli(message: Message):
-    await message.delete()
-    await message.answer("Admin paneliga kirish", reply_markup=inline.admin_panel_inl())
