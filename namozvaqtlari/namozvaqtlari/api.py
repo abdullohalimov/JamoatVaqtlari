@@ -98,18 +98,18 @@ def hello(request, name: str, chat_id, lang: str):
 
 @api.get("/get-regions", response=List[RegionSchema])
 def get_regions(request):
-    return Region.objects.all()
+    return Region.objects.filter(is_active=True)
 
 
 @api.get("/get-districts", response=List[DistrictSchema])
 def get_districts(request, pk):
-    return District.objects.filter(region=Region.objects.get(pk=pk))
+    return District.objects.filter(region=Region.objects.get(pk=pk), is_active=True)
 
 
 @api.get("/get-masjidlar", response=List[MasjidlarListSchema])
 @paginate(PageNumberPagination, page_size=5)
 def get_masjidlar(request, district_id):
-    return Masjid.objects.filter(district=District.objects.get(pk=district_id))
+    return Masjid.objects.filter(district=District.objects.get(pk=district_id), is_active=True)
 
 
 @api.get("/masjid-info", response=MasjidInfo)

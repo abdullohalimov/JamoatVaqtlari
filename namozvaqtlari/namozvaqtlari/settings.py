@@ -24,12 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-@&lf$03=yz6*3(1c-oz)^mrdk(6dk21jj994v0&69b(xc@)^&)"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:8000",
+    "http://localhost:65000",
+    "http://localhost:65000/",
     "https://jamoat.ftp.sh",
     "https://jamoat.ftp.sh/",
 ]

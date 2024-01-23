@@ -1,13 +1,13 @@
-from datetime import datetime
 import os
 import time
 from .tg_functions import send_backup, send_text
+from django.utils import timezone
 import logging
 from bs4 import BeautifulSoup
 import kronos
 import random
 import requests
-from .models import Mintaqa, NamozVaqti
+from .models import Mintaqa, NamozVaqti, ChangeRegionTimeSchedule, ChangeMasjidTimeSchedule, ChangeDistrictTimeSchedule, TumanTimesChange, ShaxarViloyatTimesChange, Masjid 
 from UzTransliterator import UzTransliterator
 hijri_months = {
     1: "Муҳаррам, Muharram",
@@ -71,7 +71,7 @@ def update():
         mintaqalar = Mintaqa.objects.all()
         for mintaqa in mintaqalar:
             page = requests.get(
-                f"https://islom.uz/vaqtlar/{mintaqa.mintaqa_id}/{datetime.now().month}"
+                f"https://islom.uz/vaqtlar/{mintaqa.mintaqa_id}/{timezone.now().month}"
             )
             soup = BeautifulSoup(page.text, "html.parser")
             # print(soup.prettify())
@@ -85,14 +85,14 @@ def update():
                 text = vaqt.text.split()
                 if last_hijri > int(text[0]) or last_hijri == 0:
                     hijri_day = requests.get(
-                        f"http://api.aladhan.com/v1/gToH/{text[1]}-{datetime.now().month}-{datetime.now().year}"
+                        f"http://api.aladhan.com/v1/gToH/{text[1]}-{timezone.now().month}-{timezone.now().year}"
                     )
                     result = hijri_day.json()
                     hijri_month = result["data"]["hijri"]["month"]["number"]
                 last_hijri = int(text[0])
                 a, b = NamozVaqti.objects.get_or_create(
                     mintaqa=mintaqa,
-                    milodiy_oy=datetime.now().month,
+                    milodiy_oy=timezone.now().month,
                     milodiy_kun=int(text[1]),
                     xijriy_oy=hijri_month,
                     xijriy_kun=int(text[0]),
@@ -110,3 +110,40 @@ def backup():
     os.popen(f'7z a backup.zip /app/dbfile/db.sqlite3 -pJamoatVaqtlari@2024')
     time.sleep(10)
     send_backup("/root/backup.zip")
+
+@kronos.register("*/1 * * * *")
+def change_time():
+    # Get the current time
+    current_time = timezone.now()
+
+    # Calculate the time threshold for 10 minutes
+    time_threshold = timezone.timedelta(minutes=10)
+    
+    regions_to_change = ChangeRegionTimeSchedule.objects.exclude(date__lt=current_time, date__gt=current_time + time_threshold) 
+
+    for region in regions_to_change:
+        ShaxarViloyatTimesChange.objects.create(region=region.region, bomdod=region.bomdod, peshin=region.peshin, asr=region.asr, shom=region.shom, xufton=region.hufton)
+        region.delete()
+    
+    districts_to_change = ChangeDistrictTimeSchedule.objects.exclude(date__lt=current_time, date__gt=current_time + time_threshold)     
+
+    for district in districts_to_change:
+        TumanTimesChange.objects.create(district=district.district, bomdod=district.bomdod, peshin=district.peshin, asr=district.asr, shom=district.shom, xufton=district.hufton)
+        district.delete()
+
+    masjids_to_change = ChangeMasjidTimeSchedule.objects.exclude(date__lt=current_time, date__gt=current_time + time_threshold)     
+
+    for masjid in masjids_to_change:
+        a = Masjid.objects.get(id=masjid.masjid_id)
+        a.bomdod = masjid.bomdod
+        a.peshin = masjid.peshin
+        a.asr = masjid.asr
+        a.shom = masjid.shom
+        a.hufton = masjid.hufton
+        a.save()
+        masjid.delete()
+
+    logging.warning("Time changed!")
+    logging.warning(masjids_to_change)
+    logging.warning(districts_to_change)
+    logging.warning(regions_to_change)

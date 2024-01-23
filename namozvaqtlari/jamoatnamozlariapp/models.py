@@ -43,6 +43,7 @@ class User(models.Model):
     lang = models.CharField(
         max_length=255, null=True, blank=True, verbose_name="Til", help_text="Til"
     )
+
     def __str__(self):
         return self.full_name
 
@@ -87,6 +88,11 @@ class Region(models.Model):
         null=True,
         blank=True,
     )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Faolmi?",
+        help_text="Faol bo'lmasa foydalanuvchilar ro'yxatida ko'rinmaydi",
+    )
 
     def save(
         self,
@@ -112,7 +118,9 @@ class Region(models.Model):
 
 class District(models.Model):
     name_uz = models.CharField(
-        max_length=255, verbose_name="Lotin", help_text="Tuman(shahar)ning lotincha nomi"
+        max_length=255,
+        verbose_name="Lotin",
+        help_text="Tuman(shahar)ning lotincha nomi",
     )
     name_cyrl = models.CharField(
         max_length=255,
@@ -133,6 +141,11 @@ class District(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Viloyat",
         help_text="Tuman(shahar) joylashgan viloyat",
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Faolmi?",
+        help_text="Faol bo'lmasa foydalanuvchilar ro'yxatida ko'rinmaydi",
     )
 
     def save(
@@ -207,16 +220,15 @@ class Masjid(models.Model):
         max_length=255,
         verbose_name="Peshin",
         help_text="Masjidda peshin namozi oʻqilish vaqti",
-                default="00:00",
+        default="00:00",
         null=True,
         blank=True,
-        
     )
     asr = models.CharField(
         max_length=255,
         verbose_name="Asr",
         help_text="Masjidda asr namozi oʻqilish vaqti",
-                default="00:00",
+        default="00:00",
         null=True,
         blank=True,
     )
@@ -224,7 +236,7 @@ class Masjid(models.Model):
         max_length=255,
         verbose_name="Shom",
         help_text="Masjidda shom namozi oʻqilish vaqti",
-                default="00:00",
+        default="00:00",
         null=True,
         blank=True,
     )
@@ -232,7 +244,7 @@ class Masjid(models.Model):
         max_length=255,
         verbose_name="Xufton",
         help_text="Masjidda xufton namozi oʻqilish vaqti",
-                default="00:00",
+        default="00:00",
         null=True,
         blank=True,
     )
@@ -250,21 +262,43 @@ class Masjid(models.Model):
         blank=True,
     )
     last_update = models.DateTimeField(auto_now=False, verbose_name="Yangilangan vaqti")
-    def get_leaderboard_position(self) -> dict:
-        all_masjids = Masjid.objects.annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
-        district_masjids = Masjid.objects.filter(district=self.district).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
-        region_masjids = Masjid.objects.filter(district__region=self.district.region).annotate(subscribers_count=Count('subscription')).order_by('-subscribers_count')
 
-        all_position = list(all_masjids).index(self) + 1 if self in all_masjids else None
-        district_position = list(district_masjids).index(self) + 1 if self in district_masjids else None
-        region_position = list(region_masjids).index(self) + 1 if self in region_masjids else None
+    def get_leaderboard_position(self) -> dict:
+        all_masjids = Masjid.objects.annotate(
+            subscribers_count=Count("subscription")
+        ).order_by("-subscribers_count")
+        district_masjids = (
+            Masjid.objects.filter(district=self.district)
+            .annotate(subscribers_count=Count("subscription"))
+            .order_by("-subscribers_count")
+        )
+        region_masjids = (
+            Masjid.objects.filter(district__region=self.district.region)
+            .annotate(subscribers_count=Count("subscription"))
+            .order_by("-subscribers_count")
+        )
+
+        all_position = (
+            list(all_masjids).index(self) + 1 if self in all_masjids else None
+        )
+        district_position = (
+            list(district_masjids).index(self) + 1 if self in district_masjids else None
+        )
+        region_position = (
+            list(region_masjids).index(self) + 1 if self in region_masjids else None
+        )
 
         return {
-            'all_position': all_position,
-            'district_position': district_position,
-            'region_position': region_position,
+            "all_position": all_position,
+            "district_position": district_position,
+            "region_position": region_position,
         }
 
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Faolmi?",
+        help_text="Faol bo'lmasa foydalanuvchilar ro'yxatida ko'rinmaydi",
+    )
 
     def save(
         self,
@@ -272,14 +306,14 @@ class Masjid(models.Model):
         force_update: bool = ...,
         using: str | None = ...,
         update_fields: Iterable[str] | None = ...,
-        is_global_change=False
+        is_global_change=False,
     ) -> None:
         if self.name_ru == None:
             self.name_ru = self.name_uz
         if self.name_cyrl == None:
             obj = UzTransliterator.UzTransliterator()
             self.name_cyrl = obj.transliterate(self.name_uz, from_="lat", to="cyr")
-            
+
         if self.photo_file:
             if not self.photo:
                 self.photo = get_photo_id(self.photo_file.file)
@@ -287,7 +321,7 @@ class Masjid(models.Model):
                 old = Masjid.objects.get(pk=self.pk)
                 if self.photo_file != old.photo_file:
                     self.photo = get_photo_id(self.photo_file.file)
-        
+
         if self.pk and not is_global_change:
             old = Masjid.objects.get(pk=self.pk)
             is_times_changed = False
@@ -319,6 +353,155 @@ class Masjid(models.Model):
         verbose_name_plural = "Masjidlar"
 
 
+class ChangeMasjidTimeSchedule(models.Model):
+    masjid = models.ForeignKey(Masjid, on_delete=models.CASCADE, verbose_name="Masjid")
+    date = models.DateTimeField(verbose_name="Sana")
+    bomdod = models.CharField(
+        max_length=255,
+        verbose_name="Bomdod",
+        help_text="Masjidda bomdod namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    peshin = models.CharField(
+        max_length=255,
+        verbose_name="Peshin",
+        help_text="Masjidda peshin namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    asr = models.CharField(
+        max_length=255,
+        verbose_name="Asr",
+        help_text="Masjidda asr namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    shom = models.CharField(
+        max_length=255,
+        verbose_name="Shom",
+        help_text="Masjidda shom namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    hufton = models.CharField(
+        max_length=255,
+        verbose_name="Xufton",
+        help_text="Masjidda xufton namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "Masjid vaqtlarini oʻzgartirish jadvali"
+        verbose_name_plural = "Masjid vaqtlarini oʻzgartirish jadvali"
+
+
+class ChangeDistrictTimeSchedule(models.Model):
+    district = models.ForeignKey(
+        District, on_delete=models.CASCADE, verbose_name="Tuman(Shahar)"
+    )
+    date = models.DateTimeField(verbose_name="Sana")
+    bomdod = models.CharField(
+        max_length=255,
+        verbose_name="Bomdod",
+        help_text="Masjidda bomdod namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    peshin = models.CharField(
+        max_length=255,
+        verbose_name="Peshin",
+        help_text="Masjidda peshin namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    asr = models.CharField(
+        max_length=255,
+        verbose_name="Asr",
+        help_text="Masjidda asr namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    shom = models.CharField(
+        max_length=255,
+        verbose_name="Shom",
+        help_text="Masjidda shom namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    hufton = models.CharField(
+        max_length=255,
+        verbose_name="Xufton",
+        help_text="Masjidda xufton namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "Tuman(Shahar) vaqtlarini oʻzgartirish jadvali"
+        verbose_name_plural = "Tuman(Shahar) vaqtlarini oʻzgartirish jadvali"
+
+
+class ChangeRegionTimeSchedule(models.Model):
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, verbose_name="Viloyat")
+    date = models.DateTimeField(verbose_name="Sana")
+    bomdod = models.CharField(
+        max_length=255,
+        verbose_name="Bomdod",
+        help_text="Masjidda bomdod namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    peshin = models.CharField(
+        max_length=255,
+        verbose_name="Peshin",
+        help_text="Masjidda peshin namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    asr = models.CharField(
+        max_length=255,
+        verbose_name="Asr",
+        help_text="Masjidda asr namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    shom = models.CharField(
+        max_length=255,
+        verbose_name="Shom",
+        help_text="Masjidda shom namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+    hufton = models.CharField(
+        max_length=255,
+        verbose_name="Xufton",
+        help_text="Masjidda xufton namozi oʻqilish vaqti",
+        default="00:00",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = "Viloyat vaqtlarini oʻzgartirish jadvali"
+        verbose_name_plural = "Viloyat vaqtlarini oʻzgartirish jadvali"
+
+
 class CustomUser(AbstractUser):
     admin_types = (
         ("region", "Viloyat/Shaxar adminstratori"),
@@ -341,7 +524,14 @@ class CustomUser(AbstractUser):
         verbose_name="Tuman",
         help_text="Adminstratorga biriktiriladigan tuman",
     )
-    masjid = models.ForeignKey(Masjid, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Masjid", help_text="Adminstratorga biriktiriladigan masjid")
+    masjid = models.ForeignKey(
+        Masjid,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name="Masjid",
+        help_text="Adminstratorga biriktiriladigan masjid",
+    )
     admin_type = models.CharField(
         max_length=255,
         verbose_name="Adminstrator turi",
@@ -463,17 +653,19 @@ class ShaxarViloyatTimesChange(models.Model):
     peshin = models.CharField(
         max_length=255, verbose_name="Peshin", help_text="Peshin vaqti"
     )
-    asr = models.CharField(
-        max_length=255, verbose_name="Asr", help_text="Asr vaqti"
-    )
-    shom = models.CharField(
-        max_length=255, verbose_name="Shom", help_text="Shom vaqti"
-    )
+    asr = models.CharField(max_length=255, verbose_name="Asr", help_text="Asr vaqti")
+    shom = models.CharField(max_length=255, verbose_name="Shom", help_text="Shom vaqti")
     xufton = models.CharField(
         max_length=255, verbose_name="Xufton", help_text="Xufton vaqti"
     )
 
-    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+    def save(
+        self,
+        force_insert: bool = ...,
+        force_update: bool = ...,
+        using: str | None = ...,
+        update_fields: Iterable[str] | None = ...,
+    ) -> None:
         region_masjids = Masjid.objects.filter(district__region=self.region)
         users = set()
         for masjid in region_masjids:
@@ -490,10 +682,11 @@ class ShaxarViloyatTimesChange(models.Model):
         send_region_change_times(users, self, "region")
 
         # return super().save()
-    
+
     class Meta:
         verbose_name = "Viloyat vaqtlarini oʻzgartirish"
         verbose_name_plural = "Viloyat vaqtlarini oʻzgartirish"
+
 
 class TumanTimesChange(models.Model):
     district = models.ForeignKey(
@@ -505,17 +698,19 @@ class TumanTimesChange(models.Model):
     peshin = models.CharField(
         max_length=255, verbose_name="Peshin", help_text="Peshin vaqti"
     )
-    asr = models.CharField(
-        max_length=255, verbose_name="Asr", help_text="Asr vaqti"
-    )
-    shom = models.CharField(
-        max_length=255, verbose_name="Shom", help_text="Shom vaqti"
-    )
+    asr = models.CharField(max_length=255, verbose_name="Asr", help_text="Asr vaqti")
+    shom = models.CharField(max_length=255, verbose_name="Shom", help_text="Shom vaqti")
     xufton = models.CharField(
         max_length=255, verbose_name="Xufton", help_text="Xufton vaqti"
     )
 
-    def save(self, force_insert: bool = ..., force_update: bool = ..., using: str | None = ..., update_fields: Iterable[str] | None = ...) -> None:
+    def save(
+        self,
+        force_insert: bool = ...,
+        force_update: bool = ...,
+        using: str | None = ...,
+        update_fields: Iterable[str] | None = ...,
+    ) -> None:
         tuman_masjids = Masjid.objects.filter(district=self.district)
         users = set()
         for masjid in tuman_masjids:
@@ -530,8 +725,6 @@ class TumanTimesChange(models.Model):
                 users.add(sub)
 
         send_region_change_times(users, self, "district")
-        
-
 
         # return super().save()
 

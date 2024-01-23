@@ -14,6 +14,9 @@ from .models import (
     CustomUser,
     TumanTimesChange,
     ShaxarViloyatTimesChange,
+    ChangeDistrictTimeSchedule,
+    ChangeRegionTimeSchedule,
+    ChangeMasjidTimeSchedule
 )
 
 # Register your models here.
@@ -26,6 +29,18 @@ class MasjidInline(admin.StackedInline):
 class SubscriptionInline(admin.TabularInline):
     model = Subscription
     extra = 0
+
+class ChangeMasjidTimeAdminInline(admin.TabularInline):
+    model = ChangeMasjidTimeSchedule
+    extra = 2
+
+class ChangeRegionTimeAdminInline(admin.TabularInline):
+    model = ChangeRegionTimeSchedule
+    extra = 2
+
+class ChangeDistrictTimeAdminInline(admin.TabularInline):
+    model = ChangeDistrictTimeSchedule
+    extra = 2
     
 
 
@@ -92,7 +107,7 @@ class MasjidAdmin(admin.ModelAdmin):
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     list_filter = ["district__region", "district"]
     # form = MasjidForm
-    inlines = [SubscriptionInline]
+    inlines = [SubscriptionInline, ChangeMasjidTimeAdminInline]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "district":
@@ -158,14 +173,14 @@ class DistrictAdmin(admin.ModelAdmin):
         elif request.user.admin_type == "district":
             return qs.filter(region__pk=request.user.district.region.pk)
 
-    inlines = [MasjidInline]
+    inlines = [MasjidInline, ChangeDistrictTimeAdminInline]
 
 class RegionAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
 
-    inlines = [DistrictInline]
+    inlines = [DistrictInline, ChangeRegionTimeAdminInline]
 
 
 class SubscriptionAdmin(admin.ModelAdmin):
@@ -242,3 +257,6 @@ admin.site.register(NamozVaqti, NamozVaqtiAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(TumanTimesChange, TimeChangeAdmin)
 admin.site.register(ShaxarViloyatTimesChange, TimeChangeAdmin)
+admin.site.register(ChangeMasjidTimeSchedule)
+admin.site.register(ChangeRegionTimeSchedule)
+admin.site.register(ChangeDistrictTimeSchedule)
