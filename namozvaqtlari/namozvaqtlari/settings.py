@@ -215,6 +215,11 @@ JAZZMIN_SETTINGS = {
         "jamoatnamozlariapp.namozvaqti",
         "jamoatnamozlariapp.user",
         "jamoatnamozlariapp.subscription",
+        "jamoatnamozlariapp.ShaxarViloyatTimesChange",
+        "jamoatnamozlariapp.TumanTimesChange",
+        "jamoatnamozlariapp.ChangeRegionTimeSchedule",
+        "jamoatnamozlariapp.ChangeDistrictTimeSchedule",
+        "jamoatnamozlariapp.ChangeMasjidTimeSchedule",
         "auth.group",
     ],
     # Custom links to append to app groups, keyed on app name
@@ -242,6 +247,9 @@ JAZZMIN_SETTINGS = {
         "jamoatnamozlariapp.subscription": "fas fa-rss",
         "jamoatnamozlariapp.ShaxarViloyatTimesChange": "fas fa-exchange-alt",
         "jamoatnamozlariapp.TumanTimesChange": "fas fa-exchange-alt",
+        "jamoatnamozlariapp.ChangeRegionTimeSchedule": "fas fa-table",
+        "jamoatnamozlariapp.ChangeDistrictTimeSchedule": "fas fa-table",
+        "jamoatnamozlariapp.ChangeMasjidTimeSchedule": "fas fa-table",
     },
     # Icons that are used when one is not manually specified
     "default_icon_parents": "fas fa-chevron-circle-right",

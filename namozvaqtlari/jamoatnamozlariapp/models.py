@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from datetime import datetime
+from django.utils import timezone
 import logging
 from django.db import models
 from django.db.models import Count
@@ -336,12 +336,12 @@ class Masjid(models.Model):
             if self.hufton != old.hufton:
                 is_times_changed = True
             if is_times_changed:
-                self.last_update = datetime.now()
+                self.last_update = timezone.now()
                 subscriptions = self.subscription_set.all()
                 send_new_masjid_times([old, self], subscriptions)
         else:
             pass
-            self.last_update = datetime.now()
+            self.last_update = timezone.now()
             logging.warning(f"there was no masjid so this is create")
         return super().save()
 
@@ -397,6 +397,9 @@ class ChangeMasjidTimeSchedule(models.Model):
         blank=True,
     )
 
+    def __str__(self):
+        return f"{self.masjid.name_uz} jadvali"
+
     class Meta:
         verbose_name = "Masjid vaqtlarini oʻzgartirish jadvali"
         verbose_name_plural = "Masjid vaqtlarini oʻzgartirish jadvali"
@@ -448,6 +451,9 @@ class ChangeDistrictTimeSchedule(models.Model):
         blank=True,
     )
 
+    def __str__(self):
+        return f"{self.district.name_uz} jadvali"
+
     class Meta:
         verbose_name = "Tuman(Shahar) vaqtlarini oʻzgartirish jadvali"
         verbose_name_plural = "Tuman(Shahar) vaqtlarini oʻzgartirish jadvali"
@@ -496,6 +502,9 @@ class ChangeRegionTimeSchedule(models.Model):
         null=True,
         blank=True,
     )
+
+    def __str__(self):
+        return f"{self.region.name_uz} jadvali"
 
     class Meta:
         verbose_name = "Viloyat vaqtlarini oʻzgartirish jadvali"

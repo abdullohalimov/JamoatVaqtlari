@@ -246,6 +246,18 @@ class TimeChangeAdmin(admin.ModelAdmin):
         return form
 
 
+class MasjidJadvallarAdmin(admin.ModelAdmin):
+    list_display = ["date", "masjid", "bomdod", "peshin", "asr", "shom", "hufton"]
+    search_fields = ["masjid__name_uz", "masjid__name_cyrl", "masjid__name_ru"]
+    list_filter = ["masjid__district__region", "masjid__district",]
+class DistrictJadvallarAdmin(admin.ModelAdmin):
+    list_display = ["date", "district", "bomdod", "peshin", "asr", "shom", "hufton"]
+    search_fields = ["district__name_uz", "district__name_cyrl", "district__name_ru"]
+    list_filter = ["district__region", "district",] 
+class RegionJadvallarAdmin(admin.ModelAdmin):
+    list_display = ["date", "region", "bomdod", "peshin", "asr", "shom", "hufton"]
+    search_fields = ["region__name_uz", "region__name_cyrl", "region__name_ru"]
+    list_filter = ["region",]
 admin.site.register(User, UserAdmin)
 admin.site.register(Region, RegionAdmin)
 # admin.site.register(Admin, AdminModelAdmin)
@@ -257,6 +269,6 @@ admin.site.register(NamozVaqti, NamozVaqtiAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(TumanTimesChange, TimeChangeAdmin)
 admin.site.register(ShaxarViloyatTimesChange, TimeChangeAdmin)
-admin.site.register(ChangeMasjidTimeSchedule)
-admin.site.register(ChangeRegionTimeSchedule)
-admin.site.register(ChangeDistrictTimeSchedule)
+admin.site.register(ChangeMasjidTimeSchedule, MasjidJadvallarAdmin)
+admin.site.register(ChangeRegionTimeSchedule, RegionJadvallarAdmin)
+admin.site.register(ChangeDistrictTimeSchedule, DistrictJadvallarAdmin)

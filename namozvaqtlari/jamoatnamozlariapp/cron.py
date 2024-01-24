@@ -111,7 +111,7 @@ def backup():
     time.sleep(10)
     send_backup("/root/backup.zip")
 
-@kronos.register("*/1 * * * *")
+@kronos.register("*/10 * * * *")
 def change_time():
     # Get the current time
     current_time = timezone.now()
@@ -119,19 +119,19 @@ def change_time():
     # Calculate the time threshold for 10 minutes
     time_threshold = timezone.timedelta(minutes=10)
     
-    regions_to_change = ChangeRegionTimeSchedule.objects.exclude(date__lt=current_time, date__gt=current_time + time_threshold) 
+    regions_to_change = ChangeRegionTimeSchedule.objects.exclude(date__gt=current_time + time_threshold)
 
     for region in regions_to_change:
         ShaxarViloyatTimesChange.objects.create(region=region.region, bomdod=region.bomdod, peshin=region.peshin, asr=region.asr, shom=region.shom, xufton=region.hufton)
         region.delete()
     
-    districts_to_change = ChangeDistrictTimeSchedule.objects.exclude(date__lt=current_time, date__gt=current_time + time_threshold)     
+    districts_to_change = ChangeDistrictTimeSchedule.objects.exclude(date__gt=current_time + time_threshold)     
 
     for district in districts_to_change:
         TumanTimesChange.objects.create(district=district.district, bomdod=district.bomdod, peshin=district.peshin, asr=district.asr, shom=district.shom, xufton=district.hufton)
         district.delete()
 
-    masjids_to_change = ChangeMasjidTimeSchedule.objects.exclude(date__lt=current_time, date__gt=current_time + time_threshold)     
+    masjids_to_change = ChangeMasjidTimeSchedule.objects.exclude(date__gt=current_time + time_threshold)     
 
     for masjid in masjids_to_change:
         a = Masjid.objects.get(id=masjid.masjid_id)
