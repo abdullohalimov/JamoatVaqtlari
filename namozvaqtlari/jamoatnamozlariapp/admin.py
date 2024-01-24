@@ -291,18 +291,6 @@ class MasjidJadvallarAdmin(admin.ModelAdmin):
         "masjid__district",
     ]
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "masjid":
-            # Filter choices based on the assigned region for custom admins
-            if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = Masjid.objects.filter(region=request.user.region)
-            elif (
-                not request.user.is_superuser and request.user.admin_type == "district"
-            ):
-                kwargs["queryset"] = Masjid.objects.filter(
-                    district=request.user.district
-                )
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class DistrictJadvallarAdmin(admin.ModelAdmin):
@@ -313,12 +301,6 @@ class DistrictJadvallarAdmin(admin.ModelAdmin):
         "district",
     ]
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "district":
-            # Filter choices based on the assigned region for custom admins
-            if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = Region.objects.filter(region=request.user.region)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 class RegionJadvallarAdmin(admin.ModelAdmin):
@@ -328,12 +310,6 @@ class RegionJadvallarAdmin(admin.ModelAdmin):
         "region",
     ]
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "region":
-            # Filter choices based on the assigned region for custom admins
-            if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = Region.objects.filter(region=request.user.region)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 
