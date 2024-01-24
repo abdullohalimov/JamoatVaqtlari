@@ -32,16 +32,6 @@ def make_unpublished(modeladmin, request, queryset):
     queryset.update(is_active=False)
 
 
-class MasjidInline(admin.StackedInline):
-    model = Masjid
-    extra = 1
-
-
-class SubscriptionInline(admin.TabularInline):
-    model = Subscription
-    extra = 0
-
-
 class ChangeMasjidTimeAdminInline(admin.TabularInline):
     model = ChangeMasjidTimeSchedule
     extra = 2
@@ -55,6 +45,17 @@ class ChangeRegionTimeAdminInline(admin.TabularInline):
 class ChangeDistrictTimeAdminInline(admin.TabularInline):
     model = ChangeDistrictTimeSchedule
     extra = 2
+
+
+
+class MasjidInline(admin.StackedInline):
+    model = Masjid
+    extra = 1
+
+
+class SubscriptionInline(admin.TabularInline):
+    model = Subscription
+    extra = 0
 
 
 class DistrictInline(admin.TabularInline):
@@ -138,19 +139,13 @@ class MasjidAdmin(admin.ModelAdmin):
             # Filter choices based on the assigned region for custom admins
             if not request.user.is_superuser and request.user.admin_type == "region":
                 kwargs["queryset"] = District.objects.filter(region=request.user.region)
+            elif not request.user.is_superuser and request.user.admin_type == "district":
+                kwargs["queryset"] = District.objects.filter(pk=request.user.district.pk)
+            elif not request.user.is_superuser and request.user.admin_type == "masjid":
+                kwargs["queryset"] = District.objects.filter(masjid=request.user.masjid)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(MasjidAdmin, self).get_form(request, obj=obj, **kwargs)
-        form.base_fields["district"].initial = request.user.district
 
-        if request.user.is_superuser or request.user.admin_type == "region":
-            # If superadmin, make the 'district' field editable
-            form.base_fields["district"].widget.attrs["disabled"] = False
-        else:
-            # If not superadmin, make the 'district' field readonly
-            form.base_fields["district"].widget.attrs["disabled"] = True
-        return form
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -178,17 +173,7 @@ class DistrictAdmin(admin.ModelAdmin):
                 kwargs["queryset"] = Region.objects.filter(region=request.user.region)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(DistrictAdmin, self).get_form(request, obj=obj, **kwargs)
-        form.base_fields["region"].initial = request.user.region
 
-        if request.user.is_superuser:
-            # If superadmin, make the 'district' field editable
-            form.base_fields["region"].widget.attrs["disabled"] = False
-        else:
-            # If not superadmin, make the 'district' field readonly
-            form.base_fields["region"].widget.attrs["disabled"] = True
-        return form
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -259,28 +244,19 @@ class NamozVaqtiAdmin(admin.ModelAdmin):
 
 class TimeChangeAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "district":
+        if db_field.name == "region":
             # Filter choices based on the assigned region for custom admins
             if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = District.objects.filter(region=request.user.region)
+                kwargs["queryset"] = Region.objects.filter(pk=request.user.region.pk)
+        elif db_field.name == "district":
+            # Filter choices based on the assigned region for custom admins
+            if not request.user.is_superuser and request.user.admin_type == "region":
+                kwargs["queryset"] = District.objects.filter(
+                    region=request.user.region
+                )
+            if not request.user.is_superuser and request.user.admin_type == "district":
+                kwargs["queryset"] = District.objects.filter(pk=request.user.district.pk)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(TimeChangeAdmin, self).get_form(request, obj=obj, **kwargs)
-
-        if not request.user.is_superuser:
-            if request.user.admin_type == "region":
-                try:
-                    form.base_fields["region"].initial = request.user.region
-                    form.base_fields["region"].widget.attrs["disabled"] = True
-                except:
-                    pass
-
-            elif request.user.admin_type == "district":
-                form.base_fields["district"].initial = request.user.district
-                form.base_fields["district"].widget.attrs["disabled"] = True
-
-        return form
 
 
 class MasjidJadvallarAdmin(admin.ModelAdmin):
@@ -291,8 +267,28 @@ class MasjidJadvallarAdmin(admin.ModelAdmin):
         "masjid__district",
     ]
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "masjid":
+            # Filter choices based on the assigned region for custom admins
+            if not request.user.is_superuser and request.user.admin_type == "region":
+                kwargs["queryset"] = Masjid.objects.filter(district__region=request.user.region)
+            if not request.user.is_superuser and request.user.admin_type == "district":
+                kwargs["queryset"] = Masjid.objects.filter(district=request.user.district)
+            if not request.user.is_superuser and request.user.admin_type == "masjid":
+                kwargs["queryset"] = Masjid.objects.filter(pk=request.user.masjid.pk)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        elif request.user.admin_type == "region":
+            return qs.filter(masjid__district__region__pk=request.user.region.pk)
+        elif request.user.admin_type == "district":
+            return qs.filter(masjid__district__pk=request.user.district.pk)
+        elif request.user.admin_type == "masjid":
+            return qs.filter(masjid=request.user.masjid)
+        
 class DistrictJadvallarAdmin(admin.ModelAdmin):
     list_display = ["date", "district", "bomdod", "peshin", "asr", "shom", "hufton"]
     search_fields = ["district__name_uz", "district__name_cyrl", "district__name_ru"]
@@ -301,7 +297,23 @@ class DistrictJadvallarAdmin(admin.ModelAdmin):
         "district",
     ]
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "district":
+            # Filter choices based on the assigned region for custom admins
+            if not request.user.is_superuser and request.user.admin_type == "region":
+                kwargs["queryset"] = District.objects.filter(region=request.user.region)
+            if not request.user.is_superuser and request.user.admin_type == "district":
+                kwargs["queryset"] = District.objects.filter(pk=request.user.district.pk)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        elif request.user.admin_type == "region":
+            return qs.filter(district__region__pk=request.user.region.pk)
+        elif request.user.admin_type == "district":
+            return qs.filter(district__pk=request.user.district.pk)
 
 class RegionJadvallarAdmin(admin.ModelAdmin):
     list_display = ["date", "region", "bomdod", "peshin", "asr", "shom", "hufton"]
@@ -310,7 +322,20 @@ class RegionJadvallarAdmin(admin.ModelAdmin):
         "region",
     ]
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "region":
+            # Filter choices based on the assigned region for custom admins
+            if not request.user.is_superuser and request.user.admin_type == "region":
+                kwargs["queryset"] = Region.objects.filter(pk=request.user.region.pk)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        elif request.user.admin_type == "region":
+            return qs.filter(region__pk=request.user.region.pk)
 
 
 
