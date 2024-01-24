@@ -21,9 +21,11 @@ from .models import (
 
 # Register your models here.
 
+
 @admin.action(description="Faol qilish")
 def make_published(modeladmin, request, queryset):
     queryset.update(is_active=True)
+
 
 @admin.action(description="Nofaol qilish")
 def make_unpublished(modeladmin, request, queryset):
@@ -114,7 +116,14 @@ class CustomUserAdmin(usrmadmin):
 
 
 class MasjidAdmin(admin.ModelAdmin):
-    list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district", "is_active"]
+    list_display = [
+        "name_uz",
+        "name_cyrl",
+        "name_ru",
+        "photo_file",
+        "district",
+        "is_active",
+    ]
     readonly_fields = [
         "last_update",
     ]
@@ -161,6 +170,7 @@ class DistrictAdmin(admin.ModelAdmin):
     list_filter = ["region"]
 
     actions = [make_published, make_unpublished]
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "district":
             # Filter choices based on the assigned region for custom admins
@@ -282,26 +292,17 @@ class MasjidJadvallarAdmin(admin.ModelAdmin):
     ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "district":
+        if db_field.name == "masjid":
             # Filter choices based on the assigned region for custom admins
             if not request.user.is_superuser and request.user.admin_type == "region":
-                kwargs["queryset"] = District.objects.filter(region=request.user.region)
+                kwargs["queryset"] = Masjid.objects.filter(region=request.user.region)
+            elif (
+                not request.user.is_superuser and request.user.admin_type == "district"
+            ):
+                kwargs["queryset"] = Masjid.objects.filter(
+                    district=request.user.district
+                )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(MasjidJadvallarAdmin, self).get_form(request, obj=obj, **kwargs)
-        form.base_fields["district"].initial = request.user.district
-
-        if request.user.is_superuser or request.user.admin_type == "region":
-            # If superadmin, make the 'district' field editable
-            form.base_fields["district"].widget.attrs["disabled"] = False
-        else:
-            # If not superadmin, make the 'district' field readonly
-            form.base_fields["district"].widget.attrs["disabled"] = True
-        return form
-
-
-
 
 
 class DistrictJadvallarAdmin(admin.ModelAdmin):
@@ -319,20 +320,6 @@ class DistrictJadvallarAdmin(admin.ModelAdmin):
                 kwargs["queryset"] = Region.objects.filter(region=request.user.region)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(DistrictJadvallarAdmin, self).get_form(request, obj=obj, **kwargs)
-        form.base_fields["region"].initial = request.user.region
-
-        if request.user.is_superuser:
-            # If superadmin, make the 'district' field editable
-            form.base_fields["region"].widget.attrs["disabled"] = False
-        else:
-            # If not superadmin, make the 'district' field readonly
-            form.base_fields["region"].widget.attrs["disabled"] = True
-        return form
-
-
-
 
 class RegionJadvallarAdmin(admin.ModelAdmin):
     list_display = ["date", "region", "bomdod", "peshin", "asr", "shom", "hufton"]
@@ -342,23 +329,11 @@ class RegionJadvallarAdmin(admin.ModelAdmin):
     ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "district":
+        if db_field.name == "region":
             # Filter choices based on the assigned region for custom admins
             if not request.user.is_superuser and request.user.admin_type == "region":
                 kwargs["queryset"] = Region.objects.filter(region=request.user.region)
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(RegionJadvallarAdmin, self).get_form(request, obj=obj, **kwargs)
-        form.base_fields["region"].initial = request.user.region
-
-        if request.user.is_superuser:
-            # If superadmin, make the 'district' field editable
-            form.base_fields["region"].widget.attrs["disabled"] = False
-        else:
-            # If not superadmin, make the 'district' field readonly
-            form.base_fields["region"].widget.attrs["disabled"] = True
-        return form
 
 
 
