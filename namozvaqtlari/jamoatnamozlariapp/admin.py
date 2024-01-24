@@ -21,6 +21,14 @@ from .models import (
 
 # Register your models here.
 
+@admin.action(description="Faol qilish")
+def make_published(modeladmin, request, queryset):
+    queryset.update(is_active=True)
+
+@admin.action(description="Nofaol qilish")
+def make_unpublished(modeladmin, request, queryset):
+    queryset.update(is_active=False)
+
 
 class MasjidInline(admin.StackedInline):
     model = Masjid
@@ -114,6 +122,7 @@ class MasjidAdmin(admin.ModelAdmin):
     list_filter = ["district__region", "district"]
     # form = MasjidForm
     inlines = [SubscriptionInline, ChangeMasjidTimeAdminInline]
+    actions = [make_published, make_unpublished]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "district":
@@ -151,6 +160,7 @@ class DistrictAdmin(admin.ModelAdmin):
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     list_filter = ["region"]
 
+    actions = [make_published, make_unpublished]
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "district":
             # Filter choices based on the assigned region for custom admins
@@ -187,6 +197,7 @@ class RegionAdmin(admin.ModelAdmin):
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
 
+    actions = [make_published, make_unpublished]
     inlines = [DistrictInline, ChangeRegionTimeAdminInline]
 
 

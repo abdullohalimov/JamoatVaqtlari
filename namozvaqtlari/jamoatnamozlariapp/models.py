@@ -262,6 +262,11 @@ class Masjid(models.Model):
         blank=True,
     )
     last_update = models.DateTimeField(auto_now=False, verbose_name="Yangilangan vaqti")
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name="Faolmi?",
+        help_text="Faol bo'lmasa foydalanuvchilar ro'yxatida ko'rinmaydi",
+    )
 
     def get_leaderboard_position(self) -> dict:
         all_masjids = Masjid.objects.annotate(
@@ -293,12 +298,6 @@ class Masjid(models.Model):
             "district_position": district_position,
             "region_position": region_position,
         }
-
-    is_active = models.BooleanField(
-        default=True,
-        verbose_name="Faolmi?",
-        help_text="Faol bo'lmasa foydalanuvchilar ro'yxatida ko'rinmaydi",
-    )
 
     def save(
         self,
