@@ -300,16 +300,7 @@ class MasjidJadvallarAdmin(admin.ModelAdmin):
             form.base_fields["district"].widget.attrs["disabled"] = True
         return form
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        elif request.user.admin_type == "region":
-            return qs.filter(district__region__pk=request.user.region.pk)
-        elif request.user.admin_type == "district":
-            return qs.filter(district__pk=request.user.district.pk)
-        elif request.user.admin_type == "masjid":
-            return qs.filter(pk=request.user.masjid.pk)
+
 
 
 
@@ -340,14 +331,7 @@ class DistrictJadvallarAdmin(admin.ModelAdmin):
             form.base_fields["region"].widget.attrs["disabled"] = True
         return form
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        elif request.user.admin_type == "region":
-            return qs.filter(region__pk=request.user.region.pk)
-        elif request.user.admin_type == "district":
-            return qs.filter(region__pk=request.user.district.region.pk)
+
 
 
 class RegionJadvallarAdmin(admin.ModelAdmin):
@@ -376,14 +360,7 @@ class RegionJadvallarAdmin(admin.ModelAdmin):
             form.base_fields["region"].widget.attrs["disabled"] = True
         return form
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        elif request.user.admin_type == "region":
-            return qs.filter(region__pk=request.user.region.pk)
-        elif request.user.admin_type == "district":
-            return qs.filter(region__pk=request.user.district.region.pk)
+
 
 
 admin.site.register(User, UserAdmin)
