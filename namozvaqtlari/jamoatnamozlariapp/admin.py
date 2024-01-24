@@ -114,7 +114,7 @@ class CustomUserAdmin(usrmadmin):
 
 
 class MasjidAdmin(admin.ModelAdmin):
-    list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
+    list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district", "is_active"]
     readonly_fields = [
         "last_update",
     ]
