@@ -16,10 +16,11 @@ from .models import (
     ShaxarViloyatTimesChange,
     ChangeDistrictTimeSchedule,
     ChangeRegionTimeSchedule,
-    ChangeMasjidTimeSchedule
+    ChangeMasjidTimeSchedule,
 )
 
 # Register your models here.
+
 
 class MasjidInline(admin.StackedInline):
     model = Masjid
@@ -30,23 +31,26 @@ class SubscriptionInline(admin.TabularInline):
     model = Subscription
     extra = 0
 
+
 class ChangeMasjidTimeAdminInline(admin.TabularInline):
     model = ChangeMasjidTimeSchedule
     extra = 2
+
 
 class ChangeRegionTimeAdminInline(admin.TabularInline):
     model = ChangeRegionTimeSchedule
     extra = 2
 
+
 class ChangeDistrictTimeAdminInline(admin.TabularInline):
     model = ChangeDistrictTimeSchedule
     extra = 2
-    
 
 
 class DistrictInline(admin.TabularInline):
     model = District
     extra = 1
+
 
 class CustomUserAdmin(usrmadmin):
     model = CustomUser
@@ -103,7 +107,9 @@ class CustomUserAdmin(usrmadmin):
 
 class MasjidAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "photo_file", "district"]
-    readonly_fields = ["last_update",]
+    readonly_fields = [
+        "last_update",
+    ]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     list_filter = ["district__region", "district"]
     # form = MasjidForm
@@ -141,7 +147,7 @@ class MasjidAdmin(admin.ModelAdmin):
 
 
 class DistrictAdmin(admin.ModelAdmin):
-    list_display = ["name_uz", "name_cyrl", "name_ru", "region"]
+    list_display = ["name_uz", "name_cyrl", "name_ru", "region", "is_active"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     list_filter = ["region"]
 
@@ -163,7 +169,7 @@ class DistrictAdmin(admin.ModelAdmin):
             # If not superadmin, make the 'district' field readonly
             form.base_fields["region"].widget.attrs["disabled"] = True
         return form
-    
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
@@ -175,8 +181,9 @@ class DistrictAdmin(admin.ModelAdmin):
 
     inlines = [MasjidInline, ChangeDistrictTimeAdminInline]
 
+
 class RegionAdmin(admin.ModelAdmin):
-    list_display = ["name_uz", "name_cyrl", "name_ru"]
+    list_display = ["name_uz", "name_cyrl", "name_ru", "is_active"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
     search_fields = ["name_uz", "name_cyrl", "name_ru"]
 
@@ -185,7 +192,12 @@ class RegionAdmin(admin.ModelAdmin):
 
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ["user", "masjid"]
-    search_fields = ["user__full_name", "masjid__name_uz", "masjid__name_cyrl", "masjid__name_ru"]
+    search_fields = [
+        "user__full_name",
+        "masjid__name_uz",
+        "masjid__name_cyrl",
+        "masjid__name_ru",
+    ]
 
 
 class AdminModelAdmin(admin.ModelAdmin):
@@ -198,8 +210,11 @@ class UserAdmin(admin.ModelAdmin):
         "user_id",
     ]
     search_fields = ["full_name", "user_id"]
-    list_filter = ["lang",]
+    list_filter = [
+        "lang",
+    ]
     inlines = [SubscriptionInline]
+
 
 class MintaqaAdmin(admin.ModelAdmin):
     list_display = ["name_uz", "name_cyrl", "name_ru", "viloyat", "mintaqa_id"]
@@ -219,6 +234,7 @@ class NamozVaqtiAdmin(admin.ModelAdmin):
     autocomplete_fields = ["mintaqa"]
     search_fields = ["mintaqa__name_uz", "mintaqa__name_cyrl", "mintaqa__name_ru"]
     list_filter = ["mintaqa__viloyat"]
+
 
 class TimeChangeAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -249,15 +265,29 @@ class TimeChangeAdmin(admin.ModelAdmin):
 class MasjidJadvallarAdmin(admin.ModelAdmin):
     list_display = ["date", "masjid", "bomdod", "peshin", "asr", "shom", "hufton"]
     search_fields = ["masjid__name_uz", "masjid__name_cyrl", "masjid__name_ru"]
-    list_filter = ["masjid__district__region", "masjid__district",]
+    list_filter = [
+        "masjid__district__region",
+        "masjid__district",
+    ]
+
+
 class DistrictJadvallarAdmin(admin.ModelAdmin):
     list_display = ["date", "district", "bomdod", "peshin", "asr", "shom", "hufton"]
     search_fields = ["district__name_uz", "district__name_cyrl", "district__name_ru"]
-    list_filter = ["district__region", "district",] 
+    list_filter = [
+        "district__region",
+        "district",
+    ]
+
+
 class RegionJadvallarAdmin(admin.ModelAdmin):
     list_display = ["date", "region", "bomdod", "peshin", "asr", "shom", "hufton"]
     search_fields = ["region__name_uz", "region__name_cyrl", "region__name_ru"]
-    list_filter = ["region",]
+    list_filter = [
+        "region",
+    ]
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Region, RegionAdmin)
 # admin.site.register(Admin, AdminModelAdmin)
