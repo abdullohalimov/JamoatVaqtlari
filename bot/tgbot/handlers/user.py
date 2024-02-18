@@ -132,7 +132,8 @@ async def send_masjid_text(callback_query: CallbackQuery, data, masjidlar, page,
         for masjid in masjidlar['items']:
             text += f"🕌 {masjid[lang_decode[data['locale']]]}\n"
             text += f"📍 {masjid['district']['region'][lang_decode[data['locale']]]}, {masjid['district'][lang_decode[data['locale']]]}\n"
-            text += f"🕓 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n\n"
+            text += f"📣 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n"
+            text += f"🕓 {masjid['bomdod_jamoat']} | {masjid['peshin_jamoat']} | {masjid['asr_jamoat']} | {masjid['shom_jamoat']} | {masjid['hufton_jamoat']} \n\n"
         await callback_query.message.edit_text(
                 text,
                 reply_markup=inline.masjidlar_keyboard(
@@ -369,11 +370,11 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
 
 🕒 <i>Oxirgi marta {sana} da yangilangan.</i>
 
-🏞 Bomdod: <b>{bomdod}</b>
-🌇 Peshin: <b>{peshin}</b>
-🌆 Asr: <b>{asr}</b>
-🌃 Shom: <b>{shom}</b>
-🌌 Xufton: <b>{hufton}</b>
+🏞 Bomdod: <b>{bomdod}</b> | {bomdod2}
+🌇 Peshin: <b>{peshin}</b> | {peshin2}
+🌆 Asr: <b>{asr}</b> | {asr2}
+🌃 Shom: <b>{shom}</b> | {shom2}
+🌌 Xufton: <b>{hufton}</b> | {hufton2}
 
 @jamoatvaqtlaribot""",
             locale=data["locale"],
@@ -387,6 +388,11 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
             asr=masjid["asr"],
             shom=masjid["shom"],
             hufton=masjid["hufton"],
+            bomdod2=masjid['bomdod_jamoat'],
+            peshin2=masjid['peshin_jamoat'],
+            asr2=masjid['asr_jamoat'],
+            shom2=masjid['shom_jamoat'],
+            hufton2=masjid['hufton_jamoat'],
         )
 
         markup = inline.masjid_kb(masjid, lang=data["locale"], is_subscribed=masjid["is_subscribed"], is_subs_menu=callback_data.is_sub)
@@ -530,7 +536,8 @@ async def masjid_info_sub(message: Message, state: FSMContext):
             current_district = masjid['district']['pk']
             text += f"🕌 {masjid[lang_decode[data['locale']]]}\n"
             text += f"📍 {masjid['district']['region'][lang_decode[data['locale']]]}, {masjid['district'][lang_decode[data['locale']]]}\n"
-            text += f"🕓 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n\n"
+            text += f"📣 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n"
+            text += f"🕓 {masjid['bomdod_jamoat']} | {masjid['peshin_jamoat']} | {masjid['asr_jamoat']} | {masjid['shom_jamoat']} | {masjid['hufton_jamoat']} \n\n"    
         await state.update_data(masjid_action="subscription", current_page=1, current_district=current_district, page_type='subs')
         await message.answer(text, reply_markup=inline.masjidlar_keyboard(is_subs_menu=True, masjid_list=subs['items'], lang=data["locale"], current_page=1, has_next=has_next, max_page=max_page))
         await state.set_state(UserStates.select_masjid)

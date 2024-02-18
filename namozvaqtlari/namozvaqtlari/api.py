@@ -50,6 +50,11 @@ class MasjidInfo(Schema):
     asr: str
     shom: str
     hufton: str
+    bomdod_jamoat: str
+    peshin_jamoat: str
+    asr_jamoat: str
+    shom_jamoat: str
+    hufton_jamoat: str
     location: str | None
     last_update: datetime.datetime
     is_subscribed: bool = False
@@ -120,6 +125,33 @@ def masjid_info(request, masjid_pk, user_id):
         masjid=masjid, user=user
     ).exists()
     setattr(masjid, "is_subscribed", is_subscribed)
+    azon = [masjid.bomdod, masjid.peshin, masjid.asr, masjid.shom, masjid.hufton]
+    types = [masjid.bomdod_type, masjid.peshin_type, masjid.asr_type, masjid.shom_type, masjid.hufton_type]
+    values = [masjid.bomdod_jamoat, masjid.peshin_jamoat, masjid.asr_jamoat, masjid.shom_jamoat, masjid.hufton_jamoat]
+    times = [0, 0, 0, 0, 0]
+        
+    for i in range(0, 5):
+        if types[i] == 'static':
+            times[i] = values[i]
+        else:
+            if values[i].isdigit():
+                a, b = azon[i].split(":")
+                a = int(a)
+                b = int(b) + int(values[i])
+                if b > 60:
+                    a = int(a) + 1
+                    b = b - 60
+                times[i] = f"{'0' if int(a) < 10 else ''}{a}:{'0' if b < 10 else ''}{b}"
+            else:
+                times[i] = azon[i]
+    
+    masjid.bomdod_jamoat = times[0]
+    masjid.peshin_jamoat = times[1]
+    masjid.asr_jamoat = times[2]
+    masjid.shom_jamoat = times[3]
+    masjid.hufton_jamoat = times[4]
+
+
     return masjid
 
 
@@ -209,9 +241,41 @@ def masjid_subscription(request, user_id, masjid_id, action):
 @api.get("/user-subscriptions", response=List[MasjidInfo])
 @paginate(PageNumberPagination, page_size=5)
 def user_subscriptions(request, user_id):
-    return Masjid.objects.filter(
+    masjids = []
+    for masjid in Masjid.objects.filter(
         pk__in=Subscription.objects.filter(user=User.objects.get(user_id=user_id)).values_list("masjid", flat=True)
-    )
+    ):
+        azon = [masjid.bomdod, masjid.peshin, masjid.asr, masjid.shom, masjid.hufton]
+        types = [masjid.bomdod_type, masjid.peshin_type, masjid.asr_type, masjid.shom_type, masjid.hufton_type]
+        values = [masjid.bomdod_jamoat, masjid.peshin_jamoat, masjid.asr_jamoat, masjid.shom_jamoat, masjid.hufton_jamoat]
+        times = [0, 0, 0, 0, 0]
+            
+        for i in range(0, 5):
+            if types[i] == 'static':
+                times[i] = values[i]
+            else:
+                if str(values[i]).isdigit():
+                    a, b = azon[i].split(":")
+                    a = int(a)
+                    b = int(b) + int(values[i])
+                    if b > 60:
+                        a = int(a) + 1
+                        b = b - 60
+                    times[i] = f"{'0' if int(a) < 10 else ''}{a}:{'0' if b < 10 else ''}{b}"
+                else:
+                    times[i] = azon[i]
+            
+            masjid.bomdod_jamoat = times[0]
+            masjid.peshin_jamoat = times[1]
+            masjid.asr_jamoat = times[2]
+            masjid.shom_jamoat = times[3]
+            masjid.hufton_jamoat = times[4]
+
+        masjids.append(masjid)
+
+    return masjids
+        
+
 
 @api.get("/user-subscriptions-statistic")
 def user_subscriptions(request, user_id):

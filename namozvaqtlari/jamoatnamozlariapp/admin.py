@@ -17,6 +17,7 @@ from .models import (
     ChangeDistrictTimeSchedule,
     ChangeRegionTimeSchedule,
     ChangeMasjidTimeSchedule,
+    ChangeJamoatVaqtlari
 )
 
 # Register your models here.
@@ -353,3 +354,4 @@ admin.site.register(ShaxarViloyatTimesChange, TimeChangeAdmin)
 admin.site.register(ChangeMasjidTimeSchedule, MasjidJadvallarAdmin)
 admin.site.register(ChangeRegionTimeSchedule, RegionJadvallarAdmin)
 admin.site.register(ChangeDistrictTimeSchedule, DistrictJadvallarAdmin)
+admin.site.register(ChangeJamoatVaqtlari)

@@ -4,7 +4,7 @@ import logging
 from django.db import models
 from django.db.models import Count
 from django.contrib.auth.models import AbstractUser
-
+from django.contrib.messages import add_message
 from .tg_functions import get_photo_id, send_new_masjid_times, send_region_change_times
 
 
@@ -171,6 +171,7 @@ class District(models.Model):
 
 
 class Masjid(models.Model):
+    time_types = (("dynamic", "Dinamik"), ("static", "Statik"))
     name_uz = models.CharField(
         max_length=255, verbose_name="Lotin", help_text="Masjidning lotincha nomi"
     )
@@ -261,6 +262,57 @@ class Masjid(models.Model):
         null=True,
         blank=True,
     )
+
+    bomdod_type = models.CharField(
+        "Bomdod vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    bomdod_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Bomdod jamoati",
+        help_text="Masjidda bomdod namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    peshin_type = models.CharField(
+        "Peshin vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    peshin_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Peshin jamoati",
+        help_text="Masjidda peshin namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    asr_type = models.CharField(
+        "Asr vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    asr_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Asr jamoati",
+        help_text="Masjidda asr namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    shom_type = models.CharField(
+        "Shom vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    shom_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Shom jamoati",
+        help_text="Masjidda shom namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    hufton_type = models.CharField(
+        "Xufton vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    hufton_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Xufton jamoati",
+        help_text="Masjidda xufton namozi oʻqilish vaqti",
+        default="0",
+    )
+
     last_update = models.DateTimeField(auto_now=False, verbose_name="Yangilangan vaqti")
     is_active = models.BooleanField(
         default=True,
@@ -342,6 +394,30 @@ class Masjid(models.Model):
             pass
             self.last_update = timezone.now()
             logging.warning(f"there was no masjid so this is create")
+
+        types = [
+            self.bomdod_type,
+            self.peshin_type,
+            self.asr_type,
+            self.shom_type,
+            self.hufton_type,
+        ]
+        jamoat_times = [
+            self.bomdod_jamoat,
+            self.peshin_jamoat,
+            self.asr_jamoat,
+            self.shom_jamoat,
+            self.hufton_jamoat,
+        ]
+        for i in range(len(types)):
+            if types[i] == "dynamic":
+                if jamoat_times[i].isdigit():
+                    pass
+                else:
+                    jamoat_times[i] = "0"
+            elif types[i] == "static":
+                pass
+
         return super().save()
 
     def __str__(self):
@@ -649,6 +725,158 @@ class NamozVaqti(models.Model):
     class Meta:
         verbose_name = "Namoz vaqti"
         verbose_name_plural = "Namoz vaqtlari"
+
+
+class ChangeJamoatVaqtlari(models.Model):
+    time_types = (("dynamic", "Dinamik"), ("static", "Statik"))
+    change_all = models.BooleanField(
+        default=False,
+        verbose_name="Barcha masjidlar",
+        help_text="Barcha masjidlar ma'lumotlarini o'zgartirish",
+    )
+    change_region = models.BooleanField(
+        verbose_name="Viloyatni o'zgartirish",
+        help_text="Tanlangan viloyat masjidlari ma'lumotlarini o'zgartirish",
+        default=False,
+    )
+    region = models.ForeignKey(
+        Region, on_delete=models.CASCADE, verbose_name="Viloyat", null=True, blank=True
+    )
+    change_district = models.BooleanField(
+        verbose_name="Tumanni o'zgartirish",
+        help_text="Tanlangan tuman masjidlari ma'lumotlarini o'zgartirish",
+        default=False,
+    )
+    district = models.ForeignKey(
+        District, on_delete=models.CASCADE, verbose_name="Tuman", null=True, blank=True
+    )
+    change_masjid = models.BooleanField(
+        verbose_name="Masjidni o'zgartirish",
+        help_text="Tanlangan masjid ma'lumotlarini o'zgartirish",
+        default=False,
+    )
+    masjid = models.ForeignKey(
+        Masjid, on_delete=models.CASCADE, verbose_name="Masjid", null=True, blank=True
+    )
+
+    bomdod_type = models.CharField(
+        "Bomdod vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    bomdod_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Bomdod jamoati",
+        help_text="Masjidda bomdod namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    peshin_type = models.CharField(
+        "Peshin vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    peshin_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Peshin jamoati",
+        help_text="Masjidda peshin namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    asr_type = models.CharField(
+        "Asr vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    asr_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Asr jamoati",
+        help_text="Masjidda asr namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    shom_type = models.CharField(
+        "Shom vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    shom_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Shom jamoati",
+        help_text="Masjidda shom namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    hufton_type = models.CharField(
+        "Xufton vaqti turi", max_length=255, choices=time_types, default="dynamic"
+    )
+    hufton_jamoat = models.CharField(
+        max_length=255,
+        verbose_name="Xufton jamoati",
+        help_text="Masjidda xufton namozi oʻqilish vaqti",
+        default="0",
+    )
+
+    class Meta:
+        verbose_name = "Jamoat vaqtini tahrirlash"
+        verbose_name_plural = "Jamoat vaqtlarini tahrirlash"
+
+    def save(
+        self,
+        force_insert: bool = ...,
+        force_update: bool = ...,
+        using: str | None = ...,
+        update_fields: Iterable[str] | None = ...,
+    ) -> None:
+        if self.change_all:
+            Masjid.objects.all().update(
+                bomdod_type=self.bomdod_type,
+                bomdod_jamoat=self.bomdod_jamoat,
+                peshin_type=self.peshin_type,
+                peshin_jamoat=self.peshin_jamoat,
+                asr_type=self.asr_type,
+                asr_jamoat=self.asr_jamoat,
+                shom_type=self.shom_type,
+                shom_jamoat=self.shom_jamoat,
+                hufton_type=self.hufton_type,
+                hufton_jamoat=self.hufton_jamoat,
+            )
+        else:
+            if self.change_masjid:
+                if self.masjid:
+                    self.masjid.bomdod_jamoat = self.bomdod_jamoat
+                    self.masjid.peshin_jamoat = self.peshin_jamoat
+                    self.masjid.asr_jamoat = self.asr_jamoat
+                    self.masjid.shom_jamoat = self.shom_jamoat
+                    self.masjid.hufton_jamoat = self.hufton_jamoat
+                    self.masjid.bomdod_type = self.bomdod_type
+                    self.masjid.peshin_type = self.peshin_type
+                    self.masjid.asr_type = self.asr_type
+                    self.masjid.shom_type = self.shom_type
+                    self.masjid.hufton_type = self.hufton_type
+                    self.masjid.save()
+            if self.change_region:
+                if self.region:
+                    masjids = Masjid.objects.filter(district__region=self.region)
+                    masjids.update(
+                        bomdod_type=self.bomdod_type,
+                        bomdod_jamoat=self.bomdod_jamoat,
+                        peshin_type=self.peshin_type,
+                        peshin_jamoat=self.peshin_jamoat,
+                        asr_type=self.asr_type,
+                        asr_jamoat=self.asr_jamoat,
+                        shom_type=self.shom_type,
+                        shom_jamoat=self.shom_jamoat,
+                        hufton_type=self.hufton_type,
+                        hufton_jamoat=self.hufton_jamoat,
+                    )
+            if self.change_district:
+                if self.district:
+                    masjids = Masjid.objects.filter(district=self.district)
+                    masjids.update(
+                        bomdod_type=self.bomdod_type,
+                        bomdod_jamoat=self.bomdod_jamoat,
+                        peshin_type=self.peshin_type,
+                        peshin_jamoat=self.peshin_jamoat,
+                        asr_type=self.asr_type,
+                        asr_jamoat=self.asr_jamoat,
+                        shom_type=self.shom_type,
+                        shom_jamoat=self.shom_jamoat,
+                        hufton_type=self.hufton_type,
+                        hufton_jamoat=self.hufton_jamoat,
+                    )
 
 
 class ShaxarViloyatTimesChange(models.Model):
