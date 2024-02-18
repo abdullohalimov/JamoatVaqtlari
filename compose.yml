@@ -9,11 +9,7 @@ services:
       - media:/app/media
       - ./dbfile/:/app/dbfile/
       - ./namozvaqtlari/jamoatnamozlariapp/migrations/:/app/jamoatnamozlariapp/migrations/
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./namozvaqtlari
-          target: /app
+    
   bot:
     restart: always
     build: ./bot
