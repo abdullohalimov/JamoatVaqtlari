@@ -91,9 +91,9 @@ def send_new_masjid_times(masjid, subscriptions):
         new.hufton_jamoat = times[4]
 
     text = f"""
- {new.district.region.name_uz} {new.district.name_uz} {new.name_uz} namoz vaqtlari oʻzgardi.
+ <b>{new.district.region.name_uz} {new.district.name_uz} {new.name_uz} namoz vaqtlari oʻzgardi.</b>
 
-🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
+<i>🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}</i>
 
 <b>🏞 Bomdod:</b>
 Azon – {new.bomdod} | Takbir – {new.bomdod_jamoat}

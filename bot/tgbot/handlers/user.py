@@ -366,7 +366,7 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
         text = _(
             """
 🕌 <b>{masjid} namoz vaqtlari</b>
-📍 <b>Manzili:</b> {manzili1}, {manzili2}
+📍 <b>Manzil:</b> {manzili1}, {manzili2}
 
 🕒 <i>Oxirgi marta {sana} da yangilangan.</i>
 
