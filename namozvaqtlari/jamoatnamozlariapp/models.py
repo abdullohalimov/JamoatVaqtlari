@@ -414,14 +414,16 @@ class Masjid(models.Model):
             if is_times_changed:
                 self.last_update = timezone.now()
                 subscriptions = self.subscription_set.all()
+                super().save()
                 send_new_masjid_times([old, self], subscriptions)
         else:
             pass
             self.last_update = timezone.now()
+            super().save()
             logging.warning(f"there was no masjid so this is create")
 
         
-        return super().save()
+        return 
 
     def __str__(self):
         return self.name_uz
