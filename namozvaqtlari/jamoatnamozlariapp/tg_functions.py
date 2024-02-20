@@ -125,19 +125,19 @@ def send_region_change_times(users, region, type):
     obj = UzTransliterator.UzTransliterator()
     current_time = datetime.now()
     text = f"""
- 🕌 {region_text} masjidlari namoz vaqtlari oʻzgardi.
+ <b>🕌 {region_text} masjidlari namoz vaqtlari oʻzgardi.</b>
 
-🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
+<i>🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}</i>
 
-🏞 Bomdod: {region.bomdod}
+<b>🏞 Bomdod:</b> {region.bomdod}
 
-🌇 Peshin: {region.peshin}
+<b>🌇 Peshin:</b> {region.peshin}
 
-🌆 Asr: {region.asr}
+<b>🌆 Asr:</b> {region.asr}
 
-🌃 Shom: {region.shom}
+<b>🌃 Shom:</b> {region.shom}
 
-🌌 Xufton: {region.xufton}"""
+<b>🌌 Xufton:</b> {region.xufton}"""
     
     for sub in users:
         try:
