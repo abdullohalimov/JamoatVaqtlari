@@ -117,8 +117,8 @@ Azon – {new.hufton} | Takbir – {new.hufton_jamoat}"""
                 bot.send_message(chat_id=sub.user.user_id, text=obj.transliterate(text, from_="lat", to="cyr").replace("|||", " ") + "\n\n@jamoatvaqtlaribot")
             elif sub.user.lang == "uz":
                 bot.send_message(chat_id=sub.user.user_id, text=text.replace("|||", "-") + "\n\n@jamoatvaqtlaribot")
-        except:
-            pass
+        except Exception as e:
+            logging.warning(e)
     
 def send_region_change_times(users, region, type):
     region_text = f"{region.district.region.name_uz} {region.district.name_uz}" if type == "district" else region.region.name_uz
