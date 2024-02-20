@@ -365,16 +365,25 @@ Oʻzbekiston boʻyicha: {global_count}-oʻrin
         sana = f"""{day}{'-' if data['locale'] == 'uz' else ' '}{month} {masjid_date_tashkent.strftime("%H:%M")}"""   
         text = _(
             """
-🕌 <b>{masjid} jamoat namozi vaqtlari</b>
+🕌 <b>{masjid} namoz vaqtlari</b>
 📍 <b>Manzili:</b> {manzili1}, {manzili2}
 
 🕒 <i>Oxirgi marta {sana} da yangilangan.</i>
 
-🏞 Bomdod: <b>{bomdod}</b> | {bomdod2}
-🌇 Peshin: <b>{peshin}</b> | {peshin2}
-🌆 Asr: <b>{asr}</b> | {asr2}
-🌃 Shom: <b>{shom}</b> | {shom2}
-🌌 Xufton: <b>{hufton}</b> | {hufton2}
+<b>🏞 Bomdod:</b>
+Azon – {bomdod} | Takbir – {bomdod2}
+
+<b>🌇 Peshin:</b>
+Azon – {peshin} | Takbir – {peshin2}
+
+<b>🌆 Asr:</b>
+Azon – {asr} | Takbir – {asr2}
+
+<b>🌃 Shom:</b>
+Azon – {shom} | Takbir – {shom2}
+
+<b>🌌 Xufton:</b>
+Azon – {hufton} | Takbir – {hufton2}
 
 @jamoatvaqtlaribot""",
             locale=data["locale"],
@@ -536,8 +545,8 @@ async def masjid_info_sub(message: Message, state: FSMContext):
             current_district = masjid['district']['pk']
             text += f"🕌 {masjid[lang_decode[data['locale']]]}\n"
             text += f"📍 {masjid['district']['region'][lang_decode[data['locale']]]}, {masjid['district'][lang_decode[data['locale']]]}\n"
-            text += f"📣 {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n"
-            text += f"🕓 {masjid['bomdod_jamoat']} | {masjid['peshin_jamoat']} | {masjid['asr_jamoat']} | {masjid['shom_jamoat']} | {masjid['hufton_jamoat']} \n\n"    
+            text += f"""📣 {"Azon" if data['locale'] == 'uz' else "Азон"}: {masjid['bomdod']} | {masjid['peshin']} | {masjid['asr']} | {masjid['shom']} | {masjid['hufton']} \n"""
+            text += f"""🕓 {"Takbir" if data['locale'] == "uz" else "Такбир"}: {masjid['bomdod_jamoat']} | {masjid['peshin_jamoat']} | {masjid['asr_jamoat']} | {masjid['shom_jamoat']} | {masjid['hufton_jamoat']} \n\n"""
         await state.update_data(masjid_action="subscription", current_page=1, current_district=current_district, page_type='subs')
         await message.answer(text, reply_markup=inline.masjidlar_keyboard(is_subs_menu=True, masjid_list=subs['items'], lang=data["locale"], current_page=1, has_next=has_next, max_page=max_page))
         await state.set_state(UserStates.select_masjid)

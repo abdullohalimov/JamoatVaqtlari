@@ -64,17 +64,51 @@ def send_new_masjid_times(masjid, subscriptions):
     obj = UzTransliterator.UzTransliterator()
     old, new = masjid
     current_time = datetime.now()
+    azon = [new.bomdod, new.peshin, new.asr, new.shom, new.hufton]
+    types = [new.bomdod_type, new.peshin_type, new.asr_type, new.shom_type, new.hufton_type]
+    values = [new.bomdod_jamoat, new.peshin_jamoat, new.asr_jamoat, new.shom_jamoat, new.hufton_jamoat]
+    times = [0, 0, 0, 0, 0]
+        
+    for i in range(0, 5):
+        if types[i] == 'static':
+            times[i] = values[i]
+        else:
+            if str(values[i]).isdigit():
+                a, b = azon[i].split(":")
+                a = int(a)
+                b = int(b) + int(values[i])
+                if b > 60:
+                    a = int(a) + 1
+                    b = b - 60
+                times[i] = f"{'0' if int(a) < 10 else ''}{a}:{'0' if b < 10 else ''}{b}"
+            else:
+                times[i] = azon[i]
+        
+        new.bomdod_jamoat = times[0]
+        new.peshin_jamoat = times[1]
+        new.asr_jamoat = times[2]
+        new.shom_jamoat = times[3]
+        new.hufton_jamoat = times[4]
 
     text = f"""
- {new.district.region.name_uz} {new.district.name_uz} {new.name_uz} jamoat vaqtlari oʻzgardi.
+ {new.district.region.name_uz} {new.district.name_uz} {new.name_uz} namoz vaqtlari oʻzgardi.
 
 🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
-🏞 Bomdod: {new.bomdod}
-🌇 Peshin: {new.peshin}
-🌆 Asr: {new.asr}
-🌃 Shom: {new.shom}
-🌌 Xufton: {new.hufton}"""
+<b>🏞 Bomdod:</b>
+Azon – {new.bomdod} | Takbir – {new.bomdod_jamoat}
+
+<b>🌇 Peshin:</b>
+Azon – {new.peshin} | Takbir – {new.peshin_jamoat}
+
+<b>🌆 Asr:</b>
+Azon – {new.asr} | Takbir – {new.asr_jamoat}
+
+<b>🌃 Shom:</b>
+Azon – {new.shom} | Takbir – {new.shom_jamoat}
+
+<b>🌌 Xufton:</b>
+Azon – {new.hufton} | Takbir – {new.hufton_jamoat}"""
 
     for sub in subscriptions:
         
@@ -91,15 +125,24 @@ def send_region_change_times(users, region, type):
     obj = UzTransliterator.UzTransliterator()
     current_time = datetime.now()
     text = f"""
- 🕌 {region_text} masjidlari jamoat vaqtlari oʻzgardi.
+ 🕌 {region_text} masjidlari namoz vaqtlari oʻzgardi.
 
 🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
-🏞 Bomdod: {region.bomdod}
-🌇 Peshin: {region.peshin}
-🌆 Asr: {region.asr}
-🌃 Shom: {region.shom}
-🌌 Xufton: {region.xufton}"""
+🏞 Bomdod: 
+{region.bomdod}
+
+🌇 Peshin: 
+{region.peshin}
+
+🌆 Asr: 
+{region.asr}
+
+🌃 Shom: 
+{region.shom}
+
+🌌 Xufton: 
+{region.xufton}"""
     
     for sub in users:
         try:
