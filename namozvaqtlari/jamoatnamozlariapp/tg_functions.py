@@ -129,20 +129,15 @@ def send_region_change_times(users, region, type):
 
 🕒 Yangilangan vaqt: {current_time.day}|||{months['uz'][current_time.month].lower()}, {current_time.strftime("%H:%M")}
 
-🏞 Bomdod: 
-{region.bomdod}
+🏞 Bomdod: {region.bomdod}
 
-🌇 Peshin: 
-{region.peshin}
+🌇 Peshin: {region.peshin}
 
-🌆 Asr: 
-{region.asr}
+🌆 Asr: {region.asr}
 
-🌃 Shom: 
-{region.shom}
+🌃 Shom: {region.shom}
 
-🌌 Xufton: 
-{region.xufton}"""
+🌌 Xufton: {region.xufton}"""
     
     for sub in users:
         try:

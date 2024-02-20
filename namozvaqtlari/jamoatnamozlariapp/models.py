@@ -373,28 +373,6 @@ class Masjid(models.Model):
                 if self.photo_file != old.photo_file:
                     self.photo = get_photo_id(self.photo_file.file)
 
-        if self.pk and not is_global_change:
-            old = Masjid.objects.get(pk=self.pk)
-            is_times_changed = False
-            if self.bomdod != old.bomdod:
-                is_times_changed = True
-            if self.peshin != old.peshin:
-                is_times_changed = True
-            if self.asr != old.asr:
-                is_times_changed = True
-            if self.shom != old.shom:
-                is_times_changed = True
-            if self.hufton != old.hufton:
-                is_times_changed = True
-            if is_times_changed:
-                self.last_update = timezone.now()
-                subscriptions = self.subscription_set.all()
-                send_new_masjid_times([old, self], subscriptions)
-        else:
-            pass
-            self.last_update = timezone.now()
-            logging.warning(f"there was no masjid so this is create")
-
         types = [
             self.bomdod_type,
             self.peshin_type,
@@ -418,6 +396,31 @@ class Masjid(models.Model):
             elif types[i] == "static":
                 pass
 
+
+        if self.pk and not is_global_change:
+            logging.warning(f"there was masjid so this is update")
+            old = Masjid.objects.get(pk=self.pk)
+            is_times_changed = False
+            if self.bomdod != old.bomdod:
+                is_times_changed = True
+            if self.peshin != old.peshin:
+                is_times_changed = True
+            if self.asr != old.asr:
+                is_times_changed = True
+            if self.shom != old.shom:
+                is_times_changed = True
+            if self.hufton != old.hufton:
+                is_times_changed = True
+            if is_times_changed:
+                self.last_update = timezone.now()
+                subscriptions = self.subscription_set.all()
+                send_new_masjid_times([old, self], subscriptions)
+        else:
+            pass
+            self.last_update = timezone.now()
+            logging.warning(f"there was no masjid so this is create")
+
+        
         return super().save()
 
     def __str__(self):
