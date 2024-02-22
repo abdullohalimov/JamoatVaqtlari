@@ -176,6 +176,9 @@ async def user_start(message: Message, state: FSMContext):
             _("🏡 Bosh menyu", locale=data["locale"]),
             reply_markup=reply.main_menu_user(data["locale"]),
         )
+        user = await api.update_or_create_user(
+            user_id=message.chat.id, full_name=message.from_user.full_name
+        )
 
     else:
         await message.answer(
