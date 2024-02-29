@@ -319,7 +319,6 @@ class Masjid(models.Model):
         verbose_name="Faolmi?",
         help_text="Faol bo'lmasa foydalanuvchilar ro'yxatida ko'rinmaydi",
     )
-
     def get_leaderboard_position(self) -> dict:
         all_masjids = Masjid.objects.annotate(
             subscribers_count=Count("subscription")
@@ -476,7 +475,13 @@ class ChangeMasjidTimeSchedule(models.Model):
         null=True,
         blank=True,
     )
+    is_notify = models.BooleanField(
+        default=False,
+        verbose_name="Xabar yuborish",
+        help_text="Obunachilarga xabar yuborilsinmi?",
+        choices=((True, "Ha"), (False, "Yo'q"))
 
+    )
     def __str__(self):
         return f"{self.masjid.name_uz} jadvali"
 
@@ -530,7 +535,12 @@ class ChangeDistrictTimeSchedule(models.Model):
         null=True,
         blank=True,
     )
-
+    is_notify = models.BooleanField(
+        default=False,
+        verbose_name="Xabar yuborish",
+        help_text="Obunachilarga xabar yuborilsinmi?",
+        choices=((True, "Ha"), (False, "Yo'q"))
+    )
     def __str__(self):
         return f"{self.district.name_uz} jadvali"
 
@@ -582,7 +592,13 @@ class ChangeRegionTimeSchedule(models.Model):
         null=True,
         blank=True,
     )
+    is_notify = models.BooleanField(
+        default=False,
+        verbose_name="Xabar yuborish",
+        help_text="Obunachilarga xabar yuborilsinmi?",
+        choices=((True, "Ha"), (False, "Yo'q"))
 
+    )
     def __str__(self):
         return f"{self.region.name_uz} jadvali"
 
@@ -972,3 +988,4 @@ class TumanTimesChange(models.Model):
     class Meta:
         verbose_name = "Tuman (shahar) vaqtlarini oʻzgartirish"
         verbose_name_plural = "Tuman (shahar) vaqtlarini oʻzgartirish"
+
