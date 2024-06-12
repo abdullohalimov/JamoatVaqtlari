@@ -13,7 +13,7 @@ from tgbot.services import broadcaster
 
 from tgbot.keyboards.factory import i18n
 from aiogram.utils.i18n.middleware import FSMI18nMiddleware
-
+from aiogram.client.default import DefaultBotProperties
 
 
 
@@ -95,7 +95,7 @@ async def main():
     config = load_config(".env")
     storage = get_storage(config)
 
-    bot = Bot(token=config.tg_bot.token, parse_mode="HTML")
+    bot = Bot(token=config.tg_bot.token, default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher(storage=storage)
 
     dp.include_routers(*routers_list)
