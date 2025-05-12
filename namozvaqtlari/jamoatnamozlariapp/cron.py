@@ -1,5 +1,6 @@
 import os
 import time
+import traceback
 from .tg_functions import send_backup, send_text
 from django.utils import timezone
 import logging
@@ -70,39 +71,43 @@ def update():
             a.save()
         mintaqalar = Mintaqa.objects.all()
         for mintaqa in mintaqalar:
-            page = requests.get(
-                f"https://islom.uz/vaqtlar/{mintaqa.mintaqa_id}/{timezone.now().month}"
-            )
-            soup = BeautifulSoup(page.text, "html.parser")
-            # print(soup.prettify())
-            vaqtlar = soup.find(
-                "table", {"class": "table table-bordered prayer_table"}
-            ).findAll("tr")
-            last_hijri = 0
-            hijri_month = 0
-            headers = vaqtlar.pop(0)
-            for vaqt in vaqtlar:
-                text = vaqt.text.split()
-                if last_hijri > int(text[0]) or last_hijri == 0:
-                    hijri_day = requests.get(
-                        f"http://api.aladhan.com/v1/gToH/{text[1]}-{timezone.now().month}-{timezone.now().year}"
-                    )
-                    result = hijri_day.json()
-                    hijri_month = result["data"]["hijri"]["month"]["number"]
-                last_hijri = int(text[0])
-                a, b = NamozVaqti.objects.get_or_create(
-                    mintaqa=mintaqa,
-                    milodiy_oy=timezone.now().month,
-                    milodiy_kun=int(text[1]),
-                    xijriy_oy=hijri_month,
-                    xijriy_kun=int(text[0]),
-                    vaqtlari=f"{text[3]} | {text[4]} | {text[5]} | {text[6]} | {text[7]} | {text[8]}",
+            try:
+                page = requests.get(
+                    f"https://islom.uz/vaqtlar/{mintaqa.mintaqa_id}/{timezone.now().month}"
                 )
-                a.save()
+                soup = BeautifulSoup(page.text, "html.parser")
+                # print(soup.prettify())
+                vaqtlar = soup.find(
+                    "table", {"class": "table table-bordered prayer_table"}
+                ).findAll("tr")
+                last_hijri = 0
+                hijri_month = 0
+                headers = vaqtlar.pop(0)
+                for vaqt in vaqtlar:
+                    text = vaqt.text.split()
+                    if last_hijri > int(text[0]) or last_hijri == 0:
+                        hijri_day = requests.get(
+                            f"http://api.aladhan.com/v1/gToH/{text[1]}-{timezone.now().month}-{timezone.now().year}"
+                        )
+                        result = hijri_day.json()
+                        hijri_month = result["data"]["hijri"]["month"]["number"]
+                    last_hijri = int(text[0])
+                    a, b = NamozVaqti.objects.get_or_create(
+                        mintaqa=mintaqa,
+                        milodiy_oy=timezone.now().month,
+                        milodiy_kun=int(text[1]),
+                        xijriy_oy=hijri_month,
+                        xijriy_kun=int(text[0]),
+                        vaqtlari=f"{text[3]} | {text[4]} | {text[5]} | {text[6]} | {text[7]} | {text[8]}",
+                    )
+                    a.save()
+            except:
+                send_text(f"{mintaqa} ga vaqt topilmadi!")
 
         send_text("Oylik namoz vaqtlari yangilandi!")
     except:
         send_text("Vaqtlarni yangilashda xatolik yuz berdi!")
+        send_text(traceback.format_exc())
 
 
 @kronos.register("*/30 * * * *")

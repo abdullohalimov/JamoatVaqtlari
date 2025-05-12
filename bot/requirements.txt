@@ -1,5 +1,5 @@
-aiogram~=3.0
-environs~=9.0
+aiogram
+environs
 redis
 betterlogging
 babel
